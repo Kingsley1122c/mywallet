@@ -1,0 +1,45 @@
+========================================
+SETUP NGROK - TRUSTED PUBLIC ACCESS
+========================================
+
+STEP 1: Create Free Ngrok Account
+----------------------------------
+1. Go to: https://dashboard.ngrok.com/signup
+2. Sign up with your email (100% FREE)
+3. Verify your email
+
+STEP 2: Get Your Auth Token
+----------------------------
+1. Go to: https://dashboard.ngrok.com/get-started/your-authtoken
+2. Copy your authtoken (looks like: 2abc123def456...)
+
+STEP 3: Configure Ngrok
+------------------------
+Open PowerShell and run:
+
+cd C:\Users\HP\Desktop\ngrok
+.\ngrok.exe config add-authtoken YOUR_TOKEN_HERE
+
+(Replace YOUR_TOKEN_HERE with your actual token)
+
+STEP 4: Start Your Site
+------------------------
+1. Make sure PHP server is running (it should be)
+2. Run this command:
+
+cd C:\Users\HP\Desktop\ngrok
+.\ngrok.exe http 8000
+
+STEP 5: Share Your Link
+------------------------
+You'll see a URL like: https://abc123.ngrok-free.app
+This URL:
+- ✅ Won't show security warnings
+- ✅ Works on all devices
+- ✅ No verification pages
+- ✅ Stays active while ngrok is running
+
+========================================
+Note: Free ngrok gives you a random URL each time.
+If you want a permanent URL, upgrade to paid ($8/month).
+========================================

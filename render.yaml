@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: inside-site
+    env: docker
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: APP_DATA_DIR
+        value: /var/data
+    disk:
+      name: inside-site-data
+      mountPath: /var/data
+      sizeGB: 1

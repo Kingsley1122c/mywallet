@@ -1,0 +1,202 @@
+<!-- Language Selector Widget - Include this in your pages -->
+<div class="lang-selector" id="langSelector">
+    <button class="lang-btn" id="langBtn" title="Change Language">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        <span id="currentLangCode"></span>
+    </button>
+    <div class="lang-dropdown" id="langDropdown">
+        <div class="lang-option" data-lang="en">🇺🇸 English</div>
+        <div class="lang-option" data-lang="es">🇪🇸 Español</div>
+        <div class="lang-option" data-lang="fr">🇫🇷 Français</div>
+        <div class="lang-option" data-lang="de">🇩🇪 Deutsch</div>
+        <div class="lang-option" data-lang="it">🇮🇹 Italiano</div>
+        <div class="lang-option" data-lang="pt">🇵🇹 Português</div>
+        <div class="lang-option" data-lang="ar">🇸🇦 العربية</div>
+        <div class="lang-option" data-lang="ja">🇯🇵 日本語</div>
+        <div class="lang-option" data-lang="ko">🇰🇷 한국어</div>
+        <div class="lang-option" data-lang="zh-tw">🇹🇼 中文</div>
+        <div class="lang-option" data-lang="hi">🇮🇳 हिन्दी</div>
+        <div class="lang-option" data-lang="ru">🇷🇺 Русский</div>
+        <div class="lang-option" data-lang="nl">🇳🇱 Nederlands</div>
+    </div>
+</div>
+
+<style>
+.lang-selector {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    color: #374151;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.lang-btn:hover {
+    background: #fff;
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.lang-btn svg {
+    color: #667eea;
+}
+
+.lang-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+    min-width: 200px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.lang-dropdown.active {
+    display: block;
+}
+
+.lang-option {
+    padding: 12px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.lang-option:last-child {
+    border-bottom: none;
+}
+
+.lang-option:hover {
+    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+    color: #667eea;
+}
+
+.lang-option.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    font-weight: 700;
+}
+
+/* Dark mode support */
+.dark-mode .lang-btn {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: #475569;
+    color: #f1f5f9;
+}
+
+.dark-mode .lang-dropdown {
+    background: #1e293b;
+    border-color: #475569;
+}
+
+.dark-mode .lang-option {
+    color: #f1f5f9;
+    border-bottom-color: #334155;
+}
+
+@media (max-width: 768px) {
+    .lang-selector {
+        top: 10px;
+        right: 10px;
+    }
+    
+    .lang-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const langBtn = document.getElementById('langBtn');
+    const langDropdown = document.getElementById('langDropdown');
+    const langOptions = document.querySelectorAll('.lang-option');
+    const currentLangCode = document.getElementById('currentLangCode');
+    
+    // Map language codes to display codes
+    const langCodes = {
+        'en': 'EN', 'es': 'ES', 'fr': 'FR', 'de': 'DE', 'it': 'IT',
+        'pt': 'PT', 'ar': 'AR', 'ja': 'JP', 'ko': 'KR', 'zh-tw': 'ZH',
+        'hi': 'HI', 'ru': 'RU', 'nl': 'NL'
+    };
+    
+    // Update current language display
+    function updateCurrentLang() {
+        const currentLang = i18n?.currentLang || 'en';
+        currentLangCode.textContent = langCodes[currentLang] || 'EN';
+        
+        // Mark active language
+        langOptions.forEach(opt => {
+            if (opt.getAttribute('data-lang') === currentLang) {
+                opt.classList.add('active');
+            } else {
+                opt.classList.remove('active');
+            }
+        });
+    }
+    
+    // Toggle dropdown
+    langBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        langDropdown.classList.toggle('active');
+        updateCurrentLang();
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', () => {
+        langDropdown.classList.remove('active');
+    });
+    
+    // Prevent dropdown from closing when clicking inside
+    langDropdown.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+    
+    // Handle language selection
+    langOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            const lang = option.getAttribute('data-lang');
+            if (i18n && typeof i18n.setLanguage === 'function') {
+                i18n.setLanguage(lang);
+                updateCurrentLang();
+                langDropdown.classList.remove('active');
+                
+                // Reload page to apply translations everywhere
+                setTimeout(() => {
+                    window.location.reload();
+                }, 300);
+            }
+        });
+    });
+    
+    // Initial update
+    updateCurrentLang();
+});
+</script>
