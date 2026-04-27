@@ -574,8 +574,11 @@
             // LANGUAGE DROPDOWN
             const langSelect = document.getElementById('lang-select');
             if (langSelect && window.ALL_LANGUAGES) {
-                // Sort languages alphabetically by English name
-                const sortedLangs = window.ALL_LANGUAGES.slice().sort((a, b) => a.name.localeCompare(b.name));
+                const supportedLangs = new Set(Object.keys(translations || {}));
+                // Only show languages that actually have translations in the site bundle
+                const sortedLangs = window.ALL_LANGUAGES
+                    .filter(l => supportedLangs.has(l.code))
+                    .sort((a, b) => a.name.localeCompare(b.name));
                 langSelect.innerHTML = '';
                 sortedLangs.forEach(l => {
                     const opt = document.createElement('option');

@@ -327,6 +327,90 @@ function sendWelcomeEmail($userEmail, $data) {
     return $result;
 }
 
+function sendAdminMessageEmail($userEmail, $messageData) {
+    $configFile = __DIR__ . '/../email_config.php';
+    if (file_exists($configFile)) {
+        $config = include $configFile;
+    } else {
+        $config = ['enabled' => false, 'from_email' => 'noreply@mywallet.com', 'from_name' => 'mywallet'];
+    }
+
+    $to = $userEmail;
+    $messageType = strtolower((string) ($messageData['message_type'] ?? 'info'));
+    $subjectPrefix = [
+        'alert' => 'Important Admin Alert',
+        'warning' => 'Admin Warning',
+        'promotion' => 'Special Admin Update',
+        'info' => 'Admin Message',
+    ][$messageType] ?? 'Admin Message';
+    $subject = $subjectPrefix . ' - mywallet';
+
+    $adminEmail = (string) ($messageData['from_admin_email'] ?? 'support@mywallet.com');
+    $messageBody = nl2br(htmlspecialchars((string) ($messageData['message'] ?? ''), ENT_QUOTES, 'UTF-8'));
+    $dashboardUrl = app_url('dashboard.php');
+
+    $body = '
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6fb; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        .header { background: linear-gradient(90deg, #0f172a, #1d4ed8); color: #fff; padding: 28px 20px; text-align: center; }
+        .content { padding: 28px 22px; }
+        .message-box { background: #f8fafc; border-left: 4px solid #1d4ed8; border-radius: 8px; padding: 18px; margin: 18px 0; color: #0f172a; line-height: 1.7; }
+        .meta { color: #64748b; font-size: 14px; margin: 18px 0; }
+        .button { display: inline-block; background: #1d4ed8; color: #fff; padding: 12px 22px; border-radius: 8px; text-decoration: none; margin-top: 12px; }
+        .footer { background: #f8fafc; padding: 18px 20px; text-align: center; color: #64748b; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="margin:0;font-size:28px;">mywallet</h1>
+            <p style="margin:8px 0 0 0;">You received a message from the admin team</p>
+        </div>
+        <div class="content">
+            <p>Hello,</p>
+            <p>An admin has sent you a new ' . htmlspecialchars(ucfirst($messageType), ENT_QUOTES, 'UTF-8') . ' message.</p>
+            <div class="message-box">' . $messageBody . '</div>
+            <div class="meta">
+                Sent by: ' . htmlspecialchars($adminEmail, ENT_QUOTES, 'UTF-8') . '<br>
+                Time: ' . htmlspecialchars(date('F j, Y g:i A', (int) ($messageData['timestamp'] ?? time())), ENT_QUOTES, 'UTF-8') . '
+            </div>
+            <a href="' . htmlspecialchars($dashboardUrl, ENT_QUOTES, 'UTF-8') . '" class="button">Open Dashboard</a>
+        </div>
+        <div class="footer">
+            <p>This is an automated notification from mywallet.</p>
+        </div>
+    </div>
+</body>
+</html>';
+
+    if ($config['enabled'] && isset($config['provider']) && $config['provider'] === 'resend' && file_exists(__DIR__ . '/send_email_resend.php')) {
+        include_once __DIR__ . '/send_email_resend.php';
+        $result = sendEmailResend($to, $subject, $body);
+    } elseif ($config['enabled'] && file_exists(__DIR__ . '/send_email_smtp.php')) {
+        include_once __DIR__ . '/send_email_smtp.php';
+        $result = sendEmailSMTP($to, $subject, $body, $config);
+    } else {
+        $headers = "MIME-Version: 1.0" . "\r\n";
+        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+        $headers .= "From: mywallet <noreply@mywallet.com>" . "\r\n";
+        $headers .= "Reply-To: " . $adminEmail . "\r\n";
+        $result = @mail($to, $subject, $body, $headers);
+    }
+
+    if (!$result) {
+        $logFile = __DIR__ . '/../email_log.txt';
+        $logMessage = date('Y-m-d H:i:s') . " - Failed to send admin message email to: $to\n";
+        @file_put_contents($logFile, $logMessage, FILE_APPEND);
+    }
+
+    return $result;
+}
+
 // Helper function to get user email from users.json
 function getUserEmail($userId) {
     $usersFile = __DIR__ . '/../users.json';

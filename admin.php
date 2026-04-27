@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+require_once __DIR__ . '/api/email_notifications.php';
+
 $usersFile = __DIR__ . '/users.json';
 if (!file_exists($usersFile)) {
     file_put_contents($usersFile, json_encode([], JSON_PRETTY_PRINT));
@@ -97,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ids = array_column($messages, 'id');
             $newId = max($ids) + 1;
         }
-        $messages[] = [
+        $messageRecord = [
             'id' => $newId,
             'user_id' => $id,
             'to_email' => $_POST['email'] ?? '',
@@ -108,8 +110,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'timestamp' => time(),
             'read' => false
         ];
+        $messages[] = $messageRecord;
         file_put_contents($messageFile, json_encode($messages, JSON_PRETTY_PRINT), LOCK_EX);
-        $_SESSION['admin_success'] = 'Message sent successfully.';
+        $emailSent = false;
+        if (!empty($messageRecord['to_email'])) {
+            $emailSent = sendAdminMessageEmail($messageRecord['to_email'], $messageRecord);
+        }
+        $_SESSION['admin_success'] = $emailSent
+            ? 'Message sent successfully and email notification delivered.'
+            : 'Message saved successfully. Email notification could not be sent.';
         header('Location: admin.php'); exit();
     }
 
