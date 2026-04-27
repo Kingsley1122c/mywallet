@@ -55,4 +55,5 @@ Quick local setup to test the simple PHP login + dashboard.
    - The app stores users, transactions, password resets, messages, and logs in local JSON/TXT files. On Render, attach a persistent disk at `/var/data` so those files survive restarts and deploys.
    - Push the repository to GitHub, create a new Render Blueprint or Web Service from the repo, and Render will build from `Dockerfile`.
    - If your Render plan does not support disks, the app will still boot, but file-based data will reset when the container is replaced.
+   - Email delivery on Render is now environment-driven. Set either `RESEND_API_KEY` plus optional `EMAIL_PROVIDER=resend`, or set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, and optional `FROM_EMAIL`, `FROM_NAME`, `SMTP_ENCRYPTION`, `EMAIL_PROVIDER=smtp`.
 
