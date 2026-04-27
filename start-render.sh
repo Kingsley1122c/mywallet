@@ -54,6 +54,8 @@ seed_and_link "users.json"
 seed_and_link "withdrawal_codes.json"
 seed_and_link "api/exchange_rates_cache.json"
 
+php "$APP_ROOT/render_restore_users.php"
+
 touch_and_link "withdrawal_attempts.log"
 
 exec php -S 0.0.0.0:"${PORT:-10000}" -t "$APP_ROOT"

@@ -9,6 +9,8 @@ session_set_cookie_params([
 ]);
 session_start();
 
+require_once __DIR__ . '/users_bootstrap.php';
+
 // Path to users file
 $usersFile = __DIR__ . '/users.json';
 
@@ -17,43 +19,19 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// If the users store is missing, empty, or invalid, restore default accounts.
-$users = [];
-if (file_exists($usersFile)) {
-    $users = json_decode(file_get_contents($usersFile), true);
-    if (!is_array($users)) {
-        $users = [];
-    }
-}
+// If the users store is missing, empty, invalid, or reduced to the example accounts,
+// rebuild it from the seeded users file without clobbering existing matching users.
+$users = repairUsersStore($usersFile);
 
-if (empty($users)) {
-    $users = [
-        [
-            'id' => 1,
-            'email' => 'admin@example.com',
-            'password' => password_hash('AdminPass123', PASSWORD_DEFAULT),
-            'role' => 'admin',
-            'balance' => 500.00
-        ],
-        [
-            'id' => 2,
-            'email' => 'user@example.com',
-            'password' => password_hash('Password123', PASSWORD_DEFAULT),
-            'role' => 'user',
-            'balance' => 1000.00
-        ]
-    ];
-    file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT), LOCK_EX);
+if (!empty($users) && !file_exists(__DIR__ . '/transactions.json')) {
 
     // Initialize transactions.json with opening balances when bootstrapping accounts.
     $txFile = __DIR__ . '/transactions.json';
-    if (!file_exists($txFile)) {
-        $txs = [];
-        foreach ($users as $user) {
-            $txs[] = ['id' => uniqid(), 'user_id' => $user['id'], 'time' => time() * 1000, 'desc' => 'Opening balance', 'amount' => $user['balance']];
-        }
-        file_put_contents($txFile, json_encode($txs, JSON_PRETTY_PRINT), LOCK_EX);
+    $txs = [];
+    foreach ($users as $user) {
+        $txs[] = ['id' => uniqid(), 'user_id' => $user['id'], 'time' => time() * 1000, 'desc' => 'Opening balance', 'amount' => $user['balance'] ?? 0];
     }
+    file_put_contents($txFile, json_encode($txs, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
 }
 $error = '';
 
