@@ -207,7 +207,7 @@ Get-Content .\pending_transfers.json | ConvertFrom-Json
 
 **Reset Test Data:**
 ```powershell
-Invoke-WebRequest http://localhost:8000/setup_users.php
+# Reset test data manually from the local JSON files or restore from backup.
 ```
 
 ---
