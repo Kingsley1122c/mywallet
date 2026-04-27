@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/local_only.php';
+
 // Setup script to create test users with proper password hashes
 $usersFile = __DIR__ . '/users.json';
 

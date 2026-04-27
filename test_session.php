@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/local_only.php';
+
 session_start();
 echo '<pre>';
 echo "Session save path: ".session_save_path()."\n";

@@ -1,6 +1,6 @@
-// Run this file once: https://unfecundated-trinomially-elane.ngrok-free.dev/change_admin.php
-// Run this file once: https://unfecundated-trinomially-elane.ngrok-free.dev/change_admin.php
 <?php
+require_once __DIR__ . '/local_only.php';
+
 // Change Admin Login Info
 // Run this file once: http://localhost:8000/change_admin.php
 

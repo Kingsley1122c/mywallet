@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/local_only.php';
+
 // Test Email Configuration
 include_once __DIR__ . '/api/email_notifications.php';
 

@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/local_only.php';
+
 $usersFile = 'users.json';
 $users = json_decode(file_get_contents($usersFile), true);
 

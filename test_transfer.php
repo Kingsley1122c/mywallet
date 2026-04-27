@@ -1,6 +1,6 @@
-$apiUrl = 'https://unfecundated-trinomially-elane.ngrok-free.dev/api/transactions.php';
-$apiUrl = 'https://unfecundated-trinomially-elane.ngrok-free.dev/api/transactions.php';
 <?php
+require_once __DIR__ . '/local_only.php';
+
 // Test script to debug transfer API
 session_start();
 

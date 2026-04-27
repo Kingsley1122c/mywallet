@@ -1,8 +1,6 @@
-fputs($socket, "EHLO unfecundated-trinomially-elane.ngrok-free.dev\r\n");
-echo "Client: EHLO unfecundated-trinomially-elane.ngrok-free.dev\n";
-fputs($socket, "EHLO unfecundated-trinomially-elane.ngrok-free.dev\r\n");
-echo "Client: EHLO unfecundated-trinomially-elane.ngrok-free.dev (after TLS)\n";
 <?php
+require_once __DIR__ . '/local_only.php';
+
 // Detailed SMTP test with full error output
 
 $config = include 'email_config.php';
