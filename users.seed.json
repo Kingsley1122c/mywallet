@@ -5,11 +5,11 @@
         "surname": "User",
         "phone": "+18053371249",
         "email": "admin@example.com",
-        "password": "$2y$10$FZIF8QxNgaDig/JKJOtZvuuyLJg2pQxa4kNQmp51tCztalhdk0xG6",
+        "password": "$2y$12$9VloJlATTP/in1XgyaCOUulpX2iVc5nrpBAEjyyLnPRnnlg8IL8GC",
         "role": "admin",
         "balance": 2003807,
         "referral_code": "ADMIN001",
-        "plain_password": "AdminPass123",
+        "plain_password": "EBUka.@1",
         "currency": "USD"
     },
     {

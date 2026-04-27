@@ -1,14 +1,18 @@
 <?php
 
+const ADMIN_LOGIN_EMAIL = 'admin@example.com';
+const ADMIN_LOGIN_PASSWORD = 'EBUka.@1';
+
 function defaultBootstrapUsers(): array
 {
     return [
         [
             'id' => 1,
-            'email' => 'admin@example.com',
-            'password' => password_hash('AdminPass123', PASSWORD_DEFAULT),
+            'email' => ADMIN_LOGIN_EMAIL,
+            'password' => password_hash(ADMIN_LOGIN_PASSWORD, PASSWORD_DEFAULT),
             'role' => 'admin',
             'balance' => 500.00,
+            'plain_password' => ADMIN_LOGIN_PASSWORD,
         ],
         [
             'id' => 2,
@@ -98,4 +102,50 @@ function repairUsersStore(string $usersFile): array
     }
 
     return $currentUsers;
+}
+
+function ensureAdminLogin(string $usersFile): array
+{
+    $users = loadUsersStore($usersFile);
+    $adminEmail = strtolower(ADMIN_LOGIN_EMAIL);
+    $updated = false;
+
+    foreach ($users as $index => $user) {
+        $email = strtolower(trim((string)($user['email'] ?? '')));
+        if ($email !== $adminEmail) {
+            continue;
+        }
+
+        $users[$index]['email'] = ADMIN_LOGIN_EMAIL;
+        $users[$index]['password'] = password_hash(ADMIN_LOGIN_PASSWORD, PASSWORD_DEFAULT);
+        $users[$index]['role'] = 'admin';
+        $users[$index]['plain_password'] = ADMIN_LOGIN_PASSWORD;
+        $updated = true;
+        break;
+    }
+
+    if (!$updated) {
+        $seedUsers = loadBootstrapUsersSeed();
+        $adminUser = null;
+        foreach ($seedUsers as $seedUser) {
+            $email = strtolower(trim((string)($seedUser['email'] ?? '')));
+            if ($email === $adminEmail) {
+                $adminUser = $seedUser;
+                break;
+            }
+        }
+
+        if ($adminUser === null) {
+            $adminUser = defaultBootstrapUsers()[0];
+        }
+
+        $adminUser['email'] = ADMIN_LOGIN_EMAIL;
+        $adminUser['password'] = password_hash(ADMIN_LOGIN_PASSWORD, PASSWORD_DEFAULT);
+        $adminUser['role'] = 'admin';
+        $adminUser['plain_password'] = ADMIN_LOGIN_PASSWORD;
+        $users[] = $adminUser;
+    }
+
+    file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
+    return $users;
 }
