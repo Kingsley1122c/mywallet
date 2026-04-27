@@ -17,9 +17,17 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// If users file does not exist, create default users
-if (!file_exists($usersFile)) {
-    $default = [
+// If the users store is missing, empty, or invalid, restore default accounts.
+$users = [];
+if (file_exists($usersFile)) {
+    $users = json_decode(file_get_contents($usersFile), true);
+    if (!is_array($users)) {
+        $users = [];
+    }
+}
+
+if (empty($users)) {
+    $users = [
         [
             'id' => 1,
             'email' => 'admin@example.com',
@@ -35,20 +43,18 @@ if (!file_exists($usersFile)) {
             'balance' => 1000.00
         ]
     ];
-    file_put_contents($usersFile, json_encode($default, JSON_PRETTY_PRINT), LOCK_EX);
+    file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT), LOCK_EX);
 
-    // Initialize transactions.json with opening balances
+    // Initialize transactions.json with opening balances when bootstrapping accounts.
     $txFile = __DIR__ . '/transactions.json';
     if (!file_exists($txFile)) {
         $txs = [];
-        foreach ($default as $u) {
-            $txs[] = ['id' => uniqid(), 'user_id' => $u['id'], 'time' => time() * 1000, 'desc' => 'Opening balance', 'amount' => $u['balance']];
+        foreach ($users as $user) {
+            $txs[] = ['id' => uniqid(), 'user_id' => $user['id'], 'time' => time() * 1000, 'desc' => 'Opening balance', 'amount' => $user['balance']];
         }
         file_put_contents($txFile, json_encode($txs, JSON_PRETTY_PRINT), LOCK_EX);
     }
 }
-
-$users = json_decode(file_get_contents($usersFile), true) ?: [];
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
