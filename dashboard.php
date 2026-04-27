@@ -1782,7 +1782,7 @@ if (file_exists($usersFile)) {
                             <div style="font-size:32px;">🔐</div>
                             <div style="font-weight:700;color:#0284c7;margin-bottom:8px;">Withdrawal Code Required</div>
                             <div style="color:#64748b;font-size:15px;">Contact <b>Customer Service</b> to request a withdrawal code for this transaction.<br>
-                                <a href="https://wa.me/15512632687" target="_blank" style="color:#25d366;font-weight:600;text-decoration:underline;">💬 WhatsApp Customer Service</a>
+                                <a href="https://wa.me/18053371249" target="_blank" style="color:#25d366;font-weight:600;text-decoration:underline;">💬 WhatsApp Customer Service</a>
                             </div>
                         </div>
                         <div class="form-group">
@@ -1996,7 +1996,7 @@ if (file_exists($usersFile)) {
                 <span>Contact Customer Service</span>
             </a>
         </div>
-        <small style="color:#94a3b8">Available 24/7 • Support: +1 (551) 263-2687</small>
+        <small style="color:#94a3b8">Available 24/7 • Support: +1 (805) 337-1249</small>
     </footer>
     
     <script>
