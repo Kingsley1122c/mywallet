@@ -1,6 +1,6 @@
 # 🚀 Your Domain Setup
 
-**Domain Name:** mypaypalwallet.com (or .io, .co)
+**Domain Name:** your-domain.com (or .io, .co)
 
 ---
 
@@ -10,13 +10,13 @@ Go to: https://www.siteground.com/
 
 1. Click **"Get Started"**
 2. Select **StartUp Plan** (~$2.99/month)
-3. **Enter domain:** `mypaypalwallet.com`
+3. **Enter domain:** `your-domain.com`
 4. Complete payment
 
 **Once purchased, you'll get:**
 - cPanel URL (email will say something like: `https://123.456.789.1:2083`)
 - Username & Password
-- Domain URL: `https://mypaypalwallet.com`
+- Domain URL: `https://your-domain.com`
 
 ---
 

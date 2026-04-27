@@ -145,7 +145,7 @@ mailhog
 ### Want custom "From" email?
 Edit `api/email_notifications.php` line 17:
 ```php
-$headers .= "From: MyWallet <noreply@mypaypalwallet.com>" . "\r\n";
+$headers .= "From: MyWallet <wallet001122@gmail.com>" . "\r\n";
 ```
 Change to:
 ```php

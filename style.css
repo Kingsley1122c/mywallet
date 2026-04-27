@@ -205,7 +205,7 @@ body{
 .error{color:var(--danger)}
 .success{color:#0a8a00}
 
-/* PayPal-inspired login layout */
+/* Split wallet login layout */
 .pp-auth{display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:stretch;max-width:980px;margin:48px auto}
 .pp-auth .promo{background:linear-gradient(180deg,var(--primary),var(--primary-700));color:#fff;padding:36px;border-radius:12px;display:flex;flex-direction:column;gap:10px;justify-content:center}
 .pp-auth .promo .pp-brand{font-weight:800;font-size:28px;letter-spacing:.6px}

@@ -22,7 +22,7 @@ After buying hosting, SiteGround sends an email with the subject:
 1. Go to: https://client.siteground.com/
 2. Login with your SiteGround email & password
 3. Click on **"Websites"** tab
-4. Find your domain: **mypaypalwallet.com**
+4. Find your domain: **your-domain.com**
 5. Click **"Site Tools"** button
 6. This opens your control panel (similar to cPanel)
 
@@ -37,9 +37,9 @@ After buying hosting, SiteGround sends an email with the subject:
 Try these URLs (replace with your domain):
 
 ```
-https://mypaypalwallet.com/cpanel
-https://mypaypalwallet.com:2083
-https://cpanel.mypaypalwallet.com
+https://your-domain.com/cpanel
+https://your-domain.com:2083
+https://cpanel.your-domain.com
 ```
 
 Or use SiteGround's Site Tools (newer interface):
@@ -54,7 +54,7 @@ https://my.siteground.com
 If you can't find it:
 1. Go to: https://www.siteground.com/
 2. Click **"Chat"** button (bottom right)
-3. Say: "I need my cPanel URL for mypaypalwallet.com"
+3. Say: "I need my cPanel URL for my domain"
 4. They respond in 1-2 minutes
 
 ---

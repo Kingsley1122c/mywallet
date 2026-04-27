@@ -146,7 +146,7 @@ const translations = {
     'tip-theme': 'Dark mode reduces eye strain in low-light environments and can help save battery on OLED screens.',
   },
   es: {
-    'site-title': 'Mi PayPal Wallet',
+    'site-title': 'mywallet',
     'nav-home': 'Inicio',
     'nav-overview': 'Descripción',
     'nav-accounts': 'Cuentas',
@@ -274,7 +274,7 @@ const translations = {
     'tip-theme': 'El modo oscuro reduce la fatiga ocular en entornos con poca luz y puede ayudar a ahorrar batería en pantallas OLED.',
   },
   fr: {
-    'site-title': 'Mon PayPal Wallet',
+    'site-title': 'mywallet',
     'nav-home': 'Accueil',
     'nav-overview': 'Aperçu',
     'nav-accounts': 'Comptes',
@@ -934,7 +934,7 @@ const translations = {
     'support': 'Ondersteuning',
   },
   ar: {
-    'site-title': 'محفظة PayPal الخاصة بي',
+    'site-title': 'mywallet',
     'nav-home': 'الرئيسية',
     'nav-overview': 'نظرة عامة',
     'nav-accounts': 'الحسابات',
