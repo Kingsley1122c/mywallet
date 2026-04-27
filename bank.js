@@ -265,6 +265,13 @@ document.addEventListener('DOMContentLoaded', function() {
   if (closeSend && sendModal) closeSend.addEventListener('click', () => sendModal.style.display = 'none');
 
   const addMoneyBtn = document.getElementById('add-money-btn');
+  const addMoneyModal = document.getElementById('add-money-modal');
+  const closeAddMoney = document.getElementById('close-add-money');
+  const cancelAddMoney = document.getElementById('cancel-add-money');
+  const addMoneyForm = document.getElementById('add-money-form');
+  const paymentMethod = document.getElementById('payment-method');
+  const cardDetails = document.getElementById('card-details');
+  const bankDetails = document.getElementById('bank-details');
   // Block Add Money: override all logic for users
   if (addMoneyBtn) {
     addMoneyBtn.addEventListener('click', function(e) {
