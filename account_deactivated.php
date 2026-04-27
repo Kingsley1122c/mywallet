@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['activation_code'])) {
         $error = 'Invalid activation code.';
     }
 }
-$whatsapp = 'https://wa.me/18053371249'; // Customer service WhatsApp
+$whatsapp = 'https://wa.me/15512632687'; // Customer service WhatsApp
 ?><!DOCTYPE html>
 <html lang="en">
 <head>

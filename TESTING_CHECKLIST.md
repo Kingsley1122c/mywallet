@@ -79,7 +79,7 @@
 
 ### 8️⃣ **Withdrawal via WhatsApp**
 - [ ] Click "Withdraw" button
-- [ ] Should see WhatsApp contact: +1 (805) 337-1249
+- [ ] Should see WhatsApp contact: +1 (551) 263-2687
 - [ ] Click "Contact via WhatsApp" button
 - [ ] Should open WhatsApp with pre-filled message
 
