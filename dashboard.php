@@ -2022,7 +2022,7 @@ if (file_exists($usersFile)) {
     </script>
     <link rel="stylesheet" href="bank.css">
     <script src="countries.js"></script>
-    <script src="i18n_enhanced.js?v=20260514a"></script>
+    <script src="i18n_enhanced.js?v=20260514b"></script>
     <script src="bank.js?v=20260514a" onerror="document.getElementById('account-balance').textContent='Error: bank.js failed to load. Check file location and browser console.';"></script>
     <script src="admin_messages.js"></script>
         <script src="admin_message_popup.js?v=20260514a"></script>
