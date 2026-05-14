@@ -2,10 +2,14 @@
 session_start();
 header('Content-Type: application/json');
 
-if (empty($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
+function respond_error($message, $errorCode, $status = 400, $extra = []) {
+    http_response_code($status);
+    echo json_encode(array_merge(['error' => $message, 'error_code' => $errorCode], $extra));
     exit();
+}
+
+if (empty($_SESSION['user_id'])) {
+    respond_error('Unauthorized', 'unauthorized', 401);
 }
 
 // Check if user is admin
@@ -16,9 +20,7 @@ $currentUser = null;
 foreach ($users as $u) { if ($u['id'] == $currentUserId) { $currentUser = $u; break; } }
 
 if (!$currentUser || ($currentUser['role'] ?? 'user') !== 'admin') {
-    http_response_code(403);
-    echo json_encode(['error' => 'Admin access required']);
-    exit();
+    respond_error('Admin access required', 'adminAccessRequired', 403);
 }
 
 $pendingTransfersFile = __DIR__ . '/../pending_transfers.json';
@@ -37,18 +39,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 $body = json_decode(file_get_contents('php://input'), true) ?: [];
 $token = $body['csrf_token'] ?? '';
 if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
-    http_response_code(400);
-    echo json_encode(['error'=>'Invalid CSRF token']);
-    exit();
+    respond_error('Invalid CSRF token', 'invalidCsrfToken');
 }
 
 $action = $body['action'] ?? '';
 $transferId = $body['transfer_id'] ?? '';
 
 if (!$transferId) {
-    http_response_code(400);
-    echo json_encode(['error'=>'Transfer ID required']);
-    exit();
+    respond_error('Transfer ID required', 'transferIdRequired');
 }
 
 // Find transfer
@@ -61,9 +59,7 @@ foreach ($pendingTransfers as $i => $t) {
 }
 
 if ($transferIdx === null) {
-    http_response_code(400);
-    echo json_encode(['error'=>'Transfer not found']);
-    exit();
+    respond_error('Transfer not found', 'transferNotFound');
 }
 
 $transfer = $pendingTransfers[$transferIdx];
@@ -78,9 +74,7 @@ if ($action === 'approve') {
     }
     
     if ($fromIdx === null || $toIdx === null) {
-        http_response_code(400);
-        echo json_encode(['error'=>'User not found']);
-        exit();
+        respond_error('User not found', 'userNotFound');
     }
     
     // Perform the transfer
@@ -161,9 +155,7 @@ if ($action === 'reject') {
     }
     
     if ($fromIdx === null) {
-        http_response_code(400);
-        echo json_encode(['error'=>'User not found']);
-        exit();
+        respond_error('User not found', 'userNotFound');
     }
     
     // Refund balance (it wasn't deducted since transfer was pending)
@@ -190,7 +182,5 @@ if ($action === 'reject') {
     exit();
 }
 
-http_response_code(400);
-echo json_encode(['error'=>'Unknown action']);
-exit();
+respond_error('Unknown action', 'invalidAction');
 ?>

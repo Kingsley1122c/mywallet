@@ -1,5 +1,5 @@
 <?php
-// Simple test file to check PHP execution in /api folder
-header('Content-Type: text/plain');
-echo "PHP is working in /api folder.";
-?>
+require_once dirname(__DIR__) . '/local_only.php';
+
+header('Content-Type: text/plain; charset=UTF-8');
+echo 'PHP is working in /api folder.';

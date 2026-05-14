@@ -10,7 +10,7 @@ if(!isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bank Accounts | MyWallet</title>
+    <title>Bank Accounts | Mivonta</title>
     <link rel="stylesheet" href="style.css">
     <style>
         body {
@@ -259,7 +259,7 @@ if(!isset($_SESSION['user_id'])) {
 </head>
 <body>
     <header class="topbar">
-        <h2>MyWallet</h2>
+        <h2>Mivonta</h2>
         <div style="display:flex;align-items:center;gap:12px;color:#fff">
             <span style="opacity:.9">Signed in as <?php echo htmlspecialchars($_SESSION['email']); ?></span>
             <a class="logout" href="logout.php">Log out</a>

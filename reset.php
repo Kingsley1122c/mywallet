@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Reset Password | MyWallet</title>
+    <title>Reset Password | Mivonta</title>
     <link rel="stylesheet" href="style.css">
     <style>.auth{max-width:420px;margin:60px auto;padding:20px;background:#fff;border-radius:8px}</style>
 </head>
@@ -77,6 +77,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error) {
             <?php endif; ?>
         </section>
     </main>
-    <script src="showhide.js"></script>
+    <script src="showhide.js?v=20260427c"></script>
 </body>
 </html>

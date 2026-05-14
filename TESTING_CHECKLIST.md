@@ -10,11 +10,11 @@
 
 ### Admin Account
 - **Email:** admin@example.com
-- **Password:** AdminPass123
+- **Password:** use the current admin password assigned in your local or deployed user data
 
 ### Regular User Account
 - **Email:** user@example.com
-- **Password:** Password123
+- **Password:** use the current password stored for that test account
 
 ---
 
@@ -28,7 +28,7 @@
 
 ### 2️⃣ **User Registration & Login**
 - [ ] Click "Sign Up" and register a new test user
-- [ ] Login with: user@example.com / Password123
+- [ ] Login with a current non-admin test account from your data store
 - [ ] Verify dashboard loads with balance displayed
 
 ### 3️⃣ **Currency & Country Selection**
@@ -61,7 +61,7 @@
 
 ### 6️⃣ **Admin Approval Workflow**
 - [ ] Logout from user account
-- [ ] Login with: admin@example.com / AdminPass123
+- [ ] Login with the current admin credentials from your local seed or user store
 - [ ] Click "Pending Transfers" in admin menu
 - [ ] See pending $50 transfer from user@example.com
 - [ ] Click "Accept" button

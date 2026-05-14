@@ -26,7 +26,7 @@ if (file_exists($usersFile)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Dashboard | mywallet</title>
+    <title>Dashboard | Mivonta</title>
     <link rel="stylesheet" href="style.css">
     <script>
         // For testing: always clear adminMessageShown so popup will show if unread message exists
@@ -649,6 +649,12 @@ if (file_exists($usersFile)) {
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        @keyframes withdraw-progress {
+            0% { transform: translateX(-90%); }
+            55% { transform: translateX(110%); }
+            100% { transform: translateX(110%); }
+        }
         
         #send-loading p {
             color: #6b7280;
@@ -1195,21 +1201,21 @@ if (file_exists($usersFile)) {
             }
                         .container {
                             padding: 0 0 24px 0 !important;
-                            width: 100vw !important;
-                            max-width: 100vw !important;
+                            width: 100% !important;
+                            max-width: 100% !important;
                             min-width: 0 !important;
                             box-sizing: border-box;
                         }
                         .bank-wrap {
                             padding: 12px 0 !important;
-                            width: 100vw !important;
-                            max-width: 100vw !important;
+                            width: 100% !important;
+                            max-width: 100% !important;
                             min-width: 0 !important;
                             box-sizing: border-box;
                         }
                         .main-content, .dashboard-main, .dashboard-content, .dashboard-section, .transactions-table, .account-card, .service-card {
-                            width: 100vw !important;
-                            max-width: 100vw !important;
+                            width: 100% !important;
+                            max-width: 100% !important;
                             min-width: 0 !important;
                             box-sizing: border-box;
                         }
@@ -1455,7 +1461,7 @@ if (file_exists($usersFile)) {
             <div class="topbar-left">
                 <div class="topbar-logo">MPW</div>
                 <div class="topbar-brand">
-                    <h2 data-i18n="mywallet">mywallet</h2>
+                    <h2 data-i18n="Mivonta">Mivonta</h2>
                     <small>💳 Secure Financial Platform</small>
                 </div>
             </div>
@@ -1491,8 +1497,9 @@ if (file_exists($usersFile)) {
         <?php $userId = (int)($_SESSION['user_id'] ?? 0); ?>
         <?php
         // Load user and transaction data
+        include_once __DIR__ . '/withdrawal_status.php';
         $users = json_decode(file_get_contents('users.json'), true);
-        $transactions = json_decode(file_get_contents('transactions.json'), true);
+        $transactions = syncWithdrawalTransactions(__DIR__ . '/transactions.json', __DIR__ . '/users.json');
         $currentUser = null;
         foreach ($users as $u) {
             if ($u['id'] == $userId) {
@@ -1520,7 +1527,7 @@ if (file_exists($usersFile)) {
         ?>
         <div class="bank-wrap">
             <aside class="bank-sidebar" style="display:none">
-                <div class="bank-brand">mywallet</div>
+                <div class="bank-brand">Mivonta</div>
                 <div class="muted-small" data-i18n="signed-in-as">Signed in as <?php echo htmlspecialchars($_SESSION['email']); ?></div>
                 <nav class="nav">
                     <a href="#" id="nav-overview" class="active" data-i18n="nav-overview">Overview</a>
@@ -1647,8 +1654,10 @@ if (file_exists($usersFile)) {
                                     $amountClass = $isPositive ? 'positive' : 'negative';
                                     $iconClass = $isPositive ? 'incoming' : 'outgoing';
                                     $icon = $isPositive ? '⬇️' : '⬆️';
-                                    $desc = htmlspecialchars($tx['desc']);
-                                    $date = date('M d, Y H:i', $tx['time']/1000);
+                                    $rawDesc = isset($tx['desc']) ? (string) $tx['desc'] : '';
+                                    $desc = htmlspecialchars($rawDesc, ENT_QUOTES, 'UTF-8');
+                                    $timestamp = isset($tx['time']) ? (int) $tx['time'] : 0;
+                                    $date = $timestamp > 0 ? date('M d, Y H:i', $timestamp / 1000) : '';
                                     $status = isset($tx['status']) ? $tx['status'] : 'completed';
                                 ?>
                                 <div class="transaction-item" style="display:flex;align-items:center;justify-content:space-between;padding:18px 0;border-bottom:1px solid #f3f6fa;gap:12px;">
@@ -1657,8 +1666,8 @@ if (file_exists($usersFile)) {
                                             <?php echo $icon; ?>
                                         </div>
                                         <div class="transaction-details" style="min-width:0;">
-                                            <div class="transaction-description" style="font-weight:700;font-size:15px;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"><?php echo $desc; ?></div>
-                                            <div class="transaction-date" style="font-size:13px;color:#64748b;">
+                                            <div class="transaction-description" data-desc="<?php echo $desc; ?>" style="font-weight:700;font-size:15px;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"><?php echo $desc; ?></div>
+                                            <div class="transaction-date" data-time="<?php echo $timestamp; ?>" data-status="<?php echo htmlspecialchars($status, ENT_QUOTES, 'UTF-8'); ?>" style="font-size:13px;color:#64748b;">
                                                 <?php echo $date; ?><?php if ($status !== 'completed') echo ' <span style=\"color:#f59e0b;font-weight:600\">('.ucfirst($status).')</span>'; ?>
                                             </div>
                                         </div>
@@ -1774,15 +1783,27 @@ if (file_exists($usersFile)) {
                     <!-- Withdrawal Form Step 2: Code Entry -->
                     <form id="withdraw-code-form" class="send-form" style="display:none;">
                                                 <div id="withdraw-success-message" style="display:none;text-align:center;padding:32px 12px 12px 12px;">
-                                                    <div style="font-size:48px;color:#22c55e;margin-bottom:12px;">✅</div>
-                                                    <div style="font-size:20px;font-weight:800;color:#22c55e;margin-bottom:8px;">Withdrawal Successful!</div>
-                                                    <div style="color:#64748b;font-size:15px;">Your withdrawal has been processed. You will receive a notification when funds are transferred.</div>
+                                                    <div style="max-width:420px;margin:0 auto;background:linear-gradient(135deg,#eff6ff 0%,#f8fafc 100%);border:1px solid #bfdbfe;border-radius:24px;padding:24px 18px;box-shadow:0 18px 40px rgba(2,132,199,0.10);">
+                                                        <div style="display:inline-flex;align-items:center;justify-content:center;width:78px;height:78px;border-radius:50%;background:rgba(2,132,199,0.12);margin-bottom:14px;">
+                                                            <div style="display:inline-block;width:34px;height:34px;border:4px solid #bae6fd;border-top-color:#0284c7;border-radius:50%;animation:spin 0.9s linear infinite;"></div>
+                                                        </div>
+                                                        <div style="font-size:22px;font-weight:800;color:#0284c7;margin-bottom:8px;">Withdrawal processing started</div>
+                                                        <div style="color:#475569;font-size:15px;line-height:1.6;margin-bottom:14px;">Your withdrawal request is processing for up to 24 hours. If it does not complete in that time, it will appear as failed and an email will ask you to contact customer service to finish the transaction.</div>
+                                                        <div style="height:8px;background:#dbeafe;border-radius:999px;overflow:hidden;margin-bottom:14px;">
+                                                            <div style="width:40%;height:100%;border-radius:999px;background:linear-gradient(90deg,#0284c7 0%,#38bdf8 50%,#7dd3fc 100%);animation:withdraw-progress 1.3s ease-in-out infinite;"></div>
+                                                        </div>
+                                                        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;text-align:center;">
+                                                            <div style="padding:10px 8px;border-radius:14px;background:rgba(255,255,255,0.8);color:#0f172a;font-size:12px;font-weight:700;">Queued</div>
+                                                            <div style="padding:10px 8px;border-radius:14px;background:rgba(255,255,255,0.8);color:#0f172a;font-size:12px;font-weight:700;">Processing</div>
+                                                            <div style="padding:10px 8px;border-radius:14px;background:rgba(255,255,255,0.8);color:#0f172a;font-size:12px;font-weight:700;">Email update</div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                         <div style="margin-bottom:18px;text-align:center;">
                             <div style="font-size:32px;">🔐</div>
                             <div style="font-weight:700;color:#0284c7;margin-bottom:8px;">Withdrawal Code Required</div>
-                            <div style="color:#64748b;font-size:15px;">Contact <b>Customer Service</b> to request a withdrawal code for this transaction.<br>
-                                <a href="https://wa.me/15512632687" target="_blank" style="color:#25d366;font-weight:600;text-decoration:underline;">💬 WhatsApp Customer Service</a>
+                            <div style="color:#64748b;font-size:15px;">Contact <b>Support</b> to request a withdrawal code for this transaction.<br>
+                                <a href="mailto:support@mivonta.com" style="color:#1d4ed8;font-weight:600;text-decoration:underline;">support@mivonta.com</a>
                             </div>
                         </div>
                         <div class="form-group">
@@ -1987,16 +2008,12 @@ if (file_exists($usersFile)) {
     </div>
     
     <footer style="text-align:center;padding:48px 20px;color:#6b7280;background:#f8fafc;border-top:1px solid #e2e8f0">
-        <!-- WhatsApp Contact Button -->
-        <div style="margin-bottom:32px">
-            <a href="https://wa.me/15512632687?text=Hello%2C%20I%20need%20help%20with%20mywallet" target="_blank" style="display:inline-flex;align-items:center;gap:12px;background:linear-gradient(135deg,#25d366 0%,#128c7e 100%);color:#fff;padding:16px 32px;border-radius:50px;text-decoration:none;font-weight:600;font-size:16px;box-shadow:0 8px 24px rgba(37,211,102,0.4);transition:all 0.3s ease">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="currentColor"/>
-                </svg>
-                <span>Contact Customer Service</span>
+        <div style="margin-bottom:24px">
+            <a href="mailto:support@mivonta.com" style="display:inline-flex;align-items:center;gap:12px;background:linear-gradient(135deg,#0066d6 0%,#1d4ed8 100%);color:#fff;padding:16px 32px;border-radius:50px;text-decoration:none;font-weight:600;font-size:16px;box-shadow:0 8px 24px rgba(0,102,214,0.28);transition:all 0.3s ease">
+                <span data-i18n="contact-support">Email Support</span>
             </a>
         </div>
-        <small style="color:#94a3b8">Available 24/7 • Support: +1 (551) 263-2687</small>
+        <small style="color:#94a3b8"><span data-i18n="support-label">Support</span>: support@mivonta.com</small>
     </footer>
     
     <script>
@@ -2005,10 +2022,10 @@ if (file_exists($usersFile)) {
     </script>
     <link rel="stylesheet" href="bank.css">
     <script src="countries.js"></script>
-    <script src="i18n.js"></script>
-    <script src="bank.js?v=20260427a" onerror="document.getElementById('account-balance').textContent='Error: bank.js failed to load. Check file location and browser console.';"></script>
+    <script src="i18n_enhanced.js?v=20260427d"></script>
+    <script src="bank.js?v=20260427f" onerror="document.getElementById('account-balance').textContent='Error: bank.js failed to load. Check file location and browser console.';"></script>
     <script src="admin_messages.js"></script>
-        <script src="admin_message_popup.js"></script>
+        <script src="admin_message_popup.js?v=20260427b"></script>
     <script>
         // Ensure i18n.render() runs on DOMContentLoaded to localize all UI
         document.addEventListener('DOMContentLoaded', function() {

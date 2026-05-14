@@ -12,8 +12,618 @@ function getDisplaySenderName(senderName, senderEmail) {
   return senderName;
 }
 
+function translateUi(key, fallback) {
+  if (window.i18n && typeof window.i18n.t === 'function') {
+    const translated = window.i18n.t(key);
+    if (translated && translated !== key) {
+      return translated;
+    }
+  }
+  return fallback;
+}
+
+function buildWithdrawalLoadingMarkup() {
+  const processingLabel = getBankUiText('processing');
+  return `
+    <div style="background:linear-gradient(135deg,#eff6ff 0%,#f8fafc 100%);border:1px solid #bfdbfe;border-radius:18px;padding:18px 16px;box-shadow:0 10px 30px rgba(2,132,199,0.08);">
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:14px;">
+        <div style="display:inline-block;width:30px;height:30px;border:4px solid #dbeafe;border-top-color:#0284c7;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+        <div style="text-align:left;">
+          <div style="color:#0284c7;font-weight:800;font-size:16px;">${processingLabel}</div>
+          <div style="color:#475569;font-size:13px;">Verifying your code and preparing the transfer request.</div>
+        </div>
+      </div>
+      <div style="height:8px;background:#dbeafe;border-radius:999px;overflow:hidden;margin-bottom:12px;">
+        <div style="width:40%;height:100%;border-radius:999px;background:linear-gradient(90deg,#0284c7 0%,#38bdf8 50%,#7dd3fc 100%);animation:withdraw-progress 1.3s ease-in-out infinite;"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;text-align:center;">
+        <div style="padding:10px 8px;border-radius:14px;background:rgba(255,255,255,0.72);color:#0f172a;font-size:12px;font-weight:700;">Code check</div>
+        <div style="padding:10px 8px;border-radius:14px;background:rgba(255,255,255,0.72);color:#0f172a;font-size:12px;font-weight:700;">Secure queue</div>
+        <div style="padding:10px 8px;border-radius:14px;background:rgba(255,255,255,0.72);color:#0f172a;font-size:12px;font-weight:700;">Status update</div>
+      </div>
+    </div>`;
+}
+
+const transactionText = {
+  en: { received: 'Received from', sent: 'Sent to', added: 'Money added', withdrawal: 'Withdrawal to', pending: 'Pending', processing: 'Processing', failed: 'Failed' },
+  es: { received: 'Recibido de', sent: 'Enviado a', added: 'Dinero agregado', withdrawal: 'Retiro a', pending: 'Pendiente', processing: 'Procesando', failed: 'Fallido' },
+  fr: { received: 'Recu de', sent: 'Envoye a', added: 'Argent ajoute', withdrawal: 'Retrait vers', pending: 'En attente', processing: 'En cours', failed: 'Echoue' },
+  de: { received: 'Erhalten von', sent: 'Gesendet an', added: 'Geld hinzugefugt', withdrawal: 'Auszahlung an', pending: 'Ausstehend', processing: 'Wird bearbeitet', failed: 'Fehlgeschlagen' },
+  it: { received: 'Ricevuto da', sent: 'Inviato a', added: 'Denaro aggiunto', withdrawal: 'Prelievo verso', pending: 'In attesa', processing: 'In elaborazione', failed: 'Non riuscito' },
+  pt: { received: 'Recebido de', sent: 'Enviado para', added: 'Dinheiro adicionado', withdrawal: 'Saque para', pending: 'Pendente', processing: 'Processando', failed: 'Falhou' },
+  ko: { received: '다음으로부터 수신', sent: '다음으로 전송', added: '돈이 추가됨', withdrawal: '다음 계좌로 출금', pending: '대기 중', processing: '처리 중', failed: '실패' },
+  ja: { received: '受取元', sent: '送金先', added: '資金が追加されました', withdrawal: '出金先', pending: '保留中', processing: '処理中', failed: '失敗' },
+  'zh-tw': { received: '來自', sent: '發送至', added: '已新增資金', withdrawal: '提款至', pending: '待處理', processing: '處理中', failed: '失敗' },
+  ar: { received: 'تم الاستلام من', sent: 'تم الإرسال إلى', added: 'تمت إضافة الأموال', withdrawal: 'سحب إلى', pending: 'قيد الانتظار', processing: 'جار المعالجة', failed: 'فشل' },
+  hi: { received: 'से प्राप्त', sent: 'को भेजा गया', added: 'पैसे जोड़े गए', withdrawal: 'निकासी हेतु', pending: 'लंबित', processing: 'प्रसंस्करण में', failed: 'विफल' },
+  ru: { received: 'Получено от', sent: 'Отправлено', added: 'Деньги добавлены', withdrawal: 'Вывод на', pending: 'В ожидании', processing: 'Обрабатывается', failed: 'Ошибка' },
+  nl: { received: 'Ontvangen van', sent: 'Verzonden naar', added: 'Geld toegevoegd', withdrawal: 'Opname naar', pending: 'In behandeling', processing: 'Wordt verwerkt', failed: 'Mislukt' }
+};
+
+const supportLabelText = {
+  en: 'Support',
+  es: 'Soporte',
+  fr: 'Support',
+  de: 'Support',
+  it: 'Supporto',
+  pt: 'Suporte',
+  ko: '지원',
+  ja: 'サポート',
+  'zh-tw': '支援',
+  ar: 'الدعم',
+  hi: 'सहायता',
+  ru: 'Поддержка',
+  nl: 'Ondersteuning'
+};
+
+const bankUiText = {
+  en: {
+    addMoneyTitle: 'Add Money',
+    addMoneySubtitle: 'Deposit funds to your account',
+    enterAmount: 'Enter amount',
+    selectPaymentMethod: 'Select payment method',
+    cardOption: 'Card',
+    bankTransferOption: 'Bank Transfer',
+    addMoneyButton: 'Add Money',
+    cancelButton: 'Cancel',
+    processing: 'Processing...',
+    pleaseSelectPaymentMethod: 'Please select a payment method',
+    enterPositiveAmount: 'Enter a valid positive amount',
+    maxAmount: 'Maximum amount per transaction is $10,000',
+    validCardNumber: 'Please enter a valid card number',
+    validExpiryDate: 'Please enter valid expiry date (MM/YY)',
+    validCvv: 'Please enter valid CVV',
+    cardholderName: 'Please enter cardholder name',
+    moneyAddedSuccess: 'Money added successfully!',
+    networkError: 'Network error',
+    securityTokenNotLoaded: 'Security token not loaded yet. Please wait a moment and try again.',
+    enterRecipientAndAmount: 'Enter recipient and a valid positive amount',
+    insufficientBalance: 'Insufficient balance',
+    transferUnexpected: 'Transfer completed but response format unexpected. Please refresh the page.',
+    networkErrorWithMessage: 'Network error: {message}',
+    serverErrorWithMessage: 'Server error: {message}',
+    withdrawalExceedsBalance: 'Withdrawal amount exceeds your available balance.',
+    validSixDigitCode: 'Please enter a valid 6-digit code.',
+    withdrawalFailed: 'Withdrawal failed.',
+    invalidOrExpiredCode: 'Invalid or expired code.',
+    networkErrorTryAgain: 'Network error. Please try again.'
+  },
+  es: {
+    addMoneyTitle: 'Agregar dinero',
+    addMoneySubtitle: 'Deposita fondos en tu cuenta',
+    enterAmount: 'Ingresa el monto',
+    selectPaymentMethod: 'Selecciona el metodo de pago',
+    cardOption: 'Tarjeta',
+    bankTransferOption: 'Transferencia bancaria',
+    addMoneyButton: 'Agregar dinero',
+    cancelButton: 'Cancelar',
+    processing: 'Procesando...',
+    pleaseSelectPaymentMethod: 'Por favor selecciona un metodo de pago',
+    enterPositiveAmount: 'Ingresa un monto positivo valido',
+    maxAmount: 'El monto maximo por transaccion es $10,000',
+    validCardNumber: 'Por favor ingresa un numero de tarjeta valido',
+    validExpiryDate: 'Por favor ingresa una fecha de vencimiento valida (MM/AA)',
+    validCvv: 'Por favor ingresa un CVV valido',
+    cardholderName: 'Por favor ingresa el nombre del titular',
+    moneyAddedSuccess: 'Dinero agregado correctamente',
+    networkError: 'Error de red',
+    securityTokenNotLoaded: 'El token de seguridad aun no se ha cargado. Espera un momento e intentalo de nuevo.',
+    enterRecipientAndAmount: 'Ingresa el destinatario y un monto positivo valido',
+    insufficientBalance: 'Saldo insuficiente',
+    transferUnexpected: 'La transferencia se completo, pero el formato de la respuesta fue inesperado. Actualiza la pagina.',
+    networkErrorWithMessage: 'Error de red: {message}',
+    serverErrorWithMessage: 'Error del servidor: {message}',
+    withdrawalExceedsBalance: 'El monto del retiro excede tu saldo disponible.',
+    validSixDigitCode: 'Por favor ingresa un codigo valido de 6 digitos.',
+    withdrawalFailed: 'El retiro fallo.',
+    invalidOrExpiredCode: 'Codigo invalido o vencido.',
+    networkErrorTryAgain: 'Error de red. Intentalo de nuevo.'
+  },
+  fr: {
+    addMoneyTitle: 'Ajouter de l argent',
+    addMoneySubtitle: 'Deposez des fonds sur votre compte',
+    enterAmount: 'Saisir le montant',
+    selectPaymentMethod: 'Selectionnez un mode de paiement',
+    cardOption: 'Carte',
+    bankTransferOption: 'Virement bancaire',
+    addMoneyButton: 'Ajouter de l argent',
+    cancelButton: 'Annuler',
+    processing: 'Traitement...',
+    pleaseSelectPaymentMethod: 'Veuillez selectionner un mode de paiement',
+    enterPositiveAmount: 'Saisissez un montant positif valide',
+    maxAmount: 'Le montant maximum par transaction est de $10,000',
+    validCardNumber: 'Veuillez saisir un numero de carte valide',
+    validExpiryDate: 'Veuillez saisir une date d expiration valide (MM/AA)',
+    validCvv: 'Veuillez saisir un CVV valide',
+    cardholderName: 'Veuillez saisir le nom du titulaire',
+    moneyAddedSuccess: 'Argent ajoute avec succes',
+    networkError: 'Erreur reseau',
+    securityTokenNotLoaded: 'Le jeton de securite n est pas encore charge. Veuillez patienter un instant et reessayer.',
+    enterRecipientAndAmount: 'Saisissez un destinataire et un montant positif valide',
+    insufficientBalance: 'Solde insuffisant',
+    transferUnexpected: 'Le transfert est termine, mais le format de la reponse est inattendu. Actualisez la page.',
+    networkErrorWithMessage: 'Erreur reseau : {message}',
+    serverErrorWithMessage: 'Erreur du serveur : {message}',
+    withdrawalExceedsBalance: 'Le montant du retrait depasse votre solde disponible.',
+    validSixDigitCode: 'Veuillez saisir un code valide a 6 chiffres.',
+    withdrawalFailed: 'Le retrait a echoue.',
+    invalidOrExpiredCode: 'Code invalide ou expire.',
+    networkErrorTryAgain: 'Erreur reseau. Veuillez reessayer.'
+  },
+  de: {
+    addMoneyTitle: 'Geld hinzufugen',
+    addMoneySubtitle: 'Zahlen Sie Geld auf Ihr Konto ein',
+    enterAmount: 'Betrag eingeben',
+    selectPaymentMethod: 'Zahlungsmethode auswahlen',
+    cardOption: 'Karte',
+    bankTransferOption: 'Bankuberweisung',
+    addMoneyButton: 'Geld hinzufugen',
+    cancelButton: 'Abbrechen',
+    processing: 'Wird bearbeitet...',
+    pleaseSelectPaymentMethod: 'Bitte wahlen Sie eine Zahlungsmethode aus',
+    enterPositiveAmount: 'Geben Sie einen gultigen positiven Betrag ein',
+    maxAmount: 'Der Hochstbetrag pro Transaktion betragt $10,000',
+    validCardNumber: 'Bitte geben Sie eine gultige Kartennummer ein',
+    validExpiryDate: 'Bitte geben Sie ein gultiges Ablaufdatum ein (MM/JJ)',
+    validCvv: 'Bitte geben Sie eine gultige CVV ein',
+    cardholderName: 'Bitte geben Sie den Namen des Karteninhabers ein',
+    moneyAddedSuccess: 'Geld erfolgreich hinzugefugt',
+    networkError: 'Netzwerkfehler',
+    securityTokenNotLoaded: 'Das Sicherheitstoken wurde noch nicht geladen. Bitte warten Sie einen Moment und versuchen Sie es erneut.',
+    enterRecipientAndAmount: 'Geben Sie einen Empfanger und einen gultigen positiven Betrag ein',
+    insufficientBalance: 'Unzureichendes Guthaben',
+    transferUnexpected: 'Die Uberweisung wurde abgeschlossen, aber das Antwortformat war unerwartet. Bitte aktualisieren Sie die Seite.',
+    networkErrorWithMessage: 'Netzwerkfehler: {message}',
+    serverErrorWithMessage: 'Serverfehler: {message}',
+    withdrawalExceedsBalance: 'Der Auszahlungsbetrag ubersteigt Ihr verfugbares Guthaben.',
+    validSixDigitCode: 'Bitte geben Sie einen gultigen 6-stelligen Code ein.',
+    withdrawalFailed: 'Auszahlung fehlgeschlagen.',
+    invalidOrExpiredCode: 'Code ungultig oder abgelaufen.',
+    networkErrorTryAgain: 'Netzwerkfehler. Bitte versuchen Sie es erneut.'
+  },
+  it: {
+    addMoneyTitle: 'Aggiungi denaro',
+    addMoneySubtitle: 'Deposita fondi sul tuo conto',
+    enterAmount: 'Inserisci importo',
+    selectPaymentMethod: 'Seleziona metodo di pagamento',
+    cardOption: 'Carta',
+    bankTransferOption: 'Bonifico bancario',
+    addMoneyButton: 'Aggiungi denaro',
+    cancelButton: 'Annulla',
+    processing: 'Elaborazione...',
+    pleaseSelectPaymentMethod: 'Seleziona un metodo di pagamento',
+    enterPositiveAmount: 'Inserisci un importo positivo valido',
+    maxAmount: 'L importo massimo per transazione e $10,000',
+    validCardNumber: 'Inserisci un numero di carta valido',
+    validExpiryDate: 'Inserisci una data di scadenza valida (MM/AA)',
+    validCvv: 'Inserisci un CVV valido',
+    cardholderName: 'Inserisci il nome del titolare',
+    moneyAddedSuccess: 'Denaro aggiunto con successo',
+    networkError: 'Errore di rete',
+    securityTokenNotLoaded: 'Il token di sicurezza non e stato ancora caricato. Attendi un momento e riprova.',
+    enterRecipientAndAmount: 'Inserisci il destinatario e un importo positivo valido',
+    insufficientBalance: 'Saldo insufficiente',
+    transferUnexpected: 'Il trasferimento e stato completato, ma il formato della risposta non era previsto. Aggiorna la pagina.',
+    networkErrorWithMessage: 'Errore di rete: {message}',
+    serverErrorWithMessage: 'Errore del server: {message}',
+    withdrawalExceedsBalance: 'L importo del prelievo supera il saldo disponibile.',
+    validSixDigitCode: 'Inserisci un codice valido di 6 cifre.',
+    withdrawalFailed: 'Prelievo non riuscito.',
+    invalidOrExpiredCode: 'Codice non valido o scaduto.',
+    networkErrorTryAgain: 'Errore di rete. Riprova.'
+  },
+  pt: {
+    addMoneyTitle: 'Adicionar dinheiro',
+    addMoneySubtitle: 'Deposite fundos na sua conta',
+    enterAmount: 'Digite o valor',
+    selectPaymentMethod: 'Selecione o metodo de pagamento',
+    cardOption: 'Cartao',
+    bankTransferOption: 'Transferencia bancaria',
+    addMoneyButton: 'Adicionar dinheiro',
+    cancelButton: 'Cancelar',
+    processing: 'Processando...',
+    pleaseSelectPaymentMethod: 'Selecione um metodo de pagamento',
+    enterPositiveAmount: 'Digite um valor positivo valido',
+    maxAmount: 'O valor maximo por transacao e $10,000',
+    validCardNumber: 'Digite um numero de cartao valido',
+    validExpiryDate: 'Digite uma data de validade valida (MM/AA)',
+    validCvv: 'Digite um CVV valido',
+    cardholderName: 'Digite o nome do titular do cartao',
+    moneyAddedSuccess: 'Dinheiro adicionado com sucesso',
+    networkError: 'Erro de rede',
+    securityTokenNotLoaded: 'O token de seguranca ainda nao foi carregado. Aguarde um momento e tente novamente.',
+    enterRecipientAndAmount: 'Digite o destinatario e um valor positivo valido',
+    insufficientBalance: 'Saldo insuficiente',
+    transferUnexpected: 'A transferencia foi concluida, mas o formato da resposta foi inesperado. Atualize a pagina.',
+    networkErrorWithMessage: 'Erro de rede: {message}',
+    serverErrorWithMessage: 'Erro do servidor: {message}',
+    withdrawalExceedsBalance: 'O valor do saque excede seu saldo disponivel.',
+    validSixDigitCode: 'Digite um codigo valido de 6 digitos.',
+    withdrawalFailed: 'Falha no saque.',
+    invalidOrExpiredCode: 'Codigo invalido ou expirado.',
+    networkErrorTryAgain: 'Erro de rede. Tente novamente.'
+  },
+  ko: {
+    addMoneyTitle: '자금 추가',
+    addMoneySubtitle: '계정에 자금을 입금하세요',
+    enterAmount: '금액 입력',
+    selectPaymentMethod: '결제 방법 선택',
+    cardOption: '카드',
+    bankTransferOption: '은행 송금',
+    addMoneyButton: '자금 추가',
+    cancelButton: '취소',
+    processing: '처리 중...',
+    pleaseSelectPaymentMethod: '결제 방법을 선택하세요',
+    enterPositiveAmount: '유효한 양수 금액을 입력하세요',
+    maxAmount: '거래당 최대 금액은 $10,000입니다',
+    validCardNumber: '유효한 카드 번호를 입력하세요',
+    validExpiryDate: '유효한 만료일을 입력하세요 (MM/YY)',
+    validCvv: '유효한 CVV를 입력하세요',
+    cardholderName: '카드 소유자 이름을 입력하세요',
+    moneyAddedSuccess: '자금이 성공적으로 추가되었습니다',
+    networkError: '네트워크 오류',
+    securityTokenNotLoaded: '보안 토큰이 아직 로드되지 않았습니다. 잠시 후 다시 시도하세요.',
+    enterRecipientAndAmount: '수신자와 유효한 양수 금액을 입력하세요',
+    insufficientBalance: '잔액이 부족합니다',
+    transferUnexpected: '이체가 완료되었지만 응답 형식이 예상과 다릅니다. 페이지를 새로고침하세요.',
+    networkErrorWithMessage: '네트워크 오류: {message}',
+    serverErrorWithMessage: '서버 오류: {message}',
+    withdrawalExceedsBalance: '출금 금액이 사용 가능한 잔액을 초과합니다.',
+    validSixDigitCode: '유효한 6자리 코드를 입력하세요.',
+    withdrawalFailed: '출금에 실패했습니다.',
+    invalidOrExpiredCode: '코드가 유효하지 않거나 만료되었습니다.',
+    networkErrorTryAgain: '네트워크 오류입니다. 다시 시도하세요.'
+  },
+  ja: {
+    addMoneyTitle: '資金を追加',
+    addMoneySubtitle: '口座に資金を入金します',
+    enterAmount: '金額を入力',
+    selectPaymentMethod: '支払い方法を選択',
+    cardOption: 'カード',
+    bankTransferOption: '銀行振込',
+    addMoneyButton: '資金を追加',
+    cancelButton: 'キャンセル',
+    processing: '処理中...',
+    pleaseSelectPaymentMethod: '支払い方法を選択してください',
+    enterPositiveAmount: '有効な正の金額を入力してください',
+    maxAmount: '1回の取引あたりの上限額は$10,000です',
+    validCardNumber: '有効なカード番号を入力してください',
+    validExpiryDate: '有効な有効期限を入力してください (MM/YY)',
+    validCvv: '有効なCVVを入力してください',
+    cardholderName: 'カード名義人を入力してください',
+    moneyAddedSuccess: '資金が正常に追加されました',
+    networkError: 'ネットワークエラー',
+    securityTokenNotLoaded: 'セキュリティトークンがまだ読み込まれていません。少し待ってから再試行してください。',
+    enterRecipientAndAmount: '受取人と有効な正の金額を入力してください',
+    insufficientBalance: '残高不足です',
+    transferUnexpected: '送金は完了しましたが、応答形式が予期したものではありません。ページを更新してください。',
+    networkErrorWithMessage: 'ネットワークエラー: {message}',
+    serverErrorWithMessage: 'サーバーエラー: {message}',
+    withdrawalExceedsBalance: '出金額が利用可能残高を超えています。',
+    validSixDigitCode: '有効な6桁のコードを入力してください。',
+    withdrawalFailed: '出金に失敗しました。',
+    invalidOrExpiredCode: 'コードが無効か期限切れです。',
+    networkErrorTryAgain: 'ネットワークエラーです。もう一度お試しください。'
+  },
+  'zh-tw': {
+    addMoneyTitle: '新增資金',
+    addMoneySubtitle: '將資金存入您的帳戶',
+    enterAmount: '輸入金額',
+    selectPaymentMethod: '選擇付款方式',
+    cardOption: '卡片',
+    bankTransferOption: '銀行轉帳',
+    addMoneyButton: '新增資金',
+    cancelButton: '取消',
+    processing: '處理中...',
+    pleaseSelectPaymentMethod: '請選擇付款方式',
+    enterPositiveAmount: '請輸入有效的正數金額',
+    maxAmount: '每筆交易的最高金額為 $10,000',
+    validCardNumber: '請輸入有效的卡號',
+    validExpiryDate: '請輸入有效的到期日 (MM/YY)',
+    validCvv: '請輸入有效的 CVV',
+    cardholderName: '請輸入持卡人姓名',
+    moneyAddedSuccess: '資金已成功新增',
+    networkError: '網路錯誤',
+    securityTokenNotLoaded: '安全權杖尚未載入。請稍候再試。',
+    enterRecipientAndAmount: '請輸入收款人和有效的正數金額',
+    insufficientBalance: '餘額不足',
+    transferUnexpected: '轉帳已完成，但回應格式不符合預期。請重新整理頁面。',
+    networkErrorWithMessage: '網路錯誤: {message}',
+    serverErrorWithMessage: '伺服器錯誤: {message}',
+    withdrawalExceedsBalance: '提款金額超過您的可用餘額。',
+    validSixDigitCode: '請輸入有效的 6 位數代碼。',
+    withdrawalFailed: '提款失敗。',
+    invalidOrExpiredCode: '代碼無效或已過期。',
+    networkErrorTryAgain: '網路錯誤。請再試一次。'
+  },
+  ar: {
+    addMoneyTitle: 'إضافة أموال',
+    addMoneySubtitle: 'أودع أموالاً في حسابك',
+    enterAmount: 'أدخل المبلغ',
+    selectPaymentMethod: 'اختر طريقة الدفع',
+    cardOption: 'بطاقة',
+    bankTransferOption: 'تحويل بنكي',
+    addMoneyButton: 'إضافة أموال',
+    cancelButton: 'إلغاء',
+    processing: 'جار المعالجة...',
+    pleaseSelectPaymentMethod: 'يرجى اختيار طريقة دفع',
+    enterPositiveAmount: 'أدخل مبلغاً موجباً صالحاً',
+    maxAmount: 'الحد الأقصى لكل معاملة هو $10,000',
+    validCardNumber: 'يرجى إدخال رقم بطاقة صالح',
+    validExpiryDate: 'يرجى إدخال تاريخ انتهاء صالح (MM/YY)',
+    validCvv: 'يرجى إدخال CVV صالح',
+    cardholderName: 'يرجى إدخال اسم حامل البطاقة',
+    moneyAddedSuccess: 'تمت إضافة الأموال بنجاح',
+    networkError: 'خطأ في الشبكة',
+    securityTokenNotLoaded: 'لم يتم تحميل رمز الأمان بعد. يرجى الانتظار قليلاً ثم المحاولة مرة أخرى.',
+    enterRecipientAndAmount: 'أدخل المستلم ومبلغاً موجباً صالحاً',
+    insufficientBalance: 'الرصيد غير كاف',
+    transferUnexpected: 'اكتمل التحويل ولكن تنسيق الاستجابة غير متوقع. يرجى تحديث الصفحة.',
+    networkErrorWithMessage: 'خطأ في الشبكة: {message}',
+    serverErrorWithMessage: 'خطأ في الخادم: {message}',
+    withdrawalExceedsBalance: 'مبلغ السحب يتجاوز رصيدك المتاح.',
+    validSixDigitCode: 'يرجى إدخال رمز صالح مكون من 6 أرقام.',
+    withdrawalFailed: 'فشل السحب.',
+    invalidOrExpiredCode: 'الرمز غير صالح أو منتهي الصلاحية.',
+    networkErrorTryAgain: 'خطأ في الشبكة. يرجى المحاولة مرة أخرى.'
+  },
+  hi: {
+    addMoneyTitle: 'पैसे जोड़ें',
+    addMoneySubtitle: 'अपने खाते में धन जमा करें',
+    enterAmount: 'राशि दर्ज करें',
+    selectPaymentMethod: 'भुगतान विधि चुनें',
+    cardOption: 'कार्ड',
+    bankTransferOption: 'बैंक ट्रांसफर',
+    addMoneyButton: 'पैसे जोड़ें',
+    cancelButton: 'रद्द करें',
+    processing: 'प्रोसेस हो रहा है...',
+    pleaseSelectPaymentMethod: 'कृपया भुगतान विधि चुनें',
+    enterPositiveAmount: 'मान्य धनात्मक राशि दर्ज करें',
+    maxAmount: 'प्रति लेनदेन अधिकतम राशि $10,000 है',
+    validCardNumber: 'कृपया मान्य कार्ड नंबर दर्ज करें',
+    validExpiryDate: 'कृपया मान्य समाप्ति तिथि दर्ज करें (MM/YY)',
+    validCvv: 'कृपया मान्य CVV दर्ज करें',
+    cardholderName: 'कृपया कार्डधारक का नाम दर्ज करें',
+    moneyAddedSuccess: 'पैसे सफलतापूर्वक जोड़ दिए गए',
+    networkError: 'नेटवर्क त्रुटि',
+    securityTokenNotLoaded: 'सुरक्षा टोकन अभी लोड नहीं हुआ है। कृपया थोड़ी देर प्रतीक्षा करें और फिर से प्रयास करें।',
+    enterRecipientAndAmount: 'प्राप्तकर्ता और मान्य धनात्मक राशि दर्ज करें',
+    insufficientBalance: 'अपर्याप्त शेष राशि',
+    transferUnexpected: 'ट्रांसफर पूरा हो गया, लेकिन प्रतिक्रिया प्रारूप अप्रत्याशित था। कृपया पेज रीफ्रेश करें।',
+    networkErrorWithMessage: 'नेटवर्क त्रुटि: {message}',
+    serverErrorWithMessage: 'सर्वर त्रुटि: {message}',
+    withdrawalExceedsBalance: 'निकासी राशि आपकी उपलब्ध शेष राशि से अधिक है।',
+    validSixDigitCode: 'कृपया मान्य 6-अंकीय कोड दर्ज करें।',
+    withdrawalFailed: 'निकासी विफल रही।',
+    invalidOrExpiredCode: 'कोड अमान्य है या समाप्त हो चुका है।',
+    networkErrorTryAgain: 'नेटवर्क त्रुटि। कृपया फिर से प्रयास करें।'
+  },
+  ru: {
+    addMoneyTitle: 'Пополнить счет',
+    addMoneySubtitle: 'Внесите средства на свой счет',
+    enterAmount: 'Введите сумму',
+    selectPaymentMethod: 'Выберите способ оплаты',
+    cardOption: 'Карта',
+    bankTransferOption: 'Банковский перевод',
+    addMoneyButton: 'Пополнить счет',
+    cancelButton: 'Отмена',
+    processing: 'Обработка...',
+    pleaseSelectPaymentMethod: 'Пожалуйста, выберите способ оплаты',
+    enterPositiveAmount: 'Введите корректную положительную сумму',
+    maxAmount: 'Максимальная сумма за одну операцию составляет $10,000',
+    validCardNumber: 'Пожалуйста, введите корректный номер карты',
+    validExpiryDate: 'Пожалуйста, введите корректную дату окончания (MM/YY)',
+    validCvv: 'Пожалуйста, введите корректный CVV',
+    cardholderName: 'Пожалуйста, введите имя владельца карты',
+    moneyAddedSuccess: 'Средства успешно добавлены',
+    networkError: 'Ошибка сети',
+    securityTokenNotLoaded: 'Токен безопасности еще не загружен. Подождите немного и попробуйте снова.',
+    enterRecipientAndAmount: 'Введите получателя и корректную положительную сумму',
+    insufficientBalance: 'Недостаточно средств',
+    transferUnexpected: 'Перевод завершен, но формат ответа оказался неожиданным. Обновите страницу.',
+    networkErrorWithMessage: 'Ошибка сети: {message}',
+    serverErrorWithMessage: 'Ошибка сервера: {message}',
+    withdrawalExceedsBalance: 'Сумма вывода превышает доступный баланс.',
+    validSixDigitCode: 'Пожалуйста, введите корректный 6-значный код.',
+    withdrawalFailed: 'Не удалось выполнить вывод.',
+    invalidOrExpiredCode: 'Код недействителен или срок его действия истек.',
+    networkErrorTryAgain: 'Ошибка сети. Попробуйте еще раз.'
+  },
+  nl: {
+    addMoneyTitle: 'Geld toevoegen',
+    addMoneySubtitle: 'Stort geld op uw account',
+    enterAmount: 'Voer bedrag in',
+    selectPaymentMethod: 'Selecteer betaalmethode',
+    cardOption: 'Kaart',
+    bankTransferOption: 'Bankoverschrijving',
+    addMoneyButton: 'Geld toevoegen',
+    cancelButton: 'Annuleren',
+    processing: 'Verwerken...',
+    pleaseSelectPaymentMethod: 'Selecteer een betaalmethode',
+    enterPositiveAmount: 'Voer een geldig positief bedrag in',
+    maxAmount: 'Het maximumbedrag per transactie is $10,000',
+    validCardNumber: 'Voer een geldig kaartnummer in',
+    validExpiryDate: 'Voer een geldige vervaldatum in (MM/JJ)',
+    validCvv: 'Voer een geldige CVV in',
+    cardholderName: 'Voer de naam van de kaarthouder in',
+    moneyAddedSuccess: 'Geld succesvol toegevoegd',
+    networkError: 'Netwerkfout',
+    securityTokenNotLoaded: 'Het beveiligingstoken is nog niet geladen. Wacht even en probeer het opnieuw.',
+    enterRecipientAndAmount: 'Voer een ontvanger en een geldig positief bedrag in',
+    insufficientBalance: 'Onvoldoende saldo',
+    transferUnexpected: 'De overboeking is voltooid, maar het antwoordformaat was onverwacht. Vernieuw de pagina.',
+    networkErrorWithMessage: 'Netwerkfout: {message}',
+    serverErrorWithMessage: 'Serverfout: {message}',
+    withdrawalExceedsBalance: 'Het opnamebedrag overschrijdt uw beschikbare saldo.',
+    validSixDigitCode: 'Voer een geldige 6-cijferige code in.',
+    withdrawalFailed: 'Opname mislukt.',
+    invalidOrExpiredCode: 'Code ongeldig of verlopen.',
+    networkErrorTryAgain: 'Netwerkfout. Probeer het opnieuw.'
+  }
+};
+
+const bankMessageKeyByEnglish = {
+  'Please select a payment method': 'pleaseSelectPaymentMethod',
+  'Enter a valid positive amount': 'enterPositiveAmount',
+  'Maximum amount per transaction is $10,000': 'maxAmount',
+  'Please enter a valid card number': 'validCardNumber',
+  'Please enter valid expiry date (MM/YY)': 'validExpiryDate',
+  'Please enter valid CVV': 'validCvv',
+  'Please enter cardholder name': 'cardholderName',
+  'Money added successfully!': 'moneyAddedSuccess',
+  'Network error': 'networkError',
+  'Security token not loaded yet. Please wait a moment and try again.': 'securityTokenNotLoaded',
+  'Enter recipient and a valid positive amount': 'enterRecipientAndAmount',
+  'Insufficient balance': 'insufficientBalance',
+  'Transfer completed but response format unexpected. Please refresh the page.': 'transferUnexpected',
+  'Withdrawal amount exceeds your available balance.': 'withdrawalExceedsBalance',
+  'Please enter a valid 6-digit code.': 'validSixDigitCode',
+  'Withdrawal failed.': 'withdrawalFailed',
+  'Invalid or expired code.': 'invalidOrExpiredCode',
+  'Network error. Please try again.': 'networkErrorTryAgain'
+};
+
+function getActiveLanguage() {
+  const current = (window.i18n && window.i18n.currentLang) || localStorage.getItem('mw_lang') || 'en';
+  return String(current).toLowerCase();
+}
+
+function getTransactionText(key, fallback) {
+  const lang = getActiveLanguage();
+  return (transactionText[lang] && transactionText[lang][key]) || (transactionText[lang.split('-')[0]] && transactionText[lang.split('-')[0]][key]) || fallback;
+}
+
+function getBankUiText(key, replacements) {
+  const lang = getActiveLanguage();
+  const text = (bankUiText[lang] && bankUiText[lang][key]) || (bankUiText[lang.split('-')[0]] && bankUiText[lang.split('-')[0]][key]) || (bankUiText.en && bankUiText.en[key]) || key;
+  if (!replacements) return text;
+  return Object.keys(replacements).reduce((message, token) => {
+    return message.replaceAll(`{${token}}`, replacements[token]);
+  }, text);
+}
+
+function localizeBankMessage(message, fallbackKey, replacements) {
+  const normalized = typeof message === 'string' ? message.trim() : '';
+  if (normalized && bankUiText.en && bankUiText.en[normalized]) {
+    return getBankUiText(normalized, replacements);
+  }
+  const mappedKey = bankMessageKeyByEnglish[normalized];
+  if (mappedKey) {
+    return getBankUiText(mappedKey, replacements);
+  }
+  if (normalized) {
+    return normalized;
+  }
+  return fallbackKey ? getBankUiText(fallbackKey, replacements) : '';
+}
+
+function localizeBankDynamicUi() {
+  const addMoneyTitle = document.getElementById('add-money-title');
+  if (addMoneyTitle) addMoneyTitle.textContent = getBankUiText('addMoneyTitle');
+
+  const addMoneySubtitle = document.getElementById('add-money-subtitle');
+  if (addMoneySubtitle) addMoneySubtitle.textContent = getBankUiText('addMoneySubtitle');
+
+  const addAmount = document.getElementById('add-amount');
+  if (addAmount) addAmount.placeholder = getBankUiText('enterAmount');
+
+  const paymentMethod = document.getElementById('payment-method');
+  if (paymentMethod && paymentMethod.options.length >= 3) {
+    paymentMethod.options[0].textContent = getBankUiText('selectPaymentMethod');
+    paymentMethod.options[1].textContent = `💳 ${getBankUiText('cardOption')}`;
+    paymentMethod.options[2].textContent = `🏦 ${getBankUiText('bankTransferOption')}`;
+  }
+
+  const addMoneySubmit = document.getElementById('add-money-submit');
+  if (addMoneySubmit) addMoneySubmit.textContent = getBankUiText('addMoneyButton');
+
+  const cancelAddMoney = document.getElementById('cancel-add-money');
+  if (cancelAddMoney) cancelAddMoney.textContent = getBankUiText('cancelButton');
+
+  const addMoneyLoading = document.getElementById('add-money-loading');
+  if (addMoneyLoading) addMoneyLoading.textContent = getBankUiText('processing');
+}
+
+function formatRecentDescription(rawDesc) {
+  if (!rawDesc) return '';
+
+  let match = rawDesc.match(/^Received from ([^(]+) \(([^)]+)\)$/i);
+  if (match) return `${getTransactionText('received', 'Received from')} ${match[1].trim()} (${match[2].trim()})`;
+
+  match = rawDesc.match(/^Sent to ([^(]+) \(([^)]+)\)$/i);
+  if (match) return `${getTransactionText('sent', 'Sent to')} ${match[1].trim()} (${match[2].trim()})`;
+
+  match = rawDesc.match(/^Withdrawal to ([^(]+) \(([^)]+)\)$/i);
+  if (match) return `${getTransactionText('withdrawal', 'Withdrawal to')} ${match[1].trim()} (${match[2].trim()})`;
+
+  if (/^Money added$/i.test(rawDesc)) return getTransactionText('added', 'Money added');
+
+  return rawDesc;
+}
+
+function formatRecentStatus(status) {
+  const normalized = String(status || 'completed').toLowerCase();
+  if (normalized === 'completed') return null;
+  return getTransactionText(normalized, normalized.charAt(0).toUpperCase() + normalized.slice(1));
+}
+
+function localizeRecentActivity() {
+  const locale = getActiveLanguage();
+  const lang = getActiveLanguage();
+
+  document.querySelectorAll('.transaction-description[data-desc]').forEach((node) => {
+    node.textContent = formatRecentDescription(node.getAttribute('data-desc'));
+  });
+
+  document.querySelectorAll('.transaction-date[data-time]').forEach((node) => {
+    const rawTime = Number(node.getAttribute('data-time'));
+    if (!rawTime) return;
+    const date = new Date(rawTime);
+    const statusText = formatRecentStatus(node.getAttribute('data-status'));
+    const formatted = date.toLocaleString(locale, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    });
+    node.textContent = statusText ? `${formatted} (${statusText})` : formatted;
+  });
+
+  document.querySelectorAll('[data-i18n="support-label"]').forEach((node) => {
+    node.textContent = supportLabelText[lang] || supportLabelText[lang.split('-')[0]] || 'Support';
+  });
+
+  localizeBankDynamicUi();
+}
+
+if (typeof window !== 'undefined') {
+  window.localizeRecentActivity = localizeRecentActivity;
+}
+
 // Show latest incoming transfer alert on login
 document.addEventListener('DOMContentLoaded', function() {
+    localizeRecentActivity();
     // --- Withdrawal Code Flow ---
     const withdrawForm = document.getElementById('withdraw-form');
     const withdrawCodeForm = document.getElementById('withdraw-code-form');
@@ -59,7 +669,7 @@ document.addEventListener('DOMContentLoaded', function() {
           .then(data => {
             const balance = data && data.balance ? parseFloat(data.balance) : 0;
             if (withdrawDetails.amount > balance) {
-              alert('Withdrawal amount exceeds your available balance.');
+              alert(getBankUiText('withdrawalExceedsBalance'));
               return;
             }
             // Hide details form, show code form
@@ -83,10 +693,10 @@ document.addEventListener('DOMContentLoaded', function() {
         let loading = document.createElement('div');
         loading.id = 'withdrawal-loading';
         loading.style.cssText = 'text-align:center;margin-bottom:12px;';
-        loading.innerHTML = '<div style="display:inline-block;width:28px;height:28px;border:4px solid #e5e7eb;border-top-color:#0284c7;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:8px;"></div><div style="color:#0284c7;font-weight:700;">Processing...</div>';
+        loading.innerHTML = buildWithdrawalLoadingMarkup();
         withdrawCodeForm.insertBefore(loading, withdrawCodeForm.firstChild);
         if (!code || code.length !== 6) {
-          withdrawalCodeError.textContent = 'Please enter a valid 6-digit code.';
+          withdrawalCodeError.textContent = getBankUiText('validSixDigitCode');
           withdrawalCodeError.style.display = 'block';
           loading.remove();
           return;
@@ -101,12 +711,12 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(r => r.json())
         .then(data => {
           if (data.success && data.valid) {
-            // Proceed with withdrawal (simulate, replace with real API call)
+            // Queue the withdrawal for the 24-hour processing flow.
             fetch('api/transactions.php', {
               method: 'POST',
               credentials: 'same-origin',
               headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({action: 'withdraw', amount: withdrawDetails.amount, bank: withdrawDetails.bank, csrf_token: csrf})
+              body: JSON.stringify({action: 'withdraw', amount: withdrawDetails.amount, bank_account_id: withdrawDetails.bank, csrf_token: csrf})
             })
             .then(r => r.json())
             .then(txData => {
@@ -122,19 +732,19 @@ document.addEventListener('DOMContentLoaded', function() {
                   window.location.reload();
                 }, 2500);
               } else {
-                withdrawalCodeError.textContent = txData.error || 'Withdrawal failed.';
+                withdrawalCodeError.textContent = localizeBankMessage(txData.error_code || txData.error, 'withdrawalFailed');
                 withdrawalCodeError.style.display = 'block';
               }
               loading.remove();
             });
           } else {
-            withdrawalCodeError.textContent = data.error || 'Invalid or expired code.';
+            withdrawalCodeError.textContent = localizeBankMessage(data.error_code || data.error, 'invalidOrExpiredCode');
             withdrawalCodeError.style.display = 'block';
             loading.remove();
           }
         })
         .catch(() => {
-          withdrawalCodeError.textContent = 'Network error. Please try again.';
+          withdrawalCodeError.textContent = getBankUiText('networkErrorTryAgain');
           withdrawalCodeError.style.display = 'block';
           loading.remove();
         });
@@ -177,21 +787,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         const maskedEmail = maskEmail(tx.sender_email);
         const now = new Date(tx.time);
-        const dateStr = now.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
-        const timeStr = now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: true});
+        const locale = localStorage.getItem('mw_lang') || 'en';
+        const dateStr = now.toLocaleDateString(locale, {month: 'short', day: 'numeric', year: 'numeric'});
+        const timeStr = now.toLocaleTimeString(locale, {hour: '2-digit', minute: '2-digit', hour12: true});
         const alertModal = document.createElement('div');
         alertModal.id = 'latest-incoming-alert-modal';
         alertModal.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(2,8,23,0.85);backdrop-filter:blur(6px);z-index:10001;display:flex;align-items:center;justify-content:center;';
         alertModal.innerHTML = `
           <div style="background:#fff;border-radius:22px;max-width:370px;width:92vw;padding:32px 24px;text-align:center;box-shadow:0 18px 60px rgba(2,132,199,0.13);position:relative;">
             <div style="font-size:44px;margin-bottom:12px;">💸</div>
-            <h2 style="font-size:22px;font-weight:900;color:#0284c7;margin-bottom:8px;">You've received money!</h2>
-            <div style="font-size:16px;color:#334155;font-weight:700;margin-bottom:8px;">From: <span style='color:#0ea5e9'>${getDisplaySenderName(tx.sender_name, tx.sender_email)}</span></div>
-            <div style="font-size:15px;color:#334155;font-weight:700;margin-bottom:8px;">Sender Email: <span style='color:#0ea5e9'>${maskedEmail}</span></div>
-            <div style="font-size:15px;color:#22c55e;font-weight:900;margin-bottom:8px;">Amount: +$${parseFloat(tx.amount).toFixed(2)}</div>
+            <h2 style="font-size:22px;font-weight:900;color:#0284c7;margin-bottom:8px;">${translateUi('incoming-money-title', "You've received money!")}</h2>
+            <div style="font-size:16px;color:#334155;font-weight:700;margin-bottom:8px;">${translateUi('from-label', 'From')}: <span style='color:#0ea5e9'>${getDisplaySenderName(tx.sender_name, tx.sender_email)}</span></div>
+            <div style="font-size:15px;color:#334155;font-weight:700;margin-bottom:8px;">${translateUi('sender-email-label', 'Sender Email')}: <span style='color:#0ea5e9'>${maskedEmail}</span></div>
+            <div style="font-size:15px;color:#22c55e;font-weight:900;margin-bottom:8px;">${translateUi('amount-label', 'Amount')}: +$${parseFloat(tx.amount).toFixed(2)}</div>
             <div style="font-size:13px;color:#64748b;margin-bottom:8px;">${dateStr} ${timeStr}</div>
-            <div style="font-size:13px;color:#64748b;margin-bottom:18px;">Transaction ID: ${tx.txId || ''}</div>
-            <button id="close-incoming-alert" style="padding:10px 28px;background:linear-gradient(135deg,#0284c7 0%,#38bdf8 100%);color:#fff;border:none;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;">Close</button>
+            <div style="font-size:13px;color:#64748b;margin-bottom:18px;">${translateUi('transaction-id-label', 'Transaction ID')}: ${tx.txId || ''}</div>
+            <button id="close-incoming-alert" style="padding:10px 28px;background:linear-gradient(135deg,#0284c7 0%,#38bdf8 100%);color:#fff;border:none;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;">${translateUi('close-btn', 'Close')}</button>
           </div>
         `;
         document.body.appendChild(alertModal);
@@ -432,23 +1043,23 @@ document.addEventListener('DOMContentLoaded', function() {
               <div style=\"background:linear-gradient(135deg,#0284c7 0%,#38bdf8 100%);padding:36px 24px 24px 24px;text-align:center;position:relative;overflow:hidden;\">
                 <div style=\"position:absolute;top:-40px;left:-40px;width:120px;height:120px;background:radial-gradient(circle,rgba(255,255,255,0.18) 0%,transparent 80%);\"></div>
                 <div style=\"font-size:60px;margin-bottom:12px;\">💰</div>
-                <h2 style=\"font-size:clamp(24px,5vw,32px);font-weight:900;color:#fff;margin:0 0 8px 0;letter-spacing:-0.5px;text-shadow:0 4px 12px rgba(2,132,199,0.18);\">Add Money</h2>
-                <div style=\"color:#bae6fd;font-size:clamp(13px,3vw,15px);font-weight:500;\">Deposit funds to your account</div>
+                <h2 id="add-money-title" style="font-size:clamp(24px,5vw,32px);font-weight:900;color:#fff;margin:0 0 8px 0;letter-spacing:-0.5px;text-shadow:0 4px 12px rgba(2,132,199,0.18);">${getBankUiText('addMoneyTitle')}</h2>
+                <div id="add-money-subtitle" style="color:#bae6fd;font-size:clamp(13px,3vw,15px);font-weight:500;">${getBankUiText('addMoneySubtitle')}</div>
               </div>
               <form id=\"add-money-form\" style=\"padding:clamp(24px,5vw,36px);display:flex;flex-direction:column;gap:18px;\">
                 <div style=\"display:flex;align-items:center;gap:8px;\">
                   <span id=\"add-money-currency-symbol\" style=\"font-size:22px;font-weight:900;color:#0284c7;\">${symbol}</span>
-                  <input id=\"add-amount\" name=\"amount\" type=\"number\" min=\"0.01\" step=\"0.01\" required placeholder=\"Enter amount\" style=\"flex:1;padding:14px 18px;border-radius:12px;border:2px solid #bae6fd;font-size:18px;font-weight:700;text-align:center;letter-spacing:1px;font-family:'Courier New',monospace;\">
+                  <input id="add-amount" name="amount" type="number" min="0.01" step="0.01" required placeholder="${getBankUiText('enterAmount')}" style="flex:1;padding:14px 18px;border-radius:12px;border:2px solid #bae6fd;font-size:18px;font-weight:700;text-align:center;letter-spacing:1px;font-family:'Courier New',monospace;">
                   <span id=\"add-money-currency-code\" style=\"font-size:16px;font-weight:700;color:#64748b;margin-left:4px;\">${currency}</span>
                 </div>
                 <select id=\"payment-method\" name=\"payment_method\" required style=\"width:100%;padding:14px 18px;border-radius:12px;border:2px solid #bae6fd;font-size:16px;font-weight:700;text-align:center;background:#f0f9ff;\">
-                  <option value=\"\">Select payment method</option>
-                  <option value=\"card\">💳 Card</option>
-                  <option value=\"bank\">🏦 Bank Transfer</option>
+                  <option value="">${getBankUiText('selectPaymentMethod')}</option>
+                  <option value="card">💳 ${getBankUiText('cardOption')}</option>
+                  <option value="bank">🏦 ${getBankUiText('bankTransferOption')}</option>
                 </select>
-                <button id=\"add-money-submit\" type=\"submit\" style=\"padding:14px;background:linear-gradient(135deg,#0284c7 0%,#38bdf8 100%);color:#fff;border:none;border-radius:14px;font-size:clamp(14px,3.5vw,15px);font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(2,132,199,0.3);transition:all 0.3s ease;min-height:48px\">Add Money</button>
-                <button id=\"cancel-add-money\" type=\"button\" style=\"padding:14px;background:#f3f4f6;color:#374151;border:none;border-radius:14px;font-size:clamp(14px,3.5vw,15px);font-weight:800;cursor:pointer;transition:all 0.3s ease;min-height:48px\">Cancel</button>
-                <div id=\"add-money-loading\" style=\"display:none;text-align:center;margin-top:12px;color:#0284c7;font-weight:700;font-size:16px;\">Processing...</div>
+                <button id="add-money-submit" type="submit" style="padding:14px;background:linear-gradient(135deg,#0284c7 0%,#38bdf8 100%);color:#fff;border:none;border-radius:14px;font-size:clamp(14px,3.5vw,15px);font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(2,132,199,0.3);transition:all 0.3s ease;min-height:48px">${getBankUiText('addMoneyButton')}</button>
+                <button id="cancel-add-money" type="button" style="padding:14px;background:#f3f4f6;color:#374151;border:none;border-radius:14px;font-size:clamp(14px,3.5vw,15px);font-weight:800;cursor:pointer;transition:all 0.3s ease;min-height:48px">${getBankUiText('cancelButton')}</button>
+                <div id="add-money-loading" style="display:none;text-align:center;margin-top:12px;color:#0284c7;font-weight:700;font-size:16px;">${getBankUiText('processing')}</div>
               </form>
             `;
             addMoneyModal.innerHTML = '';
@@ -470,6 +1081,7 @@ document.addEventListener('DOMContentLoaded', function() {
           window.removeEventListener('currencyChanged', updateAddMoneyCurrency);
           window.addEventListener('currencyChanged', updateAddMoneyCurrency);
           updateAddMoneyCurrency();
+          localizeBankDynamicUi();
         });
       }
       if (closeAddMoney && addMoneyModal) closeAddMoney.addEventListener('click', () => addMoneyModal.style.display = 'none');
@@ -499,18 +1111,18 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         const paymentMethod = paymentMethodSelect.value;
         const amount = parseFloat(document.getElementById('add-amount').value);
-        if (!paymentMethod) return alert('Please select a payment method');
-        if (!amount || amount <= 0) return alert('Enter a valid positive amount');
-        if (amount > 10000) return alert('Maximum amount per transaction is $10,000');
+        if (!paymentMethod) return alert(getBankUiText('pleaseSelectPaymentMethod'));
+        if (!amount || amount <= 0) return alert(getBankUiText('enterPositiveAmount'));
+        if (amount > 10000) return alert(getBankUiText('maxAmount'));
         if (paymentMethod === 'card') {
           const cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
           const cardExpiry = document.getElementById('card-expiry').value;
           const cardCvv = document.getElementById('card-cvv').value;
           const cardName = document.getElementById('card-name').value.trim();
-          if (!cardNumber || cardNumber.length < 13) return alert('Please enter a valid card number');
-          if (!cardExpiry || cardExpiry.length !== 5) return alert('Please enter valid expiry date (MM/YY)');
-          if (!cardCvv || cardCvv.length < 3) return alert('Please enter valid CVV');
-          if (!cardName) return alert('Please enter cardholder name');
+          if (!cardNumber || cardNumber.length < 13) return alert(getBankUiText('validCardNumber'));
+          if (!cardExpiry || cardExpiry.length !== 5) return alert(getBankUiText('validExpiryDate'));
+          if (!cardCvv || cardCvv.length < 3) return alert(getBankUiText('validCvv'));
+          if (!cardName) return alert(getBankUiText('cardholderName'));
         }
         const loadingEl = document.getElementById('add-money-loading');
         const submitBtn = document.getElementById('add-money-submit');
@@ -526,18 +1138,18 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(j => {
           if (loadingEl) loadingEl.style.display = 'none';
           if (submitBtn) submitBtn.disabled = false;
-          if (j.error) return alert(j.error);
+          if (j.error) return alert(localizeBankMessage(j.error_code || j.error));
           if (j.balance !== undefined) state.balance = j.balance;
           updateBalanceDisplay();
           if (j.tx) state.txs.push(j.tx);
-          alert('Money added successfully!');
+          alert(getBankUiText('moneyAddedSuccess'));
           if (addMoneyForm) addMoneyForm.reset();
           if (addMoneyModal) addMoneyModal.style.display = 'none';
         })
         .catch(() => {
           if (loadingEl) loadingEl.style.display = 'none';
           if (submitBtn) submitBtn.disabled = false;
-          alert('Network error');
+          alert(getBankUiText('networkError'));
         });
       });
 
@@ -545,12 +1157,12 @@ document.addEventListener('DOMContentLoaded', function() {
       if (sendForm) sendForm.addEventListener('submit', (e) => {
         e.preventDefault();
         if (!csrf) {
-          alert('Security token not loaded yet. Please wait a moment and try again.');
+          alert(getBankUiText('securityTokenNotLoaded'));
           return;
         }
         const to = sendForm.querySelector('input[name="to"]').value.trim();
         const amount = parseFloat(sendForm.querySelector('input[name="amount"]').value);
-        if (!to || !amount || amount <= 0) return alert('Enter recipient and a valid positive amount');
+        if (!to || !amount || amount <= 0) return alert(getBankUiText('enterRecipientAndAmount'));
         // Always fetch latest balance before sending
         fetch('api/transactions.php', {credentials:'same-origin'})
           .then(r => r.json())
@@ -558,7 +1170,7 @@ document.addEventListener('DOMContentLoaded', function() {
             state.balance = data.balance || 0;
             updateBalanceDisplay();
             if (amount > state.balance) {
-              alert('Insufficient balance');
+              alert(getBankUiText('insufficientBalance'));
               return;
             }
             // Show loading indicator
@@ -573,7 +1185,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }).then(r=>{
               if (!r.ok) {
                 return r.text().then(text => {
-                  showErrorModal('Server error: ' + text);
+                  showErrorModal(getBankUiText('serverErrorWithMessage', { message: text }));
                   throw new Error(`Server returned ${r.status}`);
                 });
               }
@@ -582,7 +1194,7 @@ document.addEventListener('DOMContentLoaded', function() {
               if (loadingEl) loadingEl.style.display = 'none';
               if (submitBtn) submitBtn.disabled = false;
               if (j.error) {
-                showErrorModal(j.error);
+                showErrorModal(localizeBankMessage(j.error_code || j.error));
                 return;
               }
               if (j.success === true) {
@@ -595,18 +1207,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 showReceiptModal(to, amount, j.tx ? j.tx.id : undefined);
                 render && render();
               } else {
-                showErrorModal('Transfer completed but response format unexpected. Please refresh the page.');
+                showErrorModal(getBankUiText('transferUnexpected'));
               }
             }).catch(err => {
-              showErrorModal('Network error: ' + err.message);
+              showErrorModal(getBankUiText('networkErrorWithMessage', { message: err.message }));
             });
           });
       // Show a receipt modal after sending money
       function showReceiptModal(recipient, amount, txId) {
         const now = new Date();
         const transactionId = txId || 'TXN' + now.getFullYear() + (now.getMonth()+1).toString().padStart(2,'0') + now.getDate().toString().padStart(2,'0') + now.getHours().toString().padStart(2,'0') + now.getMinutes().toString().padStart(2,'0') + now.getSeconds().toString().padStart(2,'0') + Math.floor(Math.random()*1000).toString().padStart(3,'0');
-        const currentTime = now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true});
-        const currentDate = now.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
+        const locale = getActiveLanguage();
+        const currentTime = now.toLocaleTimeString(locale, {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true});
+        const currentDate = now.toLocaleDateString(locale, {month: 'short', day: 'numeric', year: 'numeric'});
         // Try to get sender first name from state or fallback to email
         let senderName = '';
         if (state && state.first_name && state.first_name.trim()) {
@@ -626,29 +1239,29 @@ document.addEventListener('DOMContentLoaded', function() {
             <div style="background:linear-gradient(135deg,#0284c7 0%,#38bdf8 100%);padding:36px 24px 24px 24px;text-align:center;position:relative;overflow:hidden;">
               <div style="position:absolute;top:-40px;left:-40px;width:120px;height:120px;background:radial-gradient(circle,rgba(255,255,255,0.18) 0%,transparent 80%);"></div>
               <div style="font-size:60px;margin-bottom:12px;">🎉</div>
-              <h2 style="font-size:clamp(24px,5vw,32px);font-weight:900;color:#fff;margin:0 0 8px 0;letter-spacing:-0.5px;text-shadow:0 4px 12px rgba(2,132,199,0.18);">Transfer Successful!</h2>
-              <div style="color:#bae6fd;font-size:clamp(13px,3vw,15px);font-weight:500;">Your payment has been processed</div>
+              <h2 style="font-size:clamp(24px,5vw,32px);font-weight:900;color:#fff;margin:0 0 8px 0;letter-spacing:-0.5px;text-shadow:0 4px 12px rgba(2,132,199,0.18);">${translateUi('transfer-successful-title', 'Transfer Successful!')}</h2>
+              <div style="color:#bae6fd;font-size:clamp(13px,3vw,15px);font-weight:500;">${translateUi('payment-processed', 'Your payment has been processed')}</div>
             </div>
             <div style="padding:clamp(24px,5vw,36px);position:relative;">
               <div style="background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);border-radius:20px;border:2px solid #86efac;box-shadow:0 8px 32px rgba(134,239,172,0.12);padding:20px 0 12px 0;margin-bottom:24px;">
-                <div style="color:#166534;font-size:clamp(12px,2.8vw,14px);font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">💰 Amount Sent</div>
+                <div style="color:#166534;font-size:clamp(12px,2.8vw,14px);font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">💰 ${translateUi('amount-sent-label', 'Amount Sent')}</div>
                 <div style="color:#166534;font-weight:900;font-size:clamp(38px,9vw,48px);letter-spacing:-2px;text-shadow:0 2px 4px rgba(22,101,52,0.1);margin-bottom:8px">$${parseFloat(amount).toFixed(2)}</div>
               </div>
-              <div style="margin-bottom:8px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">👤 <span>Sender:</span> <span style="font-weight:700">${senderName}</span></div>
-              <div style="margin-bottom:18px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">📤 <span>To:</span> <span style="font-weight:700">${recipient}</span></div>
-              <div style="margin-bottom:8px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">📅 <span>Date:</span> <span style="font-weight:700">${currentDate}</span></div>
-              <div style="margin-bottom:8px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">⏰ <span>Time:</span> <span style="font-weight:700">${currentTime}</span></div>
-              <div style="margin-bottom:18px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">🆔 <span>Transaction ID:</span> <span style="font-weight:700">${transactionId}</span></div>
-              <div style="margin-bottom:18px;font-size:15px;color:#22c55e;font-weight:700;text-align:center;">✅ Status: Completed</div>
-              <div style="margin-bottom:18px;font-size:13px;color:#64748b;text-align:center;">Sent via mywallet</div>
+              <div style="margin-bottom:8px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">👤 <span>${translateUi('sender-label', 'Sender')}:</span> <span style="font-weight:700">${senderName}</span></div>
+              <div style="margin-bottom:18px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">📤 <span>${translateUi('to-label', 'To')}:</span> <span style="font-weight:700">${recipient}</span></div>
+              <div style="margin-bottom:8px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">📅 <span>${translateUi('date-label', 'Date')}:</span> <span style="font-weight:700">${currentDate}</span></div>
+              <div style="margin-bottom:8px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">⏰ <span>${translateUi('time-label', 'Time')}:</span> <span style="font-weight:700">${currentTime}</span></div>
+              <div style="margin-bottom:18px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">🆔 <span>${translateUi('transaction-id-label', 'Transaction ID')}:</span> <span style="font-weight:700">${transactionId}</span></div>
+              <div style="margin-bottom:18px;font-size:15px;color:#22c55e;font-weight:700;text-align:center;">✅ ${translateUi('status-label', 'Status')}: ${translateUi('status-completed', 'Completed')}</div>
+              <div style="margin-bottom:18px;font-size:13px;color:#64748b;text-align:center;">${translateUi('sent-via-wallet', 'Sent via Mivonta')}</div>
               <div style="display:flex;gap:12px;justify-content:center;margin-top:24px;">
                 <button id="share-send-receipt-btn" style="flex:1;padding:14px;background:linear-gradient(135deg,#f59e42 0%,#fbbf24 100%);color:#fff;border:none;border-radius:14px;font-size:clamp(14px,3.5vw,15px);font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(251,191,36,0.3);display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.3s ease;min-height:48px">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 17l4-4 4 4"/><path d="M8 13h8"/></svg>
-                  Share as Image
+                  ${translateUi('share-as-image', 'Share as Image')}
                 </button>
                 <button id="close-send-receipt-btn" style="flex:1;padding:14px;background:linear-gradient(135deg,#0284c7 0%,#38bdf8 100%);color:#fff;border:none;border-radius:14px;font-size:clamp(14px,3.5vw,15px);font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(2,132,199,0.3);display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.3s ease;min-height:48px">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  Done
+                  ${translateUi('done-btn', 'Done')}
                 </button>
               </div>
             </div>
@@ -671,7 +1284,7 @@ document.addEventListener('DOMContentLoaded', function() {
               if (navigator.share && canvas.toBlob) {
                 canvas.toBlob(blob => {
                   const file = new File([blob], 'receipt.png', {type: 'image/png'});
-                  navigator.share({files: [file], title: 'Transfer Receipt', text: 'Transfer Successful!'}).catch(() => {
+                  navigator.share({files: [file], title: translateUi('payment-receipt', 'Payment Receipt'), text: translateUi('transfer-successful-title', 'Transfer Successful!')}).catch(() => {
                     const url = URL.createObjectURL(blob);
                     window.open(url, '_blank');
                   });
@@ -706,18 +1319,18 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         const paymentMethod = paymentMethodSelect.value;
         const amount = parseFloat(document.getElementById('add-amount').value);
-        if (!paymentMethod) return alert('Please select a payment method');
-        if (!amount || amount <= 0) return alert('Enter a valid positive amount');
-        if (amount > 10000) return alert('Maximum amount per transaction is $10,000');
+        if (!paymentMethod) return alert(getBankUiText('pleaseSelectPaymentMethod'));
+        if (!amount || amount <= 0) return alert(getBankUiText('enterPositiveAmount'));
+        if (amount > 10000) return alert(getBankUiText('maxAmount'));
         if (paymentMethod === 'card') {
           const cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
           const cardExpiry = document.getElementById('card-expiry').value;
           const cardCvv = document.getElementById('card-cvv').value;
           const cardName = document.getElementById('card-name').value.trim();
-          if (!cardNumber || cardNumber.length < 13) return alert('Please enter a valid card number');
-          if (!cardExpiry || cardExpiry.length !== 5) return alert('Please enter valid expiry date (MM/YY)');
-          if (!cardCvv || cardCvv.length < 3) return alert('Please enter valid CVV');
-          if (!cardName) return alert('Please enter cardholder name');
+          if (!cardNumber || cardNumber.length < 13) return alert(getBankUiText('validCardNumber'));
+          if (!cardExpiry || cardExpiry.length !== 5) return alert(getBankUiText('validExpiryDate'));
+          if (!cardCvv || cardCvv.length < 3) return alert(getBankUiText('validCvv'));
+          if (!cardName) return alert(getBankUiText('cardholderName'));
         }
         const loadingEl = document.getElementById('add-money-loading');
         const submitBtn = document.getElementById('add-money-submit');
@@ -733,11 +1346,11 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(j => {
           if (loadingEl) loadingEl.style.display = 'none';
           if (submitBtn) submitBtn.disabled = false;
-          if (j.error) return alert(j.error);
+          if (j.error) return alert(localizeBankMessage(j.error_code || j.error));
           if (j.balance !== undefined) state.balance = j.balance;
           updateBalanceDisplay();
           if (j.tx) state.txs.push(j.tx);
-          alert('Money added successfully!');
+          alert(getBankUiText('moneyAddedSuccess'));
           render();
           addMoneyForm.reset();
           addMoneyModal.style.display = 'none';
@@ -745,7 +1358,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(() => {
           if (loadingEl) loadingEl.style.display = 'none';
           if (submitBtn) submitBtn.disabled = false;
-          alert('Network error');
+          alert(getBankUiText('networkError'));
         });
       });
 
@@ -762,6 +1375,8 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       // Update Add Bank button and bank selection UI
       updateBankUITranslations();
+      localizeRecentActivity();
+      localizeBankDynamicUi();
     });
   }
 
@@ -809,6 +1424,13 @@ document.addEventListener('DOMContentLoaded', function() {
     render();
   });
 
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'mw_lang') {
+      localizeRecentActivity();
+      localizeBankDynamicUi();
+    }
+  });
+
   // Listen for exchange rate updates
   window.addEventListener('ratesUpdated', () => {
     render(); // Re-render with new exchange rates
@@ -838,8 +1460,9 @@ document.addEventListener('DOMContentLoaded', function() {
     return first + '*'.repeat(user.length-2) + last + '@' + domain;
   }
   const maskedSenderEmail = maskEmail(senderEmail);
-  const currentTime = now.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true});
-  const currentDate = now.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'});
+  const locale = getActiveLanguage();
+  const currentTime = now.toLocaleTimeString(locale, {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true});
+  const currentDate = now.toLocaleDateString(locale, {month: 'short', day: 'numeric', year: 'numeric'});
   
   console.log('Creating modal element');
   const modal = document.createElement('div');
@@ -861,8 +1484,8 @@ document.addEventListener('DOMContentLoaded', function() {
     '<div style="width:100px;height:100px;background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);border-radius:50%;margin:0 auto 24px;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 40px rgba(0,0,0,0.25);border:3px solid rgba(255,255,255,0.3);animation:scaleInBounce 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.2s both">' +
     '<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' +
     '</div>' +
-    '<h2 style="font-size:clamp(28px,6vw,36px);font-weight:900;color:#fff;margin:0 0 8px 0;letter-spacing:-0.5px;text-shadow:0 4px 12px rgba(0,0,0,0.2);animation:slideInFromTop 0.6s ease 0.3s both">Transfer Successful!</h2>' +
-    '<p style="font-size:clamp(14px,3.5vw,16px);color:rgba(255,255,255,0.95);margin:0;font-weight:500;animation:slideInFromTop 0.6s ease 0.4s both">🎉 Your payment has been processed</p>' +
+    '<h2 style="font-size:clamp(28px,6vw,36px);font-weight:900;color:#fff;margin:0 0 8px 0;letter-spacing:-0.5px;text-shadow:0 4px 12px rgba(0,0,0,0.2);animation:slideInFromTop 0.6s ease 0.3s both">' + translateUi('transfer-successful-title', 'Transfer Successful!') + '</h2>' +
+    '<p style="font-size:clamp(14px,3.5vw,16px);color:rgba(255,255,255,0.95);margin:0;font-weight:500;animation:slideInFromTop 0.6s ease 0.4s both">🎉 ' + translateUi('payment-processed', 'Your payment has been processed') + '</p>' +
     '</div>' +
     
     // Main content
@@ -871,11 +1494,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Amount display - Enhanced with animation
     '<div style="text-align:center;margin-bottom:28px;padding:24px;background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);border-radius:20px;border:2px solid #86efac;box-shadow:0 8px 32px rgba(134,239,172,0.2);position:relative;overflow:hidden">' +
     '<div style="position:absolute;top:0;left:0;right:0;height:100%;background:linear-gradient(45deg,transparent 48%,rgba(255,255,255,0.5) 50%,transparent 52%);background-size:200% 200%;animation:shimmer 3s linear infinite"></div>' +
-    '<div style="color:#166534;font-size:clamp(12px,2.8vw,14px);font-weight:700;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px">💸 Amount Sent</div>' +
+    '<div style="color:#166534;font-size:clamp(12px,2.8vw,14px);font-weight:700;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px">💸 ' + translateUi('amount-sent-label', 'Amount Sent') + '</div>' +
     '<div style="color:#166534;font-weight:900;font-size:clamp(38px,9vw,48px);letter-spacing:-2px;text-shadow:0 2px 4px rgba(22,101,52,0.1);margin-bottom:8px">$' + parseFloat(amount).toFixed(2) + '</div>' +
     '<div style="display:inline-flex;align-items:center;gap:6px;background:rgba(22,101,52,0.15);padding:6px 16px;border-radius:20px;font-size:clamp(11px,2.5vw,13px);color:#166534;font-weight:700">' +
     '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>' +
-    'Completed Successfully' +
+    translateUi('completed-successfully', 'Completed Successfully') +
     '</div>' +
     '</div>' +
     
@@ -888,9 +1511,9 @@ document.addEventListener('DOMContentLoaded', function() {
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>' +
     '</div>' +
     '<div style="flex:1;min-width:0">' +
-    '<div style="color:#64748b;font-size:11px;font-weight:600;margin-bottom:3px">FROM</div>' +
+    '<div style="color:#64748b;font-size:11px;font-weight:600;margin-bottom:3px">' + translateUi('from-label', 'From').toUpperCase() + '</div>' +
     '<div style="color:#0f172a;font-size:clamp(13px,3vw,14px);font-weight:700;word-break:break-all">' + escapeHtml(senderName) + '</div>' +
-    '<div style="color:#64748b;font-size:11px;font-weight:600;margin-bottom:3px">Sender Email</div>' +
+    '<div style="color:#64748b;font-size:11px;font-weight:600;margin-bottom:3px">' + translateUi('sender-email-label', 'Sender Email') + '</div>' +
     '<div style="color:#0f172a;font-size:clamp(13px,3vw,14px);font-weight:700;word-break:break-all">' + escapeHtml(maskedSenderEmail) + '</div>' +
     '</div>' +
     '</div>' +
@@ -900,7 +1523,7 @@ document.addEventListener('DOMContentLoaded', function() {
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>' +
     '</div>' +
     '<div style="flex:1;min-width:0">' +
-    '<div style="color:#64748b;font-size:11px;font-weight:600;margin-bottom:3px">TO</div>' +
+    '<div style="color:#64748b;font-size:11px;font-weight:600;margin-bottom:3px">' + translateUi('to-label', 'To').toUpperCase() + '</div>' +
     '<div style="color:#0f172a;font-size:clamp(13px,3vw,14px);font-weight:700;word-break:break-all">' + escapeHtml(recipient) + '</div>' +
     '</div>' +
     '</div>' +
@@ -908,7 +1531,7 @@ document.addEventListener('DOMContentLoaded', function() {
     '<div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #e2e8f0">' +
     '<div style="display:flex;align-items:center;gap:8px;color:#64748b;font-size:clamp(12px,2.8vw,13px);font-weight:600">' +
     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>' +
-    'Time' +
+    translateUi('time-label', 'Time') +
     '</div>' +
     '<div style="color:#0f172a;font-size:clamp(12px,2.8vw,13px);font-weight:700">' + currentTime + '</div>' +
     '</div>' +
@@ -916,13 +1539,13 @@ document.addEventListener('DOMContentLoaded', function() {
     '<div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #e2e8f0">' +
     '<div style="display:flex;align-items:center;gap:8px;color:#64748b;font-size:clamp(12px,2.8vw,13px);font-weight:600">' +
     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>' +
-    'Date' +
+    translateUi('date-label', 'Date') +
     '</div>' +
     '<div style="color:#0f172a;font-size:clamp(12px,2.8vw,13px);font-weight:700">' + currentDate + '</div>' +
     '</div>' +
     
     '<div style="padding:12px 0">' +
-    '<div style="color:#64748b;font-size:11px;font-weight:600;margin-bottom:6px">TRANSACTION ID</div>' +
+    '<div style="color:#64748b;font-size:11px;font-weight:600;margin-bottom:6px">' + translateUi('transaction-id-label', 'Transaction ID').toUpperCase() + '</div>' +
     '<div style="background:#fff;padding:10px 12px;border-radius:8px;color:#0f172a;font-family:monospace;font-size:clamp(10px,2.5vw,11px);font-weight:700;word-break:break-all;border:1px solid #e2e8f0">' + transactionId + '</div>' +
     '</div>' +
     
@@ -937,21 +1560,21 @@ document.addEventListener('DOMContentLoaded', function() {
     '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">' +
     '<button id="share-receipt-btn" style="padding:clamp(14px,3.5vw,16px);background:linear-gradient(135deg,#10b981 0%,#059669 100%);color:#fff;border:none;border-radius:14px;font-size:clamp(14px,3.5vw,15px);font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.3s ease;min-height:48px">' +
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>' +
-    'Share' +
+    translateUi('share-btn', 'Share') +
     '</button>' +
     '<button id="share-receipt-img-btn" style="padding:clamp(14px,3.5vw,16px);background:linear-gradient(135deg,#f59e42 0%,#fbbf24 100%);color:#fff;border:none;border-radius:14px;font-size:clamp(14px,3.5vw,15px);font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(251,191,36,0.3);display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.3s ease;min-height:48px">' +
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 17l4-4 4 4"/><path d="M8 13h8"/></svg>' +
-    'Share as Image' +
+    translateUi('share-as-image', 'Share as Image') +
     '</button>' +
     '<button onclick="this.closest(\'#receipt-modal\').remove();location.reload()" style="padding:clamp(14px,3.5vw,16px);background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border:none;border-radius:14px;font-size:clamp(14px,3.5vw,15px);font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(102,126,234,0.3);display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.3s ease;min-height:48px">' +
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>' +
-    'Done' +
+    translateUi('done-btn', 'Done') +
     '</button>' +
     '</div>' +
     
     // Footer text
     '<div style="text-align:center;padding-top:16px;border-top:1px solid #e2e8f0">' +
-    '<p style="color:#94a3b8;font-size:clamp(11px,2.5vw,12px);margin:0;font-weight:500">🔒 This transaction is secure and encrypted</p>' +
+    '<p style="color:#94a3b8;font-size:clamp(11px,2.5vw,12px);margin:0;font-weight:500">🔒 ' + translateUi('transaction-secure', 'This transaction is secure and encrypted') + '</p>' +
     '</div>' +
     
     '</div>';
@@ -966,10 +1589,10 @@ document.addEventListener('DOMContentLoaded', function() {
   const shareBtn = document.getElementById('share-receipt-btn');
   if (shareBtn) {
     shareBtn.addEventListener('click', function() {
-      const receiptText = `🎉 Transfer Successful!\n\n💰 Amount: $${parseFloat(amount).toFixed(2)}\n📤 To: ${recipient}\n📅 Date: ${currentDate}\n⏰ Time: ${currentTime}\n🆔 Transaction ID: ${transactionId}\n\n✅ Status: Completed\n\nSent via mywallet`;
+      const receiptText = `🎉 ${translateUi('transfer-successful-title', 'Transfer Successful!')}\n\n💰 ${translateUi('amount-label', 'Amount')}: $${parseFloat(amount).toFixed(2)}\n📤 ${translateUi('to-label', 'To')}: ${recipient}\n📅 ${translateUi('date-label', 'Date')}: ${currentDate}\n⏰ ${translateUi('time-label', 'Time')}: ${currentTime}\n🆔 ${translateUi('transaction-id-label', 'Transaction ID')}: ${transactionId}\n\n✅ ${translateUi('status-label', 'Status')}: ${translateUi('status-completed', 'Completed')}\n\n${translateUi('sent-via-wallet', 'Sent via Mivonta')}`;
       if (navigator.share) {
         navigator.share({
-          title: 'Payment Receipt',
+          title: translateUi('payment-receipt', 'Payment Receipt'),
           text: receiptText
         }).catch(() => {
           copyToClipboard(receiptText);

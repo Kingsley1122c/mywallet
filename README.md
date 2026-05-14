@@ -1,4 +1,4 @@
-# MyWallet (local)
+# Mivonta (local)
 
 Quick local setup to test the simple PHP login + dashboard.
 
@@ -8,15 +8,10 @@ Quick local setup to test the simple PHP login + dashboard.
 
 2. Open http://localhost:8000 in your browser.
 
-3. Default credentials (created automatically on first run):
+3. Default credentials
 
-   - Email: user@example.com
-   - Password: Password123
-
-   - Admin account (created on first run):
-
-     - Email: admin@example.com
-     - Password: AdminPass123
+   - Test and admin access depend on the current values stored in your local `users.json` or `users.seed.json`.
+   - Do not rely on hardcoded example passwords in shared environments.
 
 4. Notes:
 
@@ -49,11 +44,19 @@ Quick local setup to test the simple PHP login + dashboard.
    - You can use the included static pages `login.html` and `register.html` if you prefer keeping form UI as pure HTML.
    - The static register page uses `get_csrf.php` to fetch a CSRF token before submitting to `register.php`.
 
-10. Deploying on Render
+10. Deploying with GitHub and InfinityFree
 
-   - This repository now includes `Dockerfile`, `start-render.sh`, and `render.yaml` for Render.
-   - The app stores users, transactions, password resets, messages, and logs in local JSON/TXT files. On Render, attach a persistent disk at `/var/data` so those files survive restarts and deploys.
-   - Push the repository to GitHub, create a new Render Blueprint or Web Service from the repo, and Render will build from `Dockerfile`.
-   - If your Render plan does not support disks, the app will still boot, but file-based data will reset when the container is replaced.
-   - Email delivery on Render is now environment-driven. Set either `RESEND_API_KEY` plus optional `EMAIL_PROVIDER=resend`, or set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, and optional `FROM_EMAIL`, `FROM_NAME`, `SMTP_ENCRYPTION`, `EMAIL_PROVIDER=smtp`.
+   - Use GitHub as the source-of-truth repository and InfinityFree as the live PHP host for `mivonta.com`.
+   - Build the upload bundle locally with `build_shared_host_bundle.ps1`, then upload the contents of `shared-host-bundle` to the InfinityFree web root, usually `htdocs`.
+   - Make sure `.htaccess` is present in the web root so homepage redirects, sitemap routing, and sensitive-file protection work correctly.
+   - If email sending is required on InfinityFree, configure the supported SMTP or API-based settings in `email_local.php` and `email_config.php`.
+
+11. Security notes
+
+   - Do not keep or display plaintext passwords in JSON seed files, admin views, or documentation.
+   - Upload the root `.htaccess` file on Apache-style shared hosting so `users.json`, transaction files, reset logs, and similar storage files are not publicly downloadable.
+   - Existing runtime data can be preserved by copying the current JSON/TXT data files from the current InfinityFree host before any overwrite or migration.
+   - For a free PHP-hosting migration path that matches this app's storage model, see `FREE_PHP_HOSTING_GUIDE.md`.
+   - For the exact upload order and a snapshot of local data-file timestamps, see `UPLOAD_MANIFEST.md`.
+   - To build a minimal upload folder locally, run `build_shared_host_bundle.ps1` and review `TRIMMED_DEPLOY_CHECKLIST.md` plus `INFINITYFREE_STEPS.md`.
 

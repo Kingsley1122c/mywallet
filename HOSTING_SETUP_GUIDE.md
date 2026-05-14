@@ -83,7 +83,7 @@ Files need write permissions. In cPanel File Manager:
 Your domain: https://yourdomain.com/
 Home page: https://yourdomain.com/index.html
 Login: https://yourdomain.com/login.html
-Admin: https://yourdomain.com/admin.php (login as admin@example.com)
+Admin: https://yourdomain.com/admin.php (login with an account that currently has role `admin`)
 ```
 
 ### Step 6: Update Configuration (If Needed)

@@ -19,8 +19,10 @@ if (empty($_SESSION['user_id'])) {
 $usersFile = __DIR__ . '/../users.json';
 $txFile = __DIR__ . '/../transactions.json';
 
+include_once __DIR__ . '/../withdrawal_status.php';
+
 $users = file_exists($usersFile) ? json_decode(file_get_contents($usersFile), true) : [];
-$transactions = file_exists($txFile) ? json_decode(file_get_contents($txFile), true) : [];
+$transactions = syncWithdrawalTransactions($txFile, $usersFile);
 
 $meId = (int) $_SESSION['user_id'];
 $me = null; $meIdx = null;
@@ -76,15 +78,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 // POST actions: expect JSON body
 $body = json_decode(file_get_contents('php://input'), true) ?: [];
+
+function respond_error($message, $errorCode, $status = 400, $extra = []) {
+    http_response_code($status);
+    echo json_encode(array_merge(['error' => $message, 'error_code' => $errorCode], $extra));
+    exit();
+}
+
 $token = $body['csrf_token'] ?? '';
 if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
-    http_response_code(400); echo json_encode(['error'=>'Invalid CSRF token']); exit();
+    respond_error('Invalid CSRF token', 'invalidCsrfToken');
 }
 
 $action = $body['action'] ?? '';
 if ($action === 'add') {
     $amount = floatval($body['amount'] ?? 0);
-    if ($amount <= 0) { http_response_code(400); echo json_encode(['error'=>'Invalid amount']); exit(); }
+    if ($amount <= 0) { respond_error('Invalid amount', 'enterPositiveAmount'); }
     // update balance
     $users[$meIdx]['balance'] = ($users[$meIdx]['balance'] ?? 0) + $amount;
     // append transaction
@@ -113,12 +122,12 @@ if ($action === 'add') {
 if ($action === 'send') {
     $to = trim($body['to'] ?? '');
     $amount = floatval($body['amount'] ?? 0);
-    if ($amount <= 0 || $to === '') { http_response_code(400); echo json_encode(['error'=>'Invalid request']); exit(); }
-    if ($amount > ($users[$meIdx]['balance'] ?? 0)) { http_response_code(400); echo json_encode(['error'=>'Insufficient balance']); exit(); }
+    if ($amount <= 0 || $to === '') { respond_error('Invalid request', 'enterRecipientAndAmount'); }
+    if ($amount > ($users[$meIdx]['balance'] ?? 0)) { respond_error('Insufficient balance', 'insufficientBalance'); }
     // find recipient by email
     $targetIdx = null; $target = null;
     foreach ($users as $i => $u) { if (strtolower($u['email']) === strtolower($to)) { $target = $u; $targetIdx = $i; break; } }
-    if (!$target) { http_response_code(400); echo json_encode(['error'=>'Recipient not found']); exit(); }
+    if (!$target) { respond_error('Recipient not found', 'recipientNotFound'); }
 
     // Direct transfer - deduct from sender, add to recipient
     $users[$meIdx]['balance'] -= $amount;
@@ -218,9 +227,9 @@ if ($action === 'withdraw') {
     $amount = floatval($body['amount'] ?? 0);
     $bankAccountId = $body['bank_account_id'] ?? '';
     
-    if ($amount <= 0) { http_response_code(400); echo json_encode(['error'=>'Invalid amount']); exit(); }
-    if (!$bankAccountId) { http_response_code(400); echo json_encode(['error'=>'Bank account required']); exit(); }
-    if ($amount > ($users[$meIdx]['balance'] ?? 0)) { http_response_code(400); echo json_encode(['error'=>'Insufficient balance']); exit(); }
+    if ($amount <= 0) { respond_error('Invalid amount', 'enterPositiveAmount'); }
+    if (!$bankAccountId) { respond_error('Bank account required', 'bankAccountRequired'); }
+    if ($amount > ($users[$meIdx]['balance'] ?? 0)) { respond_error('Insufficient balance', 'insufficientBalance'); }
     
     // Verify bank account belongs to user
     $bankAccountsFile = __DIR__ . '/../bank_accounts.json';
@@ -232,31 +241,32 @@ if ($action === 'withdraw') {
             break;
         }
     }
-    if (!$bankAccount) { http_response_code(400); echo json_encode(['error'=>'Bank account not found']); exit(); }
+    if (!$bankAccount) { respond_error('Bank account not found', 'bankAccountNotFound'); }
     
-    // Process withdrawal
-    $users[$meIdx]['balance'] -= $amount;
-    $tx = ['id'=>uniqid(), 'user_id'=>$meId, 'time'=>time()*1000, 'desc'=>"Withdrawal to {$bankAccount['bank_name']} ({$bankAccount['account_number']})", 'amount'=>-round($amount,2)];
+    $nowMs = (int) round(microtime(true) * 1000);
+    $tx = [
+        'id' => uniqid(),
+        'user_id' => $meId,
+        'time' => $nowMs,
+        'desc' => "Withdrawal to {$bankAccount['bank_name']} ({$bankAccount['account_number']})",
+        'amount' => -round($amount, 2),
+        'status' => 'processing',
+        'kind' => 'withdrawal',
+        'bank_name' => $bankAccount['bank_name'],
+        'account_number' => $bankAccount['account_number'],
+        'expires_at' => $nowMs + getWithdrawalProcessingWindowMs(),
+    ];
     $transactions[] = $tx;
     
     // persist
     file_put_contents($txFile, json_encode($transactions, JSON_PRETTY_PRINT), LOCK_EX);
-    file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT), LOCK_EX);
     
     include_once __DIR__ . '/../audit.php';
-    write_audit('withdrawal', $meId, $me['email'], $me['email'], ['bank'=>$bankAccount['bank_name'], 'amount'=>$amount, 'last_4'=>substr($bankAccount['account_number'], -4)]);
-    
-    // Send email notification
-    include_once __DIR__ . '/email_notifications.php';
-    $emailData = [
-        'type' => 'withdraw',
-        'amount' => $amount,
-        'date' => date('F j, Y g:i A'),
-        'balance' => $users[$meIdx]['balance']
-    ];
-    sendTransactionEmail($me['email'], $emailData);
+    write_audit('withdrawal_requested', $meId, $me['email'], $me['email'], ['bank'=>$bankAccount['bank_name'], 'amount'=>$amount, 'last_4'=>substr($bankAccount['account_number'], -4), 'expires_at'=>$tx['expires_at']]);
     
     echo json_encode(['success'=>true,'balance'=>$users[$meIdx]['balance'],'tx'=>$tx]); exit();
 }
+
+respond_error('Invalid action', 'invalidAction');
 
 http_response_code(400); echo json_encode(['error'=>'Unknown action']); exit();

@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sign in | mywallet</title>
+    <title>Sign in | Mivonta</title>
     <link rel="stylesheet" href="style.css">
     <script>
         // Apply theme immediately to prevent flash
@@ -215,6 +215,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             padding: 48px;
             max-width: 480px;
             width: 100%;
+            box-sizing: border-box;
         }
         .auth-card h2 {
             font-size: 32px;
@@ -378,6 +379,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 flex-wrap: wrap;
                 gap: 12px;
             }
+            .auth-topbar > div:last-child {
+                width: 100%;
+                justify-content: space-between;
+                min-width: 0;
+            }
+            #lang-select {
+                flex: 1;
+                min-width: 0;
+            }
             .auth-logo {
                 gap: 8px;
             }
@@ -416,6 +426,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             .auth-topbar {
                 padding: 12px;
+            }
+            .auth-home-link {
+                padding-inline: 16px;
             }
             .modern-input input {
                 padding: 14px 14px 14px 44px;
@@ -599,7 +612,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <header class="auth-topbar">
         <div class="auth-logo">
             <div class="auth-logo-icon">MPW</div>
-            <h2 data-i18n="site-title">mywallet</h2>
+            <h2 data-i18n="site-title">Mivonta</h2>
         </div>
         <div style="display:flex;align-items:center;gap:16px">
             <select id="lang-select" style="padding:10px 16px;border-radius:24px;background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);color:#fff;font-weight:600;font-size:14px;border:1px solid rgba(255,255,255,0.3);cursor:pointer;outline:none">
@@ -617,14 +630,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <option value="ru">🇷🇺 Русский</option>
                 <option value="nl">🇳🇱 Nederlands</option>
             </select>
-            <a class="auth-home-link" href="index.php" data-i18n="nav-home">🏠 Home</a>
+            <a class="auth-home-link" href="/" data-i18n="nav-home">🏠 Home</a>
         </div>
     </header>
 
     <div class="auth-container">
         <div class="auth-card">
-            <h2 data-i18n="welcome-back">Welcome back</h2>
-            <p data-i18n="sign-in-message">Sign in to your account to continue</p>
+            <h2 data-i18n="welcome-back">Account sign in</h2>
+            <p data-i18n="sign-in-message">Use your registered email address and password to access your account.</p>
 
             <?php if ($error): ?>
                 <p class="error"><?php echo htmlspecialchars($error); ?></p>
@@ -651,7 +664,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
                     <div class="auth-actions">
-                        <button class="btn-modern primary" type="submit" data-i18n="sign-in-btn">Sign in to your account</button>
+                        <button class="btn-modern primary" type="submit" data-i18n="sign-in-btn">Continue</button>
                     </div>
                     <div class="forgot-link">
                         <a href="forgot.php" data-i18n="forgot-password">Forgot your password?</a>
@@ -695,9 +708,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['activate_account'])) 
 
             <div class="auth-footer">
                 <p><span data-i18n="no-account">Don't have an account?</span> <a href="register.php" data-i18n="create-account">Create an account</a></p>
-                <div class="tip-box">
-                    💡 <strong data-i18n="demo-account">Demo Account</strong>: user@example.com / Password123
-                </div>
             </div>
         </div>
     </div>
@@ -741,7 +751,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['activate_account'])) 
         });
     }
 </script>
-<script src="i18n_enhanced.js"></script>
-<script src="showhide.js"></script>
+<script src="i18n_enhanced.js?v=20260427d"></script>
+<script src="showhide.js?v=20260427c"></script>
 </body>
 </html>

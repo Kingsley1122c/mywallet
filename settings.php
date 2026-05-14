@@ -11,7 +11,7 @@ if(!isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Settings | mywallet</title>
+    <title>Settings | Mivonta</title>
     <link rel="stylesheet" href="style.css">
     <script>
         // Apply theme immediately to prevent flash
@@ -394,7 +394,7 @@ if(!isset($_SESSION['user_id'])) {
             <div class="topbar-left">
                 <div class="topbar-logo">MPW</div>
                 <div class="topbar-brand">
-                    <h2 data-i18n="site-title">mywallet</h2>
+                    <h2 data-i18n="site-title">Mivonta</h2>
                 </div>
             </div>
             <a class="topbar-back" href="dashboard.php" data-i18n="back-to-dashboard">← Back to Dashboard</a>
@@ -476,7 +476,7 @@ if(!isset($_SESSION['user_id'])) {
     </main>
     
     <script src="countries.js"></script>
-    <script src="i18n_enhanced.js"></script>
+    <script src="i18n_enhanced.js?v=20260427d"></script>
     <script>
         const themeSelect = document.getElementById('theme-select');
         

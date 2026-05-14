@@ -207,7 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Create account | mywallet</title>
+    <title>Create account | Mivonta</title>
     <link rel="stylesheet" href="style.css">
     <script>
         // Apply theme immediately to prevent flash
@@ -603,7 +603,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <header class="auth-topbar">
         <div class="auth-logo">
             <div class="auth-logo-icon">MPW</div>
-            <h2 data-i18n="site-title">mywallet</h2>
+            <h2 data-i18n="site-title">Mivonta</h2>
         </div>
         <div style="display:flex;align-items:center;gap:16px">
             <select id="lang-select" style="padding:10px 16px;border-radius:24px;background:rgba(255,255,255,0.2);backdrop-filter:blur(10px);color:#fff;font-weight:600;font-size:14px;border:1px solid rgba(255,255,255,0.3);cursor:pointer;outline:none">
@@ -621,14 +621,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <option value="ru">🇷🇺 Русский</option>
                 <option value="nl">🇳🇱 Nederlands</option>
             </select>
-            <a class="auth-home-link" href="index.php" data-i18n="nav-home">🏠 Home</a>
+            <a class="auth-home-link" href="/" data-i18n="nav-home">🏠 Home</a>
         </div>
     </header>
 
     <div class="auth-container">
         <div class="auth-card">
-            <h2 data-i18n="create-account-title">Create your account</h2>
-            <p data-i18n="join-message">Join millions managing their money securely</p>
+            <h2 data-i18n="create-account-title">Create an account</h2>
+            <p data-i18n="join-message">Register for account access.</p>
 
             <?php if ($error): ?>
                 <p class="error"><?php echo htmlspecialchars($error); ?></p>
@@ -689,16 +689,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="modern-input">
-                    <label for="referral_code" data-i18n="referral-code-optional">Referral Code (Optional)</label>
+                    <label for="referral_code" data-i18n="referral-code-optional">Invitation Code (Optional)</label>
                     <div class="input-wrapper">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 1h5.5c.8 0 1.5.7 1.5 1.5V7m-4.5 6.5l4.5 4.5M1 8.5v-5C1 2.7 1.7 2 2.5 2H8m-3.5 9L1 14.5m5 1.5h5.5c.8 0 1.5-.7 1.5-1.5V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        <input type="text" id="referral_code" name="referral_code" placeholder="Enter referral code to get $10 bonus" style="text-transform: uppercase;" data-i18n-placeholder="referral-placeholder">
+                        <input type="text" id="referral_code" name="referral_code" placeholder="Enter an invitation code if you were given one" style="text-transform: uppercase;" data-i18n-placeholder="referral-placeholder">
                     </div>
-                    <small style="display: block; margin-top: 6px; color: #667eea; font-size: 12px; font-weight: 600;" data-i18n="referral-tip">💡 Use a referral code to receive $10 welcome bonus!</small>
+                    <small style="display: block; margin-top: 6px; color: #667eea; font-size: 12px; font-weight: 600;" data-i18n="referral-tip">Invitation codes are optional.</small>
                 </div>
 
                 <div class="auth-actions">
-                    <button class="btn-modern primary" type="submit" data-i18n="create-account-btn">Create my account</button>
+                    <button class="btn-modern primary" type="submit" data-i18n="create-account-btn">Create account</button>
                 </div>
 
                 <div class="terms-text">
@@ -720,7 +720,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="loading-content">
             <div class="spinner"></div>
             <div class="loading-text" data-i18n="creating-account">Creating your account...</div>
-            <div class="loading-subtext" data-i18n="setting-up-wallet">Setting up your wallet</div>
+            <div class="loading-subtext" data-i18n="setting-up-wallet">Setting up your account</div>
         </div>
     </div>
     
@@ -733,7 +733,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
     }
 </script>
-<script src="i18n_enhanced.js"></script>
-<script src="showhide.js"></script>
+<script src="i18n_enhanced.js?v=20260427d"></script>
+<script src="showhide.js?v=20260427c"></script>
 </body>
 </html>

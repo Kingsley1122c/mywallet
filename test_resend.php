@@ -8,9 +8,9 @@ echo "Testing Resend API...\n\n";
 
 $result = sendEmailResend(
     'harrisonjacksonj011@gmail.com',
-    'Test Email from mywallet',
-    '<h1>Hello!</h1><p>This is a test email from your mywallet site.</p><p>If you received this, email notifications are working! ✅</p>',
-    'Hello! This is a test email from your mywallet site.'
+    'Test Email from Mivonta',
+    '<h1>Hello!</h1><p>This is a test email from your Mivonta site.</p><p>If you received this, email notifications are working! ✅</p>',
+    'Hello! This is a test email from your Mivonta site.'
 );
 
 if ($result) {

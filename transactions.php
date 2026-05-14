@@ -5,7 +5,8 @@ if (empty($_SESSION['user_id'])) { header('Location: login.php'); exit(); }
 $usersFile = __DIR__ . '/users.json';
 $txFile = __DIR__ . '/transactions.json';
 $users = file_exists($usersFile) ? json_decode(file_get_contents($usersFile), true) : [];
-$txs = file_exists($txFile) ? json_decode(file_get_contents($txFile), true) : [];
+include_once __DIR__ . '/withdrawal_status.php';
+$txs = syncWithdrawalTransactions($txFile, $usersFile);
 
 $meId = (int) $_SESSION['user_id'];
 $me = null;
@@ -22,7 +23,7 @@ usort($list, fn($a,$b)=> $b['time'] <=> $a['time']);
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Transactions | MyWallet</title>
+    <title>Transactions | Mivonta</title>
     <link rel="stylesheet" href="style.css">
     <style>
         .transactions-table {

@@ -2,20 +2,24 @@
 session_start();
 header('Content-Type: application/json');
 
+function respond_error($message, $errorCode, $status = 400, $extra = []) {
+    http_response_code($status);
+    echo json_encode(array_merge(['error' => $message, 'error_code' => $errorCode], $extra));
+    exit();
+}
+
 $usersFile = __DIR__ . '/../users.json';
 $codesFile = __DIR__ . '/../withdrawal_codes.json';
 
 if (!file_exists($usersFile)) {
-    echo json_encode(['error' => 'System error']);
-    exit();
+    respond_error('System error', 'systemError', 500);
 }
 
 $users = json_decode(file_get_contents($usersFile), true) ?: [];
 
 // Find current user
 if (empty($_SESSION['user_id'])) {
-    echo json_encode(['error' => 'Not authenticated']);
-    exit();
+    respond_error('Not authenticated', 'notAuthenticated', 401);
 }
 
 $currentUser = null;
@@ -27,8 +31,7 @@ foreach ($users as $u) {
 }
 
 if (!$currentUser) {
-    echo json_encode(['error' => 'User not found']);
-    exit();
+    respond_error('User not found', 'userNotFound', 404);
 }
 
 // Ensure codes file exists
@@ -48,8 +51,7 @@ if ($action === 'generate' && $currentUser['role'] === 'admin') {
     $amount = floatval($input['amount'] ?? 0);
     
     if (!$targetUserId || $amount <= 0) {
-        echo json_encode(['error' => 'Invalid user ID or amount']);
-        exit();
+        respond_error('Invalid user ID or amount', 'invalidUserOrAmount');
     }
     
     // Find target user
@@ -72,14 +74,12 @@ if ($action === 'generate' && $currentUser['role'] === 'admin') {
             }
         }
         if (count($attempts) >= $maxAttempts) {
-            echo json_encode(['error' => 'Too many attempts. Please wait and try again.']);
-            exit();
+            respond_error('Too many attempts. Please wait and try again.', 'tooManyAttempts');
         }
         // Log this attempt
         file_put_contents($logFile, $currentUser['id'] . '|' . $code . '|' . $now . "\n", FILE_APPEND);
         if (!$code || $amount <= 0) {
-            echo json_encode(['error' => 'Invalid code or amount']);
-            exit();
+            respond_error('Invalid code or amount', 'invalidCodeOrAmount');
         }
         // Find matching code
         foreach ($codes as $i => $c) {
@@ -92,13 +92,11 @@ if ($action === 'generate' && $currentUser['role'] === 'admin') {
             }
         }
         if (!$matchingCode) {
-            echo json_encode(['error' => 'Invalid or expired code']);
-            exit();
+            respond_error('Invalid or expired code', 'invalidOrExpiredCode');
         }
         // Check expiration
         if (($now - $matchingCode['created_at']) > $expireSeconds) {
-            echo json_encode(['error' => 'This code has expired. Request a new one.']);
-            exit();
+            respond_error('This code has expired. Request a new one.', 'codeExpired');
         }
     }
     
@@ -151,8 +149,7 @@ if ($action === 'validate') {
     $amount = floatval($input['amount'] ?? 0);
     
     if (!$code || $amount <= 0) {
-        echo json_encode(['error' => 'Invalid code or amount']);
-        exit();
+        respond_error('Invalid code or amount', 'invalidCodeOrAmount');
     }
     
     // Find matching code
@@ -170,8 +167,7 @@ if ($action === 'validate') {
     }
     
     if (!$matchingCode) {
-        echo json_encode(['error' => 'Invalid or expired code']);
-        exit();
+        respond_error('Invalid or expired code', 'invalidOrExpiredCode');
     }
     
                 foreach ($codes as $i => $c) {
@@ -196,8 +192,7 @@ if ($action === 'validate') {
                         'ip' => $_SERVER['REMOTE_ADDR'] ?? ''
                     ];
                     file_put_contents(__DIR__ . '/../audit_log.jsonl', json_encode($audit) . "\n", FILE_APPEND);
-                    echo json_encode(['error' => 'Invalid or expired code']);
-                    exit();
+                    respond_error('Invalid or expired code', 'invalidOrExpiredCode');
                 }
     file_put_contents($codesFile, json_encode($codes, JSON_PRETTY_PRINT), LOCK_EX);
     
@@ -215,4 +210,4 @@ if ($action === 'check_codes') {
     exit();
 }
 
-echo json_encode(['error' => 'Invalid action']);
+respond_error('Invalid action', 'invalidAction');

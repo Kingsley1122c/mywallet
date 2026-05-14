@@ -56,7 +56,7 @@ For professional transactional emails:
 ## 📝 Email Template Features
 
 Your emails include:
-- 🎨 Beautiful HTML design with MyWallet branding
+- 🎨 Beautiful HTML design with Mivonta branding
 - 💳 Transaction details (amount, date, balance)
 - 📊 Current account balance
 - 🔗 Direct link to dashboard
@@ -97,7 +97,7 @@ mailhog
 ## 📧 Email Examples
 
 ### When User Adds Money:
-**Subject:** Transaction Notification - MyWallet  
+**Subject:** Transaction Notification - Mivonta  
 **Content:**
 - Amount added: +$100.00
 - Payment method: Bank Card
@@ -105,7 +105,7 @@ mailhog
 - View Dashboard button
 
 ### When Money is Sent:
-**Subject:** Transaction Notification - MyWallet  
+**Subject:** Transaction Notification - Mivonta  
 **Content:**
 - Amount sent: -$50.00
 - Recipient: user@example.com
@@ -113,7 +113,7 @@ mailhog
 - Current balance: $450.00
 
 ### When Money is Received:
-**Subject:** Transaction Notification - MyWallet  
+**Subject:** Transaction Notification - Mivonta  
 **Content:**
 - Amount received: +$50.00
 - From: sender@example.com
@@ -145,11 +145,11 @@ mailhog
 ### Want custom "From" email?
 Edit `api/email_notifications.php` line 17:
 ```php
-$headers .= "From: MyWallet <wallet001122@gmail.com>" . "\r\n";
+$headers .= "From: Mivonta <wallet001122@gmail.com>" . "\r\n";
 ```
 Change to:
 ```php
-$headers .= "From: MyWallet <noreply@yourdomain.com>" . "\r\n";
+$headers .= "From: Mivonta <noreply@yourdomain.com>" . "\r\n";
 ```
 
 ### Want to customize email design?

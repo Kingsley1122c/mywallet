@@ -1,0 +1,84 @@
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTPS} !=on [OR]
+    RewriteCond %{HTTP_HOST} ^www\.mivonta\.com$ [NC]
+    RewriteRule ^ https://mivonta.com%{REQUEST_URI} [L,R=301]
+    RewriteRule ^index\.html$ / [L,R=301]
+    RewriteRule ^robots\.txt$ robots.php [L]
+    RewriteRule ^sitemap\.xml$ sitemap.php [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    <FilesMatch "^(admin|dashboard|settings|pending_transfers|add_money|bank_accounts|bank_accounts_new|transactions|loans|investments|withdrawal_codes_admin|login|register|forgot|reset|change_password)\.php$">
+        Header always set X-Robots-Tag "noindex, nofollow, noarchive"
+    </FilesMatch>
+
+    <FilesMatch "^test\.php$">
+        Header always set X-Robots-Tag "noindex, nofollow, noarchive"
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_authz_core.c>
+    <FilesMatch "^\.">
+        Require all denied
+    </FilesMatch>
+
+    <FilesMatch "\.(json|jsonl)$">
+        Require all denied
+    </FilesMatch>
+
+    <FilesMatch "^(cookies\.txt|email_log\.txt|reset_links\.txt|.*\.log)$">
+        Require all denied
+    </FilesMatch>
+
+    <FilesMatch "^(phpinfo|test_email|test_resend|test_session|test_smtp_debug|test_transfer)\.php$">
+        Require all denied
+    </FilesMatch>
+
+    <FilesMatch "^(test|dashboard_snapshot|iphone_preview)\.html$">
+        Require all denied
+    </FilesMatch>
+
+    <FilesMatch "^(\.env|\.gitignore|\.dockerignore|Dockerfile|render\.yaml|start-render\.sh|START_PUBLIC_SITE\.bat|users\.seed\.json|users_bootstrap\.php|render_restore_users\.php|local_only\.php|.*\.md)$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    <FilesMatch "^\.">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+
+    <FilesMatch "\.(json|jsonl)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+
+    <FilesMatch "^(cookies\.txt|email_log\.txt|reset_links\.txt|.*\.log)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+
+    <FilesMatch "^(phpinfo|test_email|test_resend|test_session|test_smtp_debug|test_transfer)\.php$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+
+    <FilesMatch "^(test|dashboard_snapshot|iphone_preview)\.html$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+
+    <FilesMatch "^(\.env|\.gitignore|\.dockerignore|Dockerfile|render\.yaml|start-render\.sh|START_PUBLIC_SITE\.bat|users\.seed\.json|users_bootstrap\.php|render_restore_users\.php|local_only\.php|.*\.md)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
+

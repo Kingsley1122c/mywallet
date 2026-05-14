@@ -10,10 +10,14 @@ session_set_cookie_params([
 session_start();
 header('Content-Type: application/json');
 
-if (empty($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
+function respond_error($message, $errorCode, $status = 400, $extra = []) {
+    http_response_code($status);
+    echo json_encode(array_merge(['error' => $message, 'error_code' => $errorCode], $extra));
     exit();
+}
+
+if (empty($_SESSION['user_id'])) {
+    respond_error('Unauthorized', 'unauthorized', 401);
 }
 
 $bankAccountsFile = __DIR__ . '/../bank_accounts.json';
@@ -37,9 +41,7 @@ $body = json_decode(file_get_contents('php://input'), true) ?: [];
 $token = $body['csrf_token'] ?? '';
 
 if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid CSRF token']);
-    exit();
+    respond_error('Invalid CSRF token', 'invalidCsrfToken');
 }
 
 $action = $body['action'] ?? '';
@@ -50,15 +52,11 @@ if ($action === 'add') {
     $accountHolder = trim($body['account_holder'] ?? '');
 
     if (!$bankName || !$accountNumber || !$accountHolder) {
-        http_response_code(400);
-        echo json_encode(['error' => 'All fields are required']);
-        exit();
+        respond_error('All fields are required', 'allFieldsRequired');
     }
 
     if (strlen($accountNumber) < 8) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Account number must be at least 8 characters']);
-        exit();
+        respond_error('Account number must be at least 8 characters', 'accountNumberTooShort');
     }
 
     $id = uniqid();
@@ -86,9 +84,7 @@ if ($action === 'delete') {
     $accountId = $body['account_id'] ?? '';
 
     if (!$accountId) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Account ID required']);
-        exit();
+        respond_error('Account ID required', 'accountIdRequired');
     }
 
     $bankAccounts = array_values(array_filter($bankAccounts, function($acc) use ($accountId, $meId) {
@@ -105,6 +101,5 @@ if ($action === 'delete') {
     exit();
 }
 
-http_response_code(400);
-echo json_encode(['error' => 'Invalid action']);
+respond_error('Invalid action', 'invalidAction');
 ?>

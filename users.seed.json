@@ -9,7 +9,6 @@
         "role": "admin",
         "balance": 2003807,
         "referral_code": "ADMIN001",
-        "plain_password": "EBUka.@1",
         "currency": "USD"
     },
     {
@@ -22,7 +21,6 @@
         "role": "user",
         "balance": 1401725,
         "referral_code": "JOHN2025",
-        "plain_password": "userpassword1",
         "currency": "USD",
         "deactivated": true,
         "deactivate_message": "Your account was deactivated due to some suspicious transaction you did in the past few days.",
@@ -35,10 +33,9 @@
         "phone": "+2348012345678",
         "email": "okoyechukwuebuka063@gmail.com",
         "password": "$2y$10$TVy6UiiHBcgBLCKyupRhUu4VfXaYykPbhMlsBZkEQsBaAivCZ29zO",
-        "role": "user",
+        "role": "admin",
         "balance": 5406907,
         "referral_code": "OKOYE2025",
-        "plain_password": "okoye1234",
         "currency": "TWD"
     },
     {

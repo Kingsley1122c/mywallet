@@ -1,83 +1,16 @@
 <?php
 session_start();
-// If logged in, send to the dashboard (bank UI); otherwise show the public home page
+// Logged-in users still land on the dashboard, but guests should get the public
+// homepage directly at / so search engines do not see the root URL as a redirect.
 if (isset($_SESSION['user_id'])) {
     header('Location: dashboard.php');
     exit();
-} else {
-    header('Location: index.html');
-    exit();
 }
+
+header('Content-Type: text/html; charset=UTF-8');
+readfile(__DIR__ . '/index.html');
+exit();
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>MyWallet Dashboard</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-    <header class="topbar">
-        <h2>MyWallet</h2>
-        <?php if ($loggedIn): ?>
-            <div style="display:flex;align-items:center;gap:12px;color:#fff">
-                <span style="opacity:.9">Signed in as <?php echo htmlspecialchars($email); ?></span>
-                <?php if ($role === 'admin'): ?> <a style="color:#fff;margin-left:8px" href="admin.php">Admin</a> <?php endif; ?>
-                <a class="logout" href="logout.php">Log out</a>
-            </div>
-        <?php else: ?>
-            <a class="logout" href="login.php">Log in</a>
-        <?php endif; ?>
-    </header>
-
-    <main class="container">
-        <section class="balance-card">
-            <p>Available Balance</p>
-            <h1>$20,000,450.75</h1>
-            <button class="btn-primary">Add Money</button>
-        </section>
-
-        <section class="actions">
-            <button>Send</button>
-            <button>Request</button>
-            <button>Withdraw</button>
-        </section>
-
-        <section class="transactions">
-            <h3>Recent Activity</h3>
-            <ul>
-                <li>
-                    <span>Payment Received</span>
-                    <strong>+$100,220.00</strong>
-                </li>
-                <li>
-                    <span>Online Purchase</span>
-                    <strong>- $430.90</strong>
-                </li>
-                <li>
-                    <span>Transfer Sent</span>
-                    <strong>- $200.00</strong>
-                </li>
-                <li>
-                    <span>Payment Received</span>
-                    <strong>+9,000</strong>
-                </li>
-            </ul>
-        </section>
-    </main>
-<script>
-    let balance = 20000450.75;
-
-    const balanceDisplay = document.querySelector(".balance-card h1");
-    const transactionList = document.querySelector(".transactions ul");
-
-    function formatMoney(amount) {
-        return "$" + amount.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-    }
 
     function updateBalance() {
         balanceDisplay.textContent = formatMoney(balance);

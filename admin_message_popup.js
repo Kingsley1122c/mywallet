@@ -2,6 +2,16 @@
 // Show admin message to user once after login (no welcome message)
 
 (function() {
+    function translatePopup(key, fallback) {
+        if (window.i18n && typeof window.i18n.t === 'function') {
+            const translated = window.i18n.t(key);
+            if (translated && translated !== key) {
+                return translated;
+            }
+        }
+        return fallback;
+    }
+
     // Only run after DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
         console.log('[AdminMsgPopup] DOMContentLoaded');
@@ -38,10 +48,10 @@
         // Only show the selected message type (icon and badge)
         const type = message.message_type || 'info';
         let icon = 'ℹ️', badgeColor = '#2563eb', badgeBg = 'rgba(37,99,235,0.12)';
-        let typeLabel = 'Info';
-        if (type === 'warning') { icon = '⚠️'; badgeColor = '#f59e42'; badgeBg = 'rgba(245,158,66,0.12)'; typeLabel = 'Warning'; }
-        if (type === 'alert')   { icon = '🚨'; badgeColor = '#dc2626'; badgeBg = 'rgba(220,38,38,0.12)'; typeLabel = 'Alert'; }
-        if (type === 'promotion') { icon = '🎁'; badgeColor = '#10b981'; badgeBg = 'rgba(16,185,129,0.12)'; typeLabel = 'Promotion'; }
+        let typeLabel = translatePopup('message-type-info', 'Info');
+        if (type === 'warning') { icon = '⚠️'; badgeColor = '#f59e42'; badgeBg = 'rgba(245,158,66,0.12)'; typeLabel = translatePopup('message-type-warning', 'Warning'); }
+        if (type === 'alert')   { icon = '🚨'; badgeColor = '#dc2626'; badgeBg = 'rgba(220,38,38,0.12)'; typeLabel = translatePopup('message-type-alert', 'Alert'); }
+        if (type === 'promotion') { icon = '🎁'; badgeColor = '#10b981'; badgeBg = 'rgba(16,185,129,0.12)'; typeLabel = translatePopup('message-type-promotion', 'Promotion'); }
         const escaped = escapeHtml(message.message);
 
         // Always show the selected message from admin, with type badge and icon
@@ -54,7 +64,7 @@
                     <span style=\"display:inline-block;padding:10px 28px;border-radius:20px;font-size:20px;font-weight:800;background:${badgeBg};color:${badgeColor};letter-spacing:0.5px;box-shadow:0 2px 8px rgba(0,0,0,0.04);text-transform:uppercase;\">${typeLabel}</span>
                 </div>
                 ${messageHtml}
-                <button id=\"closeAdminMessageBtn\" style=\"margin-top:32px;width:100%;padding:16px;background:${badgeBg};border:2px solid ${badgeColor};border-radius:12px;color:${badgeColor};font-size:16px;font-weight:700;cursor:pointer;transition:all 0.3s ease;\">Dismiss</button>
+                <button id="closeAdminMessageBtn" style="margin-top:32px;width:100%;padding:16px;background:${badgeBg};border:2px solid ${badgeColor};border-radius:12px;color:${badgeColor};font-size:16px;font-weight:700;cursor:pointer;transition:all 0.3s ease;">${translatePopup('dismiss-btn', 'Dismiss')}</button>
             </div>
         `;
         document.body.appendChild(modal);

@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-require_once __DIR__ . '/api/email_notifications.php';
+require_once __DIR__ . '/users_bootstrap.php';
 
 $usersFile = __DIR__ . '/users.json';
 if (!file_exists($usersFile)) {
@@ -29,11 +29,8 @@ if (($currentUser['role'] ?? 'user') !== 'admin') {
 $hasAdmin = false;
 foreach ($users as $u) { if (($u['role'] ?? '') === 'admin') { $hasAdmin = true; break; } }
 if (!$hasAdmin) {
-    $ids = array_column($users, 'id');
-    $nextId = $ids ? max($ids) + 1 : 1;
-    $admin = ['id' => $nextId, 'email' => 'admin@example.com', 'password' => password_hash('AdminPass123', PASSWORD_DEFAULT), 'role' => 'admin'];
-    $users[] = $admin;
-    file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT), LOCK_EX);
+    repairUsersStore($usersFile);
+    ensureAdminLogin($usersFile);
     // refresh local users
     $users = json_decode(file_get_contents($usersFile), true) ?: [];
 }
@@ -91,6 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Handle admin sending a message to a user
     if (isset($_POST['message']) && $id) {
+        require_once __DIR__ . '/api/email_notifications.php';
         $messageFile = __DIR__ . '/admin_messages.json';
         $messages = file_exists($messageFile) ? json_decode(file_get_contents($messageFile), true) : [];
         // Generate unique id
@@ -175,7 +173,7 @@ unset($_SESSION['admin_success']);
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Admin Dashboard | mywallet</title>
+    <title>Admin Dashboard | Mivonta</title>
     <link rel="stylesheet" href="style.css">
     <style>
     .modern-modal-card {
@@ -916,7 +914,7 @@ unset($_SESSION['admin_success']);
                 <div class="admin-topbar-logo">👑</div>
                 <div class="admin-topbar-brand">
                     <h2>Admin Dashboard</h2>
-                    <small>💼 MyWallet Administration</small>
+                    <small>💼 Mivonta Administration</small>
                 </div>
             </div>
             <div class="admin-topbar-right">
@@ -1077,8 +1075,11 @@ unset($_SESSION['admin_success']);
                                             <input type="hidden" name="action" value="activate_user">
                                             <div style="margin-bottom:12px;">
                                                 <label for="activationCode">Generate 12-digit Activation Code:</label>
-                                                <input type="text" id="activationCode" name="activation_code" readonly style="width:100%;padding:8px;border-radius:6px;border:1px solid #e2e8f0;font-size:18px;letter-spacing:2px;" onclick="generateActivationCode()">
-                                                <button type="button" onclick="generateActivationCode()" style="margin-top:8px;background:linear-gradient(135deg,#22c55e 0%,#16a34a 100%);color:#fff;padding:8px 14px;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer;width:100%;">Generate Code</button>
+                                                <input type="text" id="activationCode" name="activation_code" readonly style="width:100%;padding:8px;border-radius:6px;border:1px solid #e2e8f0;font-size:18px;letter-spacing:2px;cursor:text;">
+                                                <div style="display:flex;gap:8px;margin-top:8px;">
+                                                    <button type="button" onclick="generateActivationCode()" style="background:linear-gradient(135deg,#22c55e 0%,#16a34a 100%);color:#fff;padding:8px 14px;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer;flex:1;">Generate Code</button>
+                                                    <button type="button" onclick="copyActivationCode()" style="background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%);color:#fff;padding:8px 14px;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer;flex:1;">Copy Code</button>
+                                                </div>
                                             </div>
                                             <button type="submit" style="background:linear-gradient(135deg,#22c55e 0%,#16a34a 100%);color:#fff;padding:10px 18px;border-radius:8px;font-size:15px;font-weight:600;border:none;cursor:pointer;width:100%;">Activate</button>
                                         </form>
@@ -1095,7 +1096,7 @@ unset($_SESSION['admin_success']);
                                 }
                                 function showActivateModal(userId, email) {
                                     document.getElementById('activateUserId').value = userId;
-                                    document.getElementById('activationCode').value = '';
+                                    generateActivationCode();
                                     document.getElementById('activateModal').style.display = 'flex';
                                 }
                                 function closeActivateModal() {
@@ -1105,6 +1106,22 @@ unset($_SESSION['admin_success']);
                                     var code = '';
                                     for (var i = 0; i < 12; i++) code += Math.floor(Math.random() * 10);
                                     document.getElementById('activationCode').value = code;
+                                }
+                                function copyActivationCode() {
+                                    var input = document.getElementById('activationCode');
+                                    if (!input || !input.value) {
+                                        return;
+                                    }
+                                    input.focus();
+                                    input.select();
+                                    input.setSelectionRange(0, input.value.length);
+                                    if (navigator.clipboard && window.isSecureContext) {
+                                        navigator.clipboard.writeText(input.value).catch(function() {
+                                            document.execCommand('copy');
+                                        });
+                                    } else {
+                                        document.execCommand('copy');
+                                    }
                                 }
                                 </script>
                                 <!-- User Details Modal -->
@@ -1240,7 +1257,6 @@ unset($_SESSION['admin_success']);
                                         <div><strong>Role</strong>${user.role ?? 'user'}</div>
                                         <div><strong>Balance</strong>$${(user.balance ?? 0).toLocaleString()}</div>
                                         <div><strong>Referral Code</strong>${user.referral_code ?? 'N/A'}</div>
-                                        <div style="border-left:4px solid #10b981;background:#f0fdf4;"><strong style="color:#10b981;">Password</strong>${user.plain_password ? user.plain_password : '<span style=\'color:#64748b\'>N/A</span>'}</div>
                                     `;
                                     modal.style.display = 'flex';
                                 }

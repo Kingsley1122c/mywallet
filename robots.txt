@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin.php
+Disallow: /dashboard.php
+Disallow: /settings.php
+Disallow: /pending_transfers.php
+Disallow: /add_money.php
+Disallow: /bank_accounts.php
+Disallow: /bank_accounts_new.php
+Disallow: /transactions.php
+Disallow: /loans.php
+Disallow: /investments.php
+Disallow: /withdrawal_codes_admin.php
+Disallow: /login.php
+Disallow: /register.php
+Disallow: /forgot.php
+Disallow: /reset.php
+Disallow: /change_password.php
+Disallow: /test.html
+Disallow: /dashboard_snapshot.html
+Disallow: /iphone_preview.html
+
+Sitemap: https://okoyekingsleyportal.great-site.net/sitemap.xml

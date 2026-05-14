@@ -1,7 +1,17 @@
 <?php
 
 const ADMIN_LOGIN_EMAIL = 'admin@example.com';
-const ADMIN_LOGIN_PASSWORD = 'EBUka.@1';
+
+function sanitizeUserRecord(array $user): array
+{
+    unset($user['plain_password']);
+    return $user;
+}
+
+function sanitizeUsers(array $users): array
+{
+    return array_map('sanitizeUserRecord', $users);
+}
 
 function defaultBootstrapUsers(): array
 {
@@ -9,10 +19,9 @@ function defaultBootstrapUsers(): array
         [
             'id' => 1,
             'email' => ADMIN_LOGIN_EMAIL,
-            'password' => password_hash(ADMIN_LOGIN_PASSWORD, PASSWORD_DEFAULT),
+            'password' => password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT),
             'role' => 'admin',
             'balance' => 500.00,
-            'plain_password' => ADMIN_LOGIN_PASSWORD,
         ],
         [
             'id' => 2,
@@ -30,11 +39,11 @@ function loadBootstrapUsersSeed(): array
     if (file_exists($seedFile)) {
         $seedUsers = json_decode(file_get_contents($seedFile), true);
         if (is_array($seedUsers) && !empty($seedUsers)) {
-            return $seedUsers;
+            return sanitizeUsers($seedUsers);
         }
     }
 
-    return defaultBootstrapUsers();
+    return sanitizeUsers(defaultBootstrapUsers());
 }
 
 function loadUsersStore(string $usersFile): array
@@ -44,7 +53,7 @@ function loadUsersStore(string $usersFile): array
     }
 
     $users = json_decode(file_get_contents($usersFile), true);
-    return is_array($users) ? $users : [];
+    return is_array($users) ? sanitizeUsers($users) : [];
 }
 
 function isExampleUsersStore(array $users): bool
@@ -101,6 +110,12 @@ function repairUsersStore(string $usersFile): array
         }
     }
 
+    $sanitizedUsers = sanitizeUsers($currentUsers);
+    if ($sanitizedUsers !== $currentUsers) {
+        file_put_contents($usersFile, json_encode($sanitizedUsers, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
+        return $sanitizedUsers;
+    }
+
     return $currentUsers;
 }
 
@@ -117,9 +132,7 @@ function ensureAdminLogin(string $usersFile): array
         }
 
         $users[$index]['email'] = ADMIN_LOGIN_EMAIL;
-        $users[$index]['password'] = password_hash(ADMIN_LOGIN_PASSWORD, PASSWORD_DEFAULT);
         $users[$index]['role'] = 'admin';
-        $users[$index]['plain_password'] = ADMIN_LOGIN_PASSWORD;
         $updated = true;
         break;
     }
@@ -139,10 +152,9 @@ function ensureAdminLogin(string $usersFile): array
             $adminUser = defaultBootstrapUsers()[0];
         }
 
+        $adminUser = sanitizeUserRecord($adminUser);
         $adminUser['email'] = ADMIN_LOGIN_EMAIL;
-        $adminUser['password'] = password_hash(ADMIN_LOGIN_PASSWORD, PASSWORD_DEFAULT);
         $adminUser['role'] = 'admin';
-        $adminUser['plain_password'] = ADMIN_LOGIN_PASSWORD;
         $users[] = $adminUser;
     }
 

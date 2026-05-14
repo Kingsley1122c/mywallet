@@ -13,6 +13,18 @@
 /withdrawal_codes.json
 /bank_accounts.json
 /api/exchange_rates_cache.json
+/email_local.php
+
+# Generated deployment artifacts
+/deploy-code-only/
+/mivonta-deploy-dir/
+/patch_temp/
+/shared-host-bundle/
+/temp_api/
+/*.zip
+
+# Local editor settings
+/.vscode/
 
 # OS and editor noise
 Thumbs.db

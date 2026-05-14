@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Forgot Password | MyWallet</title>
+    <title>Forgot Password | Mivonta</title>
     <link rel="stylesheet" href="style.css">
     <style>.auth{max-width:420px;margin:60px auto;padding:20px;background:#fff;border-radius:8px}</style>
 </head>

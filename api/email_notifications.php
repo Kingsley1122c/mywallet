@@ -4,18 +4,68 @@
 
 include_once __DIR__ . '/../url_helpers.php';
 
-function sendTransactionEmail($userEmail, $transactionData) {
-    // Load email configuration
+function loadEmailConfig() {
     $configFile = __DIR__ . '/../email_config.php';
-    if (file_exists($configFile)) {
-        $config = include $configFile;
-    } else {
-        $config = ['enabled' => false, 'from_email' => 'noreply@mywallet.com', 'from_name' => 'mywallet'];
+    if (!file_exists($configFile)) {
+        return [
+            'enabled' => false,
+            'provider' => 'none',
+            'from_email' => 'noreply@mivonta.com',
+            'from_name' => 'Mivonta',
+        ];
     }
+
+    $config = include $configFile;
+    return is_array($config) ? $config : [
+        'enabled' => false,
+        'provider' => 'none',
+        'from_email' => 'noreply@mivonta.com',
+        'from_name' => 'Mivonta',
+    ];
+}
+
+function appendEmailLog($message) {
+    $logFile = __DIR__ . '/../email_log.txt';
+    @file_put_contents($logFile, date('Y-m-d H:i:s') . ' - ' . $message . "\n", FILE_APPEND);
+}
+
+function sendConfiguredEmail($to, $subject, $body, array $config, $contextLabel) {
+    $provider = strtolower((string) ($config['provider'] ?? 'none'));
+    $enabled = !empty($config['enabled']);
+
+    if (!$enabled || $provider === 'none') {
+        appendEmailLog("Email disabled or unconfigured for {$contextLabel} to: {$to}");
+        return false;
+    }
+
+    if ($provider === 'resend' && file_exists(__DIR__ . '/send_email_resend.php')) {
+        include_once __DIR__ . '/send_email_resend.php';
+        return sendEmailResend($to, $subject, $body);
+    }
+
+    if ($provider === 'smtp' && file_exists(__DIR__ . '/send_email_smtp.php')) {
+        include_once __DIR__ . '/send_email_smtp.php';
+        return sendEmailSMTP($to, $subject, $body, $config);
+    }
+
+    if ($provider === 'php_mail') {
+        $headers = "MIME-Version: 1.0\r\n";
+        $headers .= "Content-type:text/html;charset=UTF-8\r\n";
+        $headers .= "From: {$config['from_name']} <{$config['from_email']}>\r\n";
+        $headers .= "Reply-To: {$config['from_email']}\r\n";
+        return @mail($to, $subject, $body, $headers);
+    }
+
+    appendEmailLog("Unsupported email provider '{$provider}' for {$contextLabel} to: {$to}");
+    return false;
+}
+
+function sendTransactionEmail($userEmail, $transactionData) {
+    $config = loadEmailConfig();
     
     // Email configuration
     $to = $userEmail;
-    $subject = "Transaction Notification - mywallet";
+    $subject = "Transaction Notification - Mivonta";
     
     // Get transaction details
     $type = $transactionData['type'];
@@ -26,27 +76,11 @@ function sendTransactionEmail($userEmail, $transactionData) {
     // Build email body based on transaction type
     $body = buildEmailBody($type, $amount, $date, $balance, $transactionData);
     
-    // Try Resend API first, then SMTP, then fallback to mail()
-    if ($config['enabled'] && isset($config['provider']) && $config['provider'] === 'resend' && file_exists(__DIR__ . '/send_email_resend.php')) {
-        include_once __DIR__ . '/send_email_resend.php';
-        $result = sendEmailResend($to, $subject, $body);
-    } elseif ($config['enabled'] && file_exists(__DIR__ . '/send_email_smtp.php')) {
-        include_once __DIR__ . '/send_email_smtp.php';
-        $result = sendEmailSMTP($to, $subject, $body, $config);
-    } else {
-        // Fallback to PHP mail()
-        $headers = "MIME-Version: 1.0" . "\r\n";
-        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-        $headers .= "From: mywallet <noreply@mywallet.com>" . "\r\n";
-        $headers .= "Reply-To: support@mywallet.com" . "\r\n";
-        $result = @mail($to, $subject, $body, $headers);
-    }
+    $result = sendConfiguredEmail($to, $subject, $body, $config, 'transaction email');
     
     // Log email attempts (optional - creates a log file)
     if (!$result) {
-        $logFile = __DIR__ . '/../email_log.txt';
-        $logMessage = date('Y-m-d H:i:s') . " - Failed to send email to: $to (Type: $type)\n";
-        @file_put_contents($logFile, $logMessage, FILE_APPEND);
+        appendEmailLog("Failed to send email to: {$to} (Type: {$type})");
     }
     
     return $result;
@@ -79,7 +113,7 @@ function buildEmailBody($type, $amount, $date, $balance, $data) {
 <body>
     <div class="container">
         <div class="header">
-            <h1>💳 mywallet</h1>
+            <h1>💳 Mivonta</h1>
             <p style="margin: 5px 0 0 0;">Transaction Notification</p>
         </div>
         <div class="content">';
@@ -90,7 +124,7 @@ function buildEmailBody($type, $amount, $date, $balance, $data) {
         $recipientEmail = isset($data['recipient_email']) ? $data['recipient_email'] : '';
         $html .= '
             <h2 style="color: #0f172a;">Money Sent Successfully</h2>
-            <p>You have sent money from your mywallet account.</p>
+            <p>You have sent money from your Mivonta account.</p>
             <div class="transaction-box">
                 <div style="color: #6b7280; font-size: 14px;">Amount Sent</div>
                 <div class="amount">-$' . $amount . '</div>
@@ -137,7 +171,7 @@ function buildEmailBody($type, $amount, $date, $balance, $data) {
         $method = isset($data['method']) ? $data['method'] : 'Bank Card';
         $html .= '
             <h2 style="color: #0f172a;">Money Added to Account</h2>
-            <p>You have successfully added money to your mywallet account.</p>
+            <p>You have successfully added money to your Mivonta account.</p>
             <div class="transaction-box">
                 <div style="color: #6b7280; font-size: 14px;">Amount Added</div>
                 <div class="amount" style="color: #00a896;">+$' . $amount . '</div>
@@ -177,6 +211,34 @@ function buildEmailBody($type, $amount, $date, $balance, $data) {
             <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">
                 Our customer service team will contact you via WhatsApp to complete the withdrawal process.
             </p>';
+    } elseif ($type === 'withdraw_failed') {
+        $bankName = isset($data['bank_name']) ? $data['bank_name'] : 'your selected bank';
+        $accountNumber = isset($data['account_number']) ? $data['account_number'] : '';
+        $bankLabel = htmlspecialchars($bankName . ($accountNumber ? ' (' . $accountNumber . ')' : ''), ENT_QUOTES, 'UTF-8');
+        $html .= '
+            <h2 style="color: #0f172a;">Withdrawal Failed</h2>
+            <p>Your withdrawal could not be completed automatically after the 24-hour processing period.</p>
+            <div class="transaction-box">
+                <div style="color: #6b7280; font-size: 14px;">Failed Withdrawal</div>
+                <div class="amount">-$' . $amount . '</div>
+            </div>
+            <div class="details">
+                <div class="detail-row">
+                    <span class="label">Bank Account:</span>
+                    <span class="value">' . $bankLabel . '</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Date & Time:</span>
+                    <span class="value">' . $date . '</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Status:</span>
+                    <span class="value">Failed</span>
+                </div>
+            </div>
+            <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">
+                Please contact customer service to finish this transaction.
+            </p>';
     }
     
     $html .= '
@@ -186,9 +248,9 @@ function buildEmailBody($type, $amount, $date, $balance, $data) {
             </p>
         </div>
         <div class="footer">
-            <p><strong>mywallet</strong> - Secure payments, effortless money management</p>
+            <p><strong>Mivonta</strong> account notifications</p>
             <p>This is an automated message. Please do not reply to this email.</p>
-            <p>© since 2007 mywallet. All rights reserved.</p>
+            <p>© 2026 Mivonta</p>
             <p><a href="#" style="color: #0066d6;">Terms</a> • <a href="#" style="color: #0066d6;">Privacy</a> • <a href="#" style="color: #0066d6;">Support</a></p>
         </div>
     </div>
@@ -200,16 +262,10 @@ function buildEmailBody($type, $amount, $date, $balance, $data) {
 
 // Welcome email for new registrations
 function sendWelcomeEmail($userEmail, $data) {
-    // Load email configuration
-    $configFile = __DIR__ . '/../email_config.php';
-    if (file_exists($configFile)) {
-        $config = include $configFile;
-    } else {
-        $config = ['enabled' => false, 'from_email' => 'noreply@mywallet.com', 'from_name' => 'mywallet'];
-    }
+    $config = loadEmailConfig();
     
     $to = $userEmail;
-    $subject = "Welcome to mywallet! 🎉";
+    $subject = "Welcome to Mivonta! 🎉";
     $name = $data['name'] ?? 'there';
     $referralCode = $data['referral_code'] ?? '';
     $date = $data['date'] ?? date('F j, Y g:i A');
@@ -238,13 +294,13 @@ function sendWelcomeEmail($userEmail, $data) {
 <body>
     <div class="container">
         <div class="header">
-            <h1>💳 Welcome to mywallet!</h1>
+            <h1>💳 Welcome to Mivonta!</h1>
             <p style="margin: 10px 0 0 0; font-size: 18px;">Your digital wallet is ready</p>
         </div>
         <div class="content">
             <h2 style="color: #0f172a; margin-bottom: 16px;">Hi ' . htmlspecialchars($name) . '! 👋</h2>
             <p style="color: #475569; font-size: 16px; line-height: 1.6;">
-                Thank you for joining mywallet! We\'re excited to have you as part of our community. Your account was successfully created on ' . htmlspecialchars($date) . '.
+                Thank you for joining Mivonta! We\'re excited to have you as part of our community. Your account was successfully created on ' . htmlspecialchars($date) . '.
             </p>
             
             <div class="welcome-box">
@@ -295,45 +351,27 @@ function sendWelcomeEmail($userEmail, $data) {
             </div>
         </div>
         <div class="footer">
-            <p><strong>mywallet</strong> - Secure payments, effortless money management</p>
+            <p><strong>Mivonta</strong> account notifications</p>
             <p>This is an automated message. Please do not reply to this email.</p>
-            <p>© since 2007 mywallet. All rights reserved.</p>
+            <p>© 2026 Mivonta</p>
             <p><a href="#" style="color: #667eea;">Terms</a> • <a href="#" style="color: #667eea;">Privacy</a> • <a href="#" style="color: #667eea;">Support</a></p>
         </div>
     </div>
 </body>
 </html>';
 
-    // Try SMTP first, fallback to mail()
-    if ($config['enabled'] && file_exists(__DIR__ . '/send_email_smtp.php')) {
-        include_once __DIR__ . '/send_email_smtp.php';
-        $result = sendEmailSMTP($to, $subject, $body, $config);
-    } else {
-        // Fallback to PHP mail()
-        $headers = "MIME-Version: 1.0" . "\r\n";
-        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-        $headers .= "From: mywallet <noreply@mywallet.com>" . "\r\n";
-        $headers .= "Reply-To: support@mywallet.com" . "\r\n";
-        $result = @mail($to, $subject, $body, $headers);
-    }
+    $result = sendConfiguredEmail($to, $subject, $body, $config, 'welcome email');
     
     // Log email attempts
     if (!$result) {
-        $logFile = __DIR__ . '/../email_log.txt';
-        $logMessage = date('Y-m-d H:i:s') . " - Failed to send welcome email to: $to\n";
-        @file_put_contents($logFile, $logMessage, FILE_APPEND);
+        appendEmailLog("Failed to send welcome email to: {$to}");
     }
     
     return $result;
 }
 
 function sendAdminMessageEmail($userEmail, $messageData) {
-    $configFile = __DIR__ . '/../email_config.php';
-    if (file_exists($configFile)) {
-        $config = include $configFile;
-    } else {
-        $config = ['enabled' => false, 'from_email' => 'noreply@mywallet.com', 'from_name' => 'mywallet'];
-    }
+    $config = loadEmailConfig();
 
     $to = $userEmail;
     $messageType = strtolower((string) ($messageData['message_type'] ?? 'info'));
@@ -343,9 +381,9 @@ function sendAdminMessageEmail($userEmail, $messageData) {
         'promotion' => 'Special Admin Update',
         'info' => 'Admin Message',
     ][$messageType] ?? 'Admin Message';
-    $subject = $subjectPrefix . ' - mywallet';
+    $subject = $subjectPrefix . ' - Mivonta';
 
-    $adminEmail = (string) ($messageData['from_admin_email'] ?? 'support@mywallet.com');
+    $adminEmail = (string) ($messageData['from_admin_email'] ?? 'support@Mivonta.com');
     $messageBody = nl2br(htmlspecialchars((string) ($messageData['message'] ?? ''), ENT_QUOTES, 'UTF-8'));
     $dashboardUrl = app_url('dashboard.php');
 
@@ -368,7 +406,7 @@ function sendAdminMessageEmail($userEmail, $messageData) {
 <body>
     <div class="container">
         <div class="header">
-            <h1 style="margin:0;font-size:28px;">mywallet</h1>
+            <h1 style="margin:0;font-size:28px;">Mivonta</h1>
             <p style="margin:8px 0 0 0;">You received a message from the admin team</p>
         </div>
         <div class="content">
@@ -382,30 +420,16 @@ function sendAdminMessageEmail($userEmail, $messageData) {
             <a href="' . htmlspecialchars($dashboardUrl, ENT_QUOTES, 'UTF-8') . '" class="button">Open Dashboard</a>
         </div>
         <div class="footer">
-            <p>This is an automated notification from mywallet.</p>
+            <p>This is an automated notification from Mivonta.</p>
         </div>
     </div>
 </body>
 </html>';
 
-    if ($config['enabled'] && isset($config['provider']) && $config['provider'] === 'resend' && file_exists(__DIR__ . '/send_email_resend.php')) {
-        include_once __DIR__ . '/send_email_resend.php';
-        $result = sendEmailResend($to, $subject, $body);
-    } elseif ($config['enabled'] && file_exists(__DIR__ . '/send_email_smtp.php')) {
-        include_once __DIR__ . '/send_email_smtp.php';
-        $result = sendEmailSMTP($to, $subject, $body, $config);
-    } else {
-        $headers = "MIME-Version: 1.0" . "\r\n";
-        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-        $headers .= "From: mywallet <noreply@mywallet.com>" . "\r\n";
-        $headers .= "Reply-To: " . $adminEmail . "\r\n";
-        $result = @mail($to, $subject, $body, $headers);
-    }
+    $result = sendConfiguredEmail($to, $subject, $body, $config, 'admin message email');
 
     if (!$result) {
-        $logFile = __DIR__ . '/../email_log.txt';
-        $logMessage = date('Y-m-d H:i:s') . " - Failed to send admin message email to: $to\n";
-        @file_put_contents($logFile, $logMessage, FILE_APPEND);
+        appendEmailLog("Failed to send admin message email to: {$to}");
     }
 
     return $result;
