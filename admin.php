@@ -59,30 +59,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle user deactivation
     if ($action === 'deactivate_user') {
         $deactivateMsg = trim($_POST['deactivate_message'] ?? '');
-        if (!$deactivateMsg) {
-            $_SESSION['admin_error'] = 'Deactivation message required.';
-            header('Location: admin.php'); exit();
+        if ($deactivateMsg === '') {
+            $deactivateMsg = trim((string) ($users[$idx]['deactivate_message'] ?? ''));
+        }
+        if ($deactivateMsg === '') {
+            $deactivateMsg = 'Your account was deactivated due to some suspicious transaction you did in the past few days.';
         }
         $users[$idx]['deactivated'] = true;
         $users[$idx]['deactivate_message'] = $deactivateMsg;
-        $users[$idx]['activation_code'] = null;
         file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT), LOCK_EX);
         $_SESSION['admin_success'] = 'User deactivated.';
         header('Location: admin.php'); exit();
     }
 
-    // Handle user activation (code generation)
+    // Handle direct user activation while keeping any stored activation code.
     if ($action === 'activate_user') {
-        $activationCode = trim($_POST['activation_code'] ?? '');
-        if (!preg_match('/^\d{12}$/', $activationCode)) {
-            $_SESSION['admin_error'] = 'A valid 12-digit activation code is required.';
-            header('Location: admin.php'); exit();
-        }
-        $users[$idx]['activation_code'] = $activationCode;
         $users[$idx]['deactivated'] = false;
         $users[$idx]['deactivate_message'] = null;
         file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT), LOCK_EX);
-        $_SESSION['admin_success'] = 'Activation code set. User can now activate their account.';
+        $_SESSION['admin_success'] = 'User activated.';
         header('Location: admin.php'); exit();
     }
 
@@ -150,14 +145,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'reset_password') {
-        // set a temporary random password and show it to admin
-        $temp = substr(bin2hex(random_bytes(5)), 0, 10);
-        $users[$idx]['password'] = password_hash($temp, PASSWORD_DEFAULT);
+        $newPassword = $_POST['new_password'] ?? '';
+        $confirmPassword = $_POST['confirm_password'] ?? '';
+        if (strlen($newPassword) < 8) {
+            $_SESSION['admin_error'] = 'Password must be at least 8 characters.';
+            header('Location: admin.php'); exit();
+        }
+        if (!hash_equals($newPassword, $confirmPassword)) {
+            $_SESSION['admin_error'] = 'Passwords do not match.';
+            header('Location: admin.php'); exit();
+        }
+        $users[$idx]['password'] = password_hash($newPassword, PASSWORD_DEFAULT);
         file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT), LOCK_EX);
-        $_SESSION['admin_success'] = 'Password reset. Temporary password: ' . $temp;
-        // Audit: admin reset password (do not store plaintext temp password in audit)
+        $_SESSION['admin_success'] = 'Password reset successfully.';
         include_once __DIR__ . '/audit.php';
-        write_audit('password_reset_by_admin', $users[$idx]['id'], $users[$idx]['email'], $currentUser['email'], ['note' => 'temporary password generated']);
+        write_audit('password_reset_by_admin', $users[$idx]['id'], $users[$idx]['email'], $currentUser['email'], ['note' => 'password set by admin dashboard']);
         header('Location: admin.php'); exit();
     }
 }
@@ -1032,99 +1034,60 @@ unset($_SESSION['admin_success']);
                                         <input type="hidden" name="action" value="delete">
                                         <button type="submit" class="danger">Delete</button>
                                     </form>
+                                    <button type="button" onclick='showResetPasswordModal(<?php echo $u['id']; ?>, <?php echo json_encode($u['email']); ?>)' style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; margin-bottom: 4px;">Reset password</button>
+                                    <?php if (empty($u['deactivated'])): ?>
                                     <form method="post" action="admin.php" style="display:inline">
                                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                         <input type="hidden" name="id" value="<?php echo $u['id']; ?>">
-                                        <input type="hidden" name="action" value="reset_password">
-                                        <button type="submit">Reset password</button>
+                                        <input type="hidden" name="action" value="deactivate_user">
+                                        <input type="hidden" name="deactivate_message" value="<?php echo htmlspecialchars($u['deactivate_message'] ?? 'Your account was deactivated due to some suspicious transaction you did in the past few days.'); ?>">
+                                        <button type="submit" style="background: linear-gradient(135deg, #f59e42 0%, #eab308 100%); color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; margin-bottom: 4px;">🚫 Deactivate</button>
                                     </form>
-                                    <?php if (empty($u['deactivated'])): ?>
-                                    <button type="button" onclick='showDeactivateModal(<?php echo $u['id']; ?>, <?php echo json_encode($u['email']); ?>)' style="background: linear-gradient(135deg, #f59e42 0%, #eab308 100%); color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; margin-bottom: 4px;">🚫 Deactivate</button>
                                     <?php else: ?>
-                                    <button type="button" onclick='showActivateModal(<?php echo $u['id']; ?>, <?php echo json_encode($u['email']); ?>)' style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; margin-bottom: 4px;">✅ Activate</button>
+                                    <form method="post" action="admin.php" style="display:inline">
+                                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                                        <input type="hidden" name="id" value="<?php echo $u['id']; ?>">
+                                        <input type="hidden" name="action" value="activate_user">
+                                        <button type="submit" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; margin-bottom: 4px;">✅ Activate</button>
+                                    </form>
                                     <?php endif; ?>
                                 <?php else: ?>
                                     <span class="muted">(you)</span>
                                 <?php endif; ?>
-                                <!-- Deactivate User Modal -->
-                                <div id="deactivateModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.35);z-index:3000;align-items:center;justify-content:center;">
-                                    <div style="background:#fff;padding:32px 24px;border-radius:16px;max-width:400px;width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;">
-                                        <button onclick="closeDeactivateModal()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;">&times;</button>
-                                        <h3 style="margin-top:0;font-size:22px;font-weight:700;">Deactivate User</h3>
-                                        <form id="deactivateUserForm" method="post" action="admin.php">
+                                <!-- User Details Modal -->
+                                <div id="resetPasswordModal" class="modern-modal-bg">
+                                    <div class="modern-modal-card" style="max-width:420px;">
+                                        <button type="button" onclick="closeResetPasswordModal()" class="modern-modal-close">&times;</button>
+                                        <h3 class="modern-modal-title">Reset Password</h3>
+                                        <form method="post" action="admin.php" style="display:grid;gap:14px;">
                                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                                            <input type="hidden" name="id" id="deactivateUserId">
-                                            <input type="hidden" name="action" value="deactivate_user">
-                                            <div style="margin-bottom:12px;">
-                                                <label for="deactivateMessage">Deactivation Message:</label>
-                                                <textarea id="deactivateMessage" name="deactivate_message" required style="width:100%;padding:8px;border-radius:6px;border:1px solid #e2e8f0;min-height:80px;">Your account was deactivated due to some suspicious transaction you did in the past few days.</textarea>
+                                            <input type="hidden" name="id" id="resetPasswordUserId">
+                                            <input type="hidden" name="action" value="reset_password">
+                                            <div style="font-size:14px;color:#475569;font-weight:600;">Set a new password for <span id="resetPasswordUserEmail" style="color:#1e293b;"></span></div>
+                                            <div>
+                                                <label for="resetPasswordInput" style="display:block;margin-bottom:6px;font-weight:700;color:#1e293b;">New password</label>
+                                                <input type="password" id="resetPasswordInput" name="new_password" minlength="8" required style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #cbd5e1;font-size:14px;box-sizing:border-box;">
                                             </div>
-                                            <button type="submit" style="background:linear-gradient(135deg,#f59e42 0%,#eab308 100%);color:#fff;padding:10px 18px;border-radius:8px;font-size:15px;font-weight:600;border:none;cursor:pointer;width:100%;">Deactivate</button>
+                                            <div>
+                                                <label for="resetPasswordConfirmInput" style="display:block;margin-bottom:6px;font-weight:700;color:#1e293b;">Confirm password</label>
+                                                <input type="password" id="resetPasswordConfirmInput" name="confirm_password" minlength="8" required style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #cbd5e1;font-size:14px;box-sizing:border-box;">
+                                            </div>
+                                            <button type="submit" style="background:linear-gradient(135deg,#6366f1 0%,#4f46e5 100%);color:#fff;padding:10px 18px;border-radius:8px;font-size:15px;font-weight:600;border:none;cursor:pointer;width:100%;">Save new password</button>
                                         </form>
                                     </div>
                                 </div>
-
-                                <!-- Activate User Modal -->
-                                <div id="activateModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.35);z-index:3000;align-items:center;justify-content:center;">
-                                    <div style="background:#fff;padding:32px 24px;border-radius:16px;max-width:400px;width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.18);position:relative;">
-                                        <button onclick="closeActivateModal()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;">&times;</button>
-                                        <h3 style="margin-top:0;font-size:22px;font-weight:700;">Activate User</h3>
-                                        <form id="activateUserForm" method="post" action="admin.php">
-                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                                            <input type="hidden" name="id" id="activateUserId">
-                                            <input type="hidden" name="action" value="activate_user">
-                                            <div style="margin-bottom:12px;">
-                                                <label for="activationCode">Generate 12-digit Activation Code:</label>
-                                                <input type="text" id="activationCode" name="activation_code" readonly style="width:100%;padding:8px;border-radius:6px;border:1px solid #e2e8f0;font-size:18px;letter-spacing:2px;cursor:text;">
-                                                <div style="display:flex;gap:8px;margin-top:8px;">
-                                                    <button type="button" onclick="generateActivationCode()" style="background:linear-gradient(135deg,#22c55e 0%,#16a34a 100%);color:#fff;padding:8px 14px;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer;flex:1;">Generate Code</button>
-                                                    <button type="button" onclick="copyActivationCode()" style="background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%);color:#fff;padding:8px 14px;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer;flex:1;">Copy Code</button>
-                                                </div>
-                                            </div>
-                                            <button type="submit" style="background:linear-gradient(135deg,#22c55e 0%,#16a34a 100%);color:#fff;padding:10px 18px;border-radius:8px;font-size:15px;font-weight:600;border:none;cursor:pointer;width:100%;">Activate</button>
-                                        </form>
-                                    </div>
-                                </div>
-
                                 <script>
-                                function showDeactivateModal(userId, email) {
-                                    document.getElementById('deactivateUserId').value = userId;
-                                    document.getElementById('deactivateModal').style.display = 'flex';
+                                function showResetPasswordModal(userId, email) {
+                                    document.getElementById('resetPasswordUserId').value = userId;
+                                    document.getElementById('resetPasswordUserEmail').textContent = email;
+                                    document.getElementById('resetPasswordInput').value = '';
+                                    document.getElementById('resetPasswordConfirmInput').value = '';
+                                    document.getElementById('resetPasswordModal').style.display = 'flex';
                                 }
-                                function closeDeactivateModal() {
-                                    document.getElementById('deactivateModal').style.display = 'none';
-                                }
-                                function showActivateModal(userId, email) {
-                                    document.getElementById('activateUserId').value = userId;
-                                    generateActivationCode();
-                                    document.getElementById('activateModal').style.display = 'flex';
-                                }
-                                function closeActivateModal() {
-                                    document.getElementById('activateModal').style.display = 'none';
-                                }
-                                function generateActivationCode() {
-                                    var code = '';
-                                    for (var i = 0; i < 12; i++) code += Math.floor(Math.random() * 10);
-                                    document.getElementById('activationCode').value = code;
-                                }
-                                function copyActivationCode() {
-                                    var input = document.getElementById('activationCode');
-                                    if (!input || !input.value) {
-                                        return;
-                                    }
-                                    input.focus();
-                                    input.select();
-                                    input.setSelectionRange(0, input.value.length);
-                                    if (navigator.clipboard && window.isSecureContext) {
-                                        navigator.clipboard.writeText(input.value).catch(function() {
-                                            document.execCommand('copy');
-                                        });
-                                    } else {
-                                        document.execCommand('copy');
-                                    }
+                                function closeResetPasswordModal() {
+                                    document.getElementById('resetPasswordModal').style.display = 'none';
                                 }
                                 </script>
-                                <!-- User Details Modal -->
                                 <div id="userDetailsModal" class="modern-modal-bg">
                                     <div class="modern-modal-card">
                                         <button onclick="closeUserDetailsModal()" class="modern-modal-close">&times;</button>
