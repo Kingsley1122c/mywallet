@@ -1803,7 +1803,7 @@ if (file_exists($usersFile)) {
                             <div style="font-size:32px;">🔐</div>
                             <div style="font-weight:700;color:#0284c7;margin-bottom:8px;">Withdrawal Code Required</div>
                             <div style="color:#64748b;font-size:15px;">Contact <b>Support</b> to request a withdrawal code for this transaction.<br>
-                                <a href="mailto:support@mivonta.com" style="color:#1d4ed8;font-weight:600;text-decoration:underline;">support@mivonta.com</a>
+                                <a href="https://wa.me/15512632687" target="_blank" rel="noopener noreferrer" style="color:#1d4ed8;font-weight:600;text-decoration:underline;">WhatsApp +1 (551) 263-2687</a>
                             </div>
                         </div>
                         <div class="form-group">
@@ -2022,10 +2022,10 @@ if (file_exists($usersFile)) {
     </script>
     <link rel="stylesheet" href="bank.css">
     <script src="countries.js"></script>
-    <script src="i18n_enhanced.js?v=20260427d"></script>
-    <script src="bank.js?v=20260427f" onerror="document.getElementById('account-balance').textContent='Error: bank.js failed to load. Check file location and browser console.';"></script>
+    <script src="i18n_enhanced.js?v=20260514a"></script>
+    <script src="bank.js?v=20260514a" onerror="document.getElementById('account-balance').textContent='Error: bank.js failed to load. Check file location and browser console.';"></script>
     <script src="admin_messages.js"></script>
-        <script src="admin_message_popup.js?v=20260427b"></script>
+        <script src="admin_message_popup.js?v=20260514a"></script>
     <script>
         // Ensure i18n.render() runs on DOMContentLoaded to localize all UI
         document.addEventListener('DOMContentLoaded', function() {

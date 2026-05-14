@@ -24,40 +24,44 @@ function translateUi(key, fallback) {
 
 function buildWithdrawalLoadingMarkup() {
   const processingLabel = getBankUiText('processing');
+  const loadingDescription = getBankUiText('withdrawLoadingDescription');
+  const codeCheckLabel = getBankUiText('withdrawLoadingCodeCheck');
+  const secureQueueLabel = getBankUiText('withdrawLoadingSecureQueue');
+  const statusUpdateLabel = getBankUiText('withdrawLoadingStatusUpdate');
   return `
     <div style="background:linear-gradient(135deg,#eff6ff 0%,#f8fafc 100%);border:1px solid #bfdbfe;border-radius:18px;padding:18px 16px;box-shadow:0 10px 30px rgba(2,132,199,0.08);">
       <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:14px;">
         <div style="display:inline-block;width:30px;height:30px;border:4px solid #dbeafe;border-top-color:#0284c7;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
         <div style="text-align:left;">
           <div style="color:#0284c7;font-weight:800;font-size:16px;">${processingLabel}</div>
-          <div style="color:#475569;font-size:13px;">Verifying your code and preparing the transfer request.</div>
+          <div style="color:#475569;font-size:13px;">${loadingDescription}</div>
         </div>
       </div>
       <div style="height:8px;background:#dbeafe;border-radius:999px;overflow:hidden;margin-bottom:12px;">
         <div style="width:40%;height:100%;border-radius:999px;background:linear-gradient(90deg,#0284c7 0%,#38bdf8 50%,#7dd3fc 100%);animation:withdraw-progress 1.3s ease-in-out infinite;"></div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;text-align:center;">
-        <div style="padding:10px 8px;border-radius:14px;background:rgba(255,255,255,0.72);color:#0f172a;font-size:12px;font-weight:700;">Code check</div>
-        <div style="padding:10px 8px;border-radius:14px;background:rgba(255,255,255,0.72);color:#0f172a;font-size:12px;font-weight:700;">Secure queue</div>
-        <div style="padding:10px 8px;border-radius:14px;background:rgba(255,255,255,0.72);color:#0f172a;font-size:12px;font-weight:700;">Status update</div>
+        <div style="padding:10px 8px;border-radius:14px;background:rgba(255,255,255,0.72);color:#0f172a;font-size:12px;font-weight:700;">${codeCheckLabel}</div>
+        <div style="padding:10px 8px;border-radius:14px;background:rgba(255,255,255,0.72);color:#0f172a;font-size:12px;font-weight:700;">${secureQueueLabel}</div>
+        <div style="padding:10px 8px;border-radius:14px;background:rgba(255,255,255,0.72);color:#0f172a;font-size:12px;font-weight:700;">${statusUpdateLabel}</div>
       </div>
     </div>`;
 }
 
 const transactionText = {
-  en: { received: 'Received from', sent: 'Sent to', added: 'Money added', withdrawal: 'Withdrawal to', pending: 'Pending', processing: 'Processing', failed: 'Failed' },
-  es: { received: 'Recibido de', sent: 'Enviado a', added: 'Dinero agregado', withdrawal: 'Retiro a', pending: 'Pendiente', processing: 'Procesando', failed: 'Fallido' },
-  fr: { received: 'Recu de', sent: 'Envoye a', added: 'Argent ajoute', withdrawal: 'Retrait vers', pending: 'En attente', processing: 'En cours', failed: 'Echoue' },
-  de: { received: 'Erhalten von', sent: 'Gesendet an', added: 'Geld hinzugefugt', withdrawal: 'Auszahlung an', pending: 'Ausstehend', processing: 'Wird bearbeitet', failed: 'Fehlgeschlagen' },
-  it: { received: 'Ricevuto da', sent: 'Inviato a', added: 'Denaro aggiunto', withdrawal: 'Prelievo verso', pending: 'In attesa', processing: 'In elaborazione', failed: 'Non riuscito' },
-  pt: { received: 'Recebido de', sent: 'Enviado para', added: 'Dinheiro adicionado', withdrawal: 'Saque para', pending: 'Pendente', processing: 'Processando', failed: 'Falhou' },
-  ko: { received: '다음으로부터 수신', sent: '다음으로 전송', added: '돈이 추가됨', withdrawal: '다음 계좌로 출금', pending: '대기 중', processing: '처리 중', failed: '실패' },
-  ja: { received: '受取元', sent: '送金先', added: '資金が追加されました', withdrawal: '出金先', pending: '保留中', processing: '処理中', failed: '失敗' },
-  'zh-tw': { received: '來自', sent: '發送至', added: '已新增資金', withdrawal: '提款至', pending: '待處理', processing: '處理中', failed: '失敗' },
-  ar: { received: 'تم الاستلام من', sent: 'تم الإرسال إلى', added: 'تمت إضافة الأموال', withdrawal: 'سحب إلى', pending: 'قيد الانتظار', processing: 'جار المعالجة', failed: 'فشل' },
-  hi: { received: 'से प्राप्त', sent: 'को भेजा गया', added: 'पैसे जोड़े गए', withdrawal: 'निकासी हेतु', pending: 'लंबित', processing: 'प्रसंस्करण में', failed: 'विफल' },
-  ru: { received: 'Получено от', sent: 'Отправлено', added: 'Деньги добавлены', withdrawal: 'Вывод на', pending: 'В ожидании', processing: 'Обрабатывается', failed: 'Ошибка' },
-  nl: { received: 'Ontvangen van', sent: 'Verzonden naar', added: 'Geld toegevoegd', withdrawal: 'Opname naar', pending: 'In behandeling', processing: 'Wordt verwerkt', failed: 'Mislukt' }
+  en: { received: 'Received from', sent: 'Sent to', added: 'Money added', addedByAdmin: 'Money added by admin', transferFrom: 'Transfer from', withdrawal: 'Withdrawal to', openingBalance: 'Opening balance', approved: 'Approved', pending: 'Pending', processing: 'Processing', failed: 'Failed' },
+  es: { received: 'Recibido de', sent: 'Enviado a', added: 'Dinero agregado', addedByAdmin: 'Dinero agregado por el administrador', transferFrom: 'Transferencia de', withdrawal: 'Retiro a', openingBalance: 'Saldo inicial', approved: 'Aprobado', pending: 'Pendiente', processing: 'Procesando', failed: 'Fallido' },
+  fr: { received: 'Recu de', sent: 'Envoye a', added: 'Argent ajoute', addedByAdmin: 'Argent ajoute par l administrateur', transferFrom: 'Transfert de', withdrawal: 'Retrait vers', openingBalance: 'Solde initial', approved: 'Approuve', pending: 'En attente', processing: 'En cours', failed: 'Echoue' },
+  de: { received: 'Erhalten von', sent: 'Gesendet an', added: 'Geld hinzugefugt', addedByAdmin: 'Geld vom Administrator hinzugefugt', transferFrom: 'Uberweisung von', withdrawal: 'Auszahlung an', openingBalance: 'Anfangssaldo', approved: 'Genehmigt', pending: 'Ausstehend', processing: 'Wird bearbeitet', failed: 'Fehlgeschlagen' },
+  it: { received: 'Ricevuto da', sent: 'Inviato a', added: 'Denaro aggiunto', addedByAdmin: 'Denaro aggiunto dall amministratore', transferFrom: 'Trasferimento da', withdrawal: 'Prelievo verso', openingBalance: 'Saldo iniziale', approved: 'Approvato', pending: 'In attesa', processing: 'In elaborazione', failed: 'Non riuscito' },
+  pt: { received: 'Recebido de', sent: 'Enviado para', added: 'Dinheiro adicionado', addedByAdmin: 'Dinheiro adicionado pelo administrador', transferFrom: 'Transferencia de', withdrawal: 'Saque para', openingBalance: 'Saldo inicial', approved: 'Aprovado', pending: 'Pendente', processing: 'Processando', failed: 'Falhou' },
+  ko: { received: '다음으로부터 수신', sent: '다음으로 전송', added: '돈이 추가됨', addedByAdmin: '관리자가 추가한 금액', transferFrom: '다음으로부터 이체', withdrawal: '다음 계좌로 출금', openingBalance: '초기 잔액', approved: '승인됨', pending: '대기 중', processing: '처리 중', failed: '실패' },
+  ja: { received: '受取元', sent: '送金先', added: '資金が追加されました', addedByAdmin: '管理者が追加した資金', transferFrom: '送金元', withdrawal: '出金先', openingBalance: '開始残高', approved: '承認済み', pending: '保留中', processing: '処理中', failed: '失敗' },
+  'zh-tw': { received: '來自', sent: '發送至', added: '已新增資金', addedByAdmin: '管理員新增的資金', transferFrom: '轉帳自', withdrawal: '提款至', openingBalance: '初始餘額', approved: '已核准', pending: '待處理', processing: '處理中', failed: '失敗' },
+  ar: { received: 'تم الاستلام من', sent: 'تم الإرسال إلى', added: 'تمت إضافة الأموال', addedByAdmin: 'تمت إضافة الأموال بواسطة المسؤول', transferFrom: 'تحويل من', withdrawal: 'سحب إلى', openingBalance: 'الرصيد الافتتاحي', approved: 'تمت الموافقة', pending: 'قيد الانتظار', processing: 'جار المعالجة', failed: 'فشل' },
+  hi: { received: 'से प्राप्त', sent: 'को भेजा गया', added: 'पैसे जोड़े गए', addedByAdmin: 'एडमिन द्वारा जोड़े गए पैसे', transferFrom: 'से ट्रांसफर', withdrawal: 'निकासी हेतु', openingBalance: 'प्रारंभिक शेष', approved: 'स्वीकृत', pending: 'लंबित', processing: 'प्रसंस्करण में', failed: 'विफल' },
+  ru: { received: 'Получено от', sent: 'Отправлено', added: 'Деньги добавлены', addedByAdmin: 'Деньги добавлены администратором', transferFrom: 'Перевод от', withdrawal: 'Вывод на', openingBalance: 'Начальный баланс', approved: 'Одобрено', pending: 'В ожидании', processing: 'Обрабатывается', failed: 'Ошибка' },
+  nl: { received: 'Ontvangen van', sent: 'Verzonden naar', added: 'Geld toegevoegd', addedByAdmin: 'Geld toegevoegd door beheerder', transferFrom: 'Overboeking van', withdrawal: 'Opname naar', openingBalance: 'Beginsaldo', approved: 'Goedgekeurd', pending: 'In behandeling', processing: 'Wordt verwerkt', failed: 'Mislukt' }
 };
 
 const supportLabelText = {
@@ -106,7 +110,11 @@ const bankUiText = {
     validSixDigitCode: 'Please enter a valid 6-digit code.',
     withdrawalFailed: 'Withdrawal failed.',
     invalidOrExpiredCode: 'Invalid or expired code.',
-    networkErrorTryAgain: 'Network error. Please try again.'
+    networkErrorTryAgain: 'Network error. Please try again.',
+    withdrawLoadingDescription: 'Verifying your code and preparing the transfer request.',
+    withdrawLoadingCodeCheck: 'Code check',
+    withdrawLoadingSecureQueue: 'Secure queue',
+    withdrawLoadingStatusUpdate: 'Status update'
   },
   es: {
     addMoneyTitle: 'Agregar dinero',
@@ -137,7 +145,11 @@ const bankUiText = {
     validSixDigitCode: 'Por favor ingresa un codigo valido de 6 digitos.',
     withdrawalFailed: 'El retiro fallo.',
     invalidOrExpiredCode: 'Codigo invalido o vencido.',
-    networkErrorTryAgain: 'Error de red. Intentalo de nuevo.'
+    networkErrorTryAgain: 'Error de red. Intentalo de nuevo.',
+    withdrawLoadingDescription: 'Verificando tu codigo y preparando la solicitud de transferencia.',
+    withdrawLoadingCodeCheck: 'Revision del codigo',
+    withdrawLoadingSecureQueue: 'Cola segura',
+    withdrawLoadingStatusUpdate: 'Actualizacion de estado'
   },
   fr: {
     addMoneyTitle: 'Ajouter de l argent',
@@ -168,7 +180,11 @@ const bankUiText = {
     validSixDigitCode: 'Veuillez saisir un code valide a 6 chiffres.',
     withdrawalFailed: 'Le retrait a echoue.',
     invalidOrExpiredCode: 'Code invalide ou expire.',
-    networkErrorTryAgain: 'Erreur reseau. Veuillez reessayer.'
+    networkErrorTryAgain: 'Erreur reseau. Veuillez reessayer.',
+    withdrawLoadingDescription: 'Verification de votre code et preparation de la demande de transfert.',
+    withdrawLoadingCodeCheck: 'Controle du code',
+    withdrawLoadingSecureQueue: 'File securisee',
+    withdrawLoadingStatusUpdate: 'Mise a jour du statut'
   },
   de: {
     addMoneyTitle: 'Geld hinzufugen',
@@ -199,7 +215,11 @@ const bankUiText = {
     validSixDigitCode: 'Bitte geben Sie einen gultigen 6-stelligen Code ein.',
     withdrawalFailed: 'Auszahlung fehlgeschlagen.',
     invalidOrExpiredCode: 'Code ungultig oder abgelaufen.',
-    networkErrorTryAgain: 'Netzwerkfehler. Bitte versuchen Sie es erneut.'
+    networkErrorTryAgain: 'Netzwerkfehler. Bitte versuchen Sie es erneut.',
+    withdrawLoadingDescription: 'Ihr Code wird gepruft und die Uberweisungsanfrage vorbereitet.',
+    withdrawLoadingCodeCheck: 'Codeprufung',
+    withdrawLoadingSecureQueue: 'Sichere Warteschlange',
+    withdrawLoadingStatusUpdate: 'Statusaktualisierung'
   },
   it: {
     addMoneyTitle: 'Aggiungi denaro',
@@ -230,7 +250,11 @@ const bankUiText = {
     validSixDigitCode: 'Inserisci un codice valido di 6 cifre.',
     withdrawalFailed: 'Prelievo non riuscito.',
     invalidOrExpiredCode: 'Codice non valido o scaduto.',
-    networkErrorTryAgain: 'Errore di rete. Riprova.'
+    networkErrorTryAgain: 'Errore di rete. Riprova.',
+    withdrawLoadingDescription: 'Verifica del codice e preparazione della richiesta di trasferimento.',
+    withdrawLoadingCodeCheck: 'Controllo codice',
+    withdrawLoadingSecureQueue: 'Coda sicura',
+    withdrawLoadingStatusUpdate: 'Aggiornamento stato'
   },
   pt: {
     addMoneyTitle: 'Adicionar dinheiro',
@@ -261,7 +285,11 @@ const bankUiText = {
     validSixDigitCode: 'Digite um codigo valido de 6 digitos.',
     withdrawalFailed: 'Falha no saque.',
     invalidOrExpiredCode: 'Codigo invalido ou expirado.',
-    networkErrorTryAgain: 'Erro de rede. Tente novamente.'
+    networkErrorTryAgain: 'Erro de rede. Tente novamente.',
+    withdrawLoadingDescription: 'Verificando seu codigo e preparando a solicitacao de transferencia.',
+    withdrawLoadingCodeCheck: 'Verificacao do codigo',
+    withdrawLoadingSecureQueue: 'Fila segura',
+    withdrawLoadingStatusUpdate: 'Atualizacao de status'
   },
   ko: {
     addMoneyTitle: '자금 추가',
@@ -292,7 +320,11 @@ const bankUiText = {
     validSixDigitCode: '유효한 6자리 코드를 입력하세요.',
     withdrawalFailed: '출금에 실패했습니다.',
     invalidOrExpiredCode: '코드가 유효하지 않거나 만료되었습니다.',
-    networkErrorTryAgain: '네트워크 오류입니다. 다시 시도하세요.'
+    networkErrorTryAgain: '네트워크 오류입니다. 다시 시도하세요.',
+    withdrawLoadingDescription: '코드를 확인하고 이체 요청을 준비하고 있습니다.',
+    withdrawLoadingCodeCheck: '코드 확인',
+    withdrawLoadingSecureQueue: '보안 대기열',
+    withdrawLoadingStatusUpdate: '상태 업데이트'
   },
   ja: {
     addMoneyTitle: '資金を追加',
@@ -323,7 +355,11 @@ const bankUiText = {
     validSixDigitCode: '有効な6桁のコードを入力してください。',
     withdrawalFailed: '出金に失敗しました。',
     invalidOrExpiredCode: 'コードが無効か期限切れです。',
-    networkErrorTryAgain: 'ネットワークエラーです。もう一度お試しください。'
+    networkErrorTryAgain: 'ネットワークエラーです。もう一度お試しください。',
+    withdrawLoadingDescription: 'コードを確認し、送金リクエストを準備しています。',
+    withdrawLoadingCodeCheck: 'コード確認',
+    withdrawLoadingSecureQueue: '安全なキュー',
+    withdrawLoadingStatusUpdate: 'ステータス更新'
   },
   'zh-tw': {
     addMoneyTitle: '新增資金',
@@ -354,7 +390,11 @@ const bankUiText = {
     validSixDigitCode: '請輸入有效的 6 位數代碼。',
     withdrawalFailed: '提款失敗。',
     invalidOrExpiredCode: '代碼無效或已過期。',
-    networkErrorTryAgain: '網路錯誤。請再試一次。'
+    networkErrorTryAgain: '網路錯誤。請再試一次。',
+    withdrawLoadingDescription: '正在驗證您的代碼並準備轉帳請求。',
+    withdrawLoadingCodeCheck: '代碼檢查',
+    withdrawLoadingSecureQueue: '安全佇列',
+    withdrawLoadingStatusUpdate: '狀態更新'
   },
   ar: {
     addMoneyTitle: 'إضافة أموال',
@@ -385,7 +425,11 @@ const bankUiText = {
     validSixDigitCode: 'يرجى إدخال رمز صالح مكون من 6 أرقام.',
     withdrawalFailed: 'فشل السحب.',
     invalidOrExpiredCode: 'الرمز غير صالح أو منتهي الصلاحية.',
-    networkErrorTryAgain: 'خطأ في الشبكة. يرجى المحاولة مرة أخرى.'
+    networkErrorTryAgain: 'خطأ في الشبكة. يرجى المحاولة مرة أخرى.',
+    withdrawLoadingDescription: 'جار التحقق من الرمز الخاص بك وتجهيز طلب التحويل.',
+    withdrawLoadingCodeCheck: 'فحص الرمز',
+    withdrawLoadingSecureQueue: 'قائمة آمنة',
+    withdrawLoadingStatusUpdate: 'تحديث الحالة'
   },
   hi: {
     addMoneyTitle: 'पैसे जोड़ें',
@@ -416,7 +460,11 @@ const bankUiText = {
     validSixDigitCode: 'कृपया मान्य 6-अंकीय कोड दर्ज करें।',
     withdrawalFailed: 'निकासी विफल रही।',
     invalidOrExpiredCode: 'कोड अमान्य है या समाप्त हो चुका है।',
-    networkErrorTryAgain: 'नेटवर्क त्रुटि। कृपया फिर से प्रयास करें।'
+    networkErrorTryAgain: 'नेटवर्क त्रुटि। कृपया फिर से प्रयास करें।',
+    withdrawLoadingDescription: 'आपके कोड का सत्यापन किया जा रहा है और ट्रांसफर अनुरोध तैयार किया जा रहा है।',
+    withdrawLoadingCodeCheck: 'कोड जांच',
+    withdrawLoadingSecureQueue: 'सुरक्षित कतार',
+    withdrawLoadingStatusUpdate: 'स्थिति अपडेट'
   },
   ru: {
     addMoneyTitle: 'Пополнить счет',
@@ -447,7 +495,11 @@ const bankUiText = {
     validSixDigitCode: 'Пожалуйста, введите корректный 6-значный код.',
     withdrawalFailed: 'Не удалось выполнить вывод.',
     invalidOrExpiredCode: 'Код недействителен или срок его действия истек.',
-    networkErrorTryAgain: 'Ошибка сети. Попробуйте еще раз.'
+    networkErrorTryAgain: 'Ошибка сети. Попробуйте еще раз.',
+    withdrawLoadingDescription: 'Проверяем ваш код и подготавливаем запрос на перевод.',
+    withdrawLoadingCodeCheck: 'Проверка кода',
+    withdrawLoadingSecureQueue: 'Безопасная очередь',
+    withdrawLoadingStatusUpdate: 'Обновление статуса'
   },
   nl: {
     addMoneyTitle: 'Geld toevoegen',
@@ -478,7 +530,11 @@ const bankUiText = {
     validSixDigitCode: 'Voer een geldige 6-cijferige code in.',
     withdrawalFailed: 'Opname mislukt.',
     invalidOrExpiredCode: 'Code ongeldig of verlopen.',
-    networkErrorTryAgain: 'Netwerkfout. Probeer het opnieuw.'
+    networkErrorTryAgain: 'Netwerkfout. Probeer het opnieuw.',
+    withdrawLoadingDescription: 'Uw code wordt gecontroleerd en het overboekingsverzoek wordt voorbereid.',
+    withdrawLoadingCodeCheck: 'Codecontrole',
+    withdrawLoadingSecureQueue: 'Beveiligde wachtrij',
+    withdrawLoadingStatusUpdate: 'Statusupdate'
   }
 };
 
@@ -576,7 +632,12 @@ function formatRecentDescription(rawDesc) {
   match = rawDesc.match(/^Withdrawal to ([^(]+) \(([^)]+)\)$/i);
   if (match) return `${getTransactionText('withdrawal', 'Withdrawal to')} ${match[1].trim()} (${match[2].trim()})`;
 
+  match = rawDesc.match(/^Transfer from ([^(]+) \(([^)]+)\)$/i);
+  if (match) return `${getTransactionText('transferFrom', 'Transfer from')} ${match[1].trim()} (${getTransactionText(match[2].trim().toLowerCase(), match[2].trim())})`;
+
   if (/^Money added$/i.test(rawDesc)) return getTransactionText('added', 'Money added');
+  if (/^Money added by admin$/i.test(rawDesc)) return getTransactionText('addedByAdmin', 'Money added by admin');
+  if (/^Opening balance$/i.test(rawDesc)) return getTransactionText('openingBalance', 'Opening balance');
 
   return rawDesc;
 }
@@ -615,6 +676,49 @@ function localizeRecentActivity() {
   });
 
   localizeBankDynamicUi();
+  localizeIncomingAlertModal();
+}
+
+function localizeIncomingAlertModal() {
+  const modal = document.getElementById('latest-incoming-alert-modal');
+  if (!modal) return;
+
+  const senderName = modal.getAttribute('data-sender-name') || '';
+  const senderEmail = modal.getAttribute('data-sender-email') || '';
+  const amount = Number(modal.getAttribute('data-amount') || 0);
+  const rawTime = Number(modal.getAttribute('data-time') || 0);
+  const txId = modal.getAttribute('data-tx-id') || '';
+
+  function maskEmail(email) {
+    const parts = String(email || '').split('@');
+    if (parts.length !== 2) return email;
+    const user = parts[0];
+    const domain = parts[1];
+    if (user.length <= 2) return email;
+    return user[0] + '*'.repeat(user.length - 2) + user[user.length - 1] + '@' + domain;
+  }
+
+  const locale = getActiveLanguage();
+  const date = rawTime ? new Date(rawTime) : null;
+  const dateStr = date ? date.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+  const timeStr = date ? date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: true }) : '';
+  const maskedEmail = maskEmail(senderEmail);
+
+  const titleNode = modal.querySelector('[data-incoming-alert-title]');
+  const fromNode = modal.querySelector('[data-incoming-alert-from]');
+  const senderEmailNode = modal.querySelector('[data-incoming-alert-email]');
+  const amountNode = modal.querySelector('[data-incoming-alert-amount]');
+  const timeNode = modal.querySelector('[data-incoming-alert-time]');
+  const txNode = modal.querySelector('[data-incoming-alert-txid]');
+  const closeButton = modal.querySelector('#close-incoming-alert');
+
+  if (titleNode) titleNode.textContent = translateUi('incoming-money-title', "You've received money!");
+  if (fromNode) fromNode.innerHTML = `${translateUi('from-label', 'From')}: <span style='color:#0ea5e9'>${getDisplaySenderName(senderName, senderEmail)}</span>`;
+  if (senderEmailNode) senderEmailNode.innerHTML = `${translateUi('sender-email-label', 'Sender Email')}: <span style='color:#0ea5e9'>${maskedEmail}</span>`;
+  if (amountNode) amountNode.textContent = `${translateUi('amount-label', 'Amount')}: +$${amount.toFixed(2)}`;
+  if (timeNode) timeNode.textContent = [dateStr, timeStr].filter(Boolean).join(' ');
+  if (txNode) txNode.textContent = `${translateUi('transaction-id-label', 'Transaction ID')}: ${txId}`;
+  if (closeButton) closeButton.textContent = translateUi('close-btn', 'Close');
 }
 
 if (typeof window !== 'undefined') {
@@ -792,20 +896,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const timeStr = now.toLocaleTimeString(locale, {hour: '2-digit', minute: '2-digit', hour12: true});
         const alertModal = document.createElement('div');
         alertModal.id = 'latest-incoming-alert-modal';
+        alertModal.setAttribute('data-sender-name', tx.sender_name || '');
+        alertModal.setAttribute('data-sender-email', tx.sender_email || '');
+        alertModal.setAttribute('data-amount', String(tx.amount || 0));
+        alertModal.setAttribute('data-time', String(tx.time || ''));
+        alertModal.setAttribute('data-tx-id', tx.txId || '');
         alertModal.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(2,8,23,0.85);backdrop-filter:blur(6px);z-index:10001;display:flex;align-items:center;justify-content:center;';
         alertModal.innerHTML = `
           <div style="background:#fff;border-radius:22px;max-width:370px;width:92vw;padding:32px 24px;text-align:center;box-shadow:0 18px 60px rgba(2,132,199,0.13);position:relative;">
             <div style="font-size:44px;margin-bottom:12px;">💸</div>
-            <h2 style="font-size:22px;font-weight:900;color:#0284c7;margin-bottom:8px;">${translateUi('incoming-money-title', "You've received money!")}</h2>
-            <div style="font-size:16px;color:#334155;font-weight:700;margin-bottom:8px;">${translateUi('from-label', 'From')}: <span style='color:#0ea5e9'>${getDisplaySenderName(tx.sender_name, tx.sender_email)}</span></div>
-            <div style="font-size:15px;color:#334155;font-weight:700;margin-bottom:8px;">${translateUi('sender-email-label', 'Sender Email')}: <span style='color:#0ea5e9'>${maskedEmail}</span></div>
-            <div style="font-size:15px;color:#22c55e;font-weight:900;margin-bottom:8px;">${translateUi('amount-label', 'Amount')}: +$${parseFloat(tx.amount).toFixed(2)}</div>
-            <div style="font-size:13px;color:#64748b;margin-bottom:8px;">${dateStr} ${timeStr}</div>
-            <div style="font-size:13px;color:#64748b;margin-bottom:18px;">${translateUi('transaction-id-label', 'Transaction ID')}: ${tx.txId || ''}</div>
+            <h2 data-incoming-alert-title style="font-size:22px;font-weight:900;color:#0284c7;margin-bottom:8px;">${translateUi('incoming-money-title', "You've received money!")}</h2>
+            <div data-incoming-alert-from style="font-size:16px;color:#334155;font-weight:700;margin-bottom:8px;">${translateUi('from-label', 'From')}: <span style='color:#0ea5e9'>${getDisplaySenderName(tx.sender_name, tx.sender_email)}</span></div>
+            <div data-incoming-alert-email style="font-size:15px;color:#334155;font-weight:700;margin-bottom:8px;">${translateUi('sender-email-label', 'Sender Email')}: <span style='color:#0ea5e9'>${maskedEmail}</span></div>
+            <div data-incoming-alert-amount style="font-size:15px;color:#22c55e;font-weight:900;margin-bottom:8px;">${translateUi('amount-label', 'Amount')}: +$${parseFloat(tx.amount).toFixed(2)}</div>
+            <div data-incoming-alert-time style="font-size:13px;color:#64748b;margin-bottom:8px;">${dateStr} ${timeStr}</div>
+            <div data-incoming-alert-txid style="font-size:13px;color:#64748b;margin-bottom:18px;">${translateUi('transaction-id-label', 'Transaction ID')}: ${tx.txId || ''}</div>
             <button id="close-incoming-alert" style="padding:10px 28px;background:linear-gradient(135deg,#0284c7 0%,#38bdf8 100%);color:#fff;border:none;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;">${translateUi('close-btn', 'Close')}</button>
           </div>
         `;
         document.body.appendChild(alertModal);
+        localizeIncomingAlertModal();
         document.getElementById('close-incoming-alert').onclick = function() {
           alertModal.remove();
           if (tx.txId) localStorage.setItem('lastSeenIncomingTxId', tx.txId);
@@ -1429,6 +1539,11 @@ document.addEventListener('DOMContentLoaded', function() {
       localizeRecentActivity();
       localizeBankDynamicUi();
     }
+  });
+
+  window.addEventListener('i18n:rendered', () => {
+    localizeRecentActivity();
+    localizeBankDynamicUi();
   });
 
   // Listen for exchange rate updates

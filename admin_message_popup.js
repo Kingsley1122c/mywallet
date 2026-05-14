@@ -12,6 +12,29 @@
         return fallback;
     }
 
+    function localizeAdminMessageModal() {
+        const modal = document.getElementById('adminMessageModal');
+        if (!modal) {
+            return;
+        }
+
+        const type = modal.getAttribute('data-message-type') || 'info';
+        const typeBadge = modal.querySelector('[data-admin-message-type]');
+        const dismissButton = document.getElementById('closeAdminMessageBtn');
+
+        if (typeBadge) {
+            let typeLabel = translatePopup('message-type-info', 'Info');
+            if (type === 'warning') typeLabel = translatePopup('message-type-warning', 'Warning');
+            if (type === 'alert') typeLabel = translatePopup('message-type-alert', 'Alert');
+            if (type === 'promotion') typeLabel = translatePopup('message-type-promotion', 'Promotion');
+            typeBadge.textContent = typeLabel;
+        }
+
+        if (dismissButton) {
+            dismissButton.textContent = translatePopup('dismiss-btn', 'Dismiss');
+        }
+    }
+
     // Only run after DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
         console.log('[AdminMsgPopup] DOMContentLoaded');
@@ -43,6 +66,7 @@
         // Create modal overlay
         const modal = document.createElement('div');
         modal.id = 'adminMessageModal';
+        modal.setAttribute('data-message-type', message.message_type || 'info');
         modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:9999;';
 
         // Only show the selected message type (icon and badge)
@@ -61,13 +85,14 @@
             <div style=\"background:linear-gradient(135deg,#fff 0%,#f0f4ff 100%);padding:32px 24px 24px 24px;border-radius:24px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.18);border:3px solid ${badgeColor};\">
                 <div style=\"display:flex;align-items:center;justify-content:center;gap:12px;flex-direction:column;\">
                     <span style=\"font-size:54px;\">${icon}</span>
-                    <span style=\"display:inline-block;padding:10px 28px;border-radius:20px;font-size:20px;font-weight:800;background:${badgeBg};color:${badgeColor};letter-spacing:0.5px;box-shadow:0 2px 8px rgba(0,0,0,0.04);text-transform:uppercase;\">${typeLabel}</span>
+                    <span data-admin-message-type style="display:inline-block;padding:10px 28px;border-radius:20px;font-size:20px;font-weight:800;background:${badgeBg};color:${badgeColor};letter-spacing:0.5px;box-shadow:0 2px 8px rgba(0,0,0,0.04);text-transform:uppercase;">${typeLabel}</span>
                 </div>
                 ${messageHtml}
                 <button id="closeAdminMessageBtn" style="margin-top:32px;width:100%;padding:16px;background:${badgeBg};border:2px solid ${badgeColor};border-radius:12px;color:${badgeColor};font-size:16px;font-weight:700;cursor:pointer;transition:all 0.3s ease;">${translatePopup('dismiss-btn', 'Dismiss')}</button>
             </div>
         `;
         document.body.appendChild(modal);
+        localizeAdminMessageModal();
         document.getElementById('closeAdminMessageBtn').onclick = function() {
             modal.remove();
             // Mark as read
@@ -83,4 +108,11 @@
         div.textContent = text;
         return div.innerHTML;
     }
+
+    window.addEventListener('i18n:rendered', localizeAdminMessageModal);
+    window.addEventListener('storage', function(event) {
+        if (event.key === 'mw_lang') {
+            localizeAdminMessageModal();
+        }
+    });
 })();

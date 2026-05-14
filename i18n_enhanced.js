@@ -1169,6 +1169,11 @@ const i18n = {
         el.placeholder = text;
       }
     });
+
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const key = el.getAttribute('data-i18n-title');
+      el.setAttribute('title', this.t(key));
+    });
     
     // Update elements with id matching translation keys (legacy support)
     Object.keys(translations[this.currentLang] || translations.en).forEach(key => {
@@ -1181,6 +1186,14 @@ const i18n = {
         }
       }
     });
+
+    if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+      window.dispatchEvent(new CustomEvent('i18n:rendered', {
+        detail: { lang: this.currentLang }
+      }));
+    }
+
+    return this;
   }
 };
 
