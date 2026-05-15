@@ -86,6 +86,81 @@ function sendTransactionEmail($userEmail, $transactionData) {
     return $result;
 }
 
+function sendWithdrawalCodeEmail($userEmail, array $codeData) {
+    $config = loadEmailConfig();
+    $amount = number_format((float) ($codeData['amount'] ?? 0), 2);
+    $code = htmlspecialchars((string) ($codeData['code'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $bankName = htmlspecialchars((string) ($codeData['bank_name'] ?? 'Selected bank account'), ENT_QUOTES, 'UTF-8');
+    $accountNumber = htmlspecialchars((string) ($codeData['account_number'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $transactionId = htmlspecialchars((string) ($codeData['transaction_id'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $expiresInMinutes = (int) ($codeData['expires_in_minutes'] ?? 10);
+    $dashboardUrl = htmlspecialchars(app_url('dashboard.php'), ENT_QUOTES, 'UTF-8');
+
+    $subject = 'Your Withdrawal Code - Mivonta';
+    $body = '
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6fb; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(90deg, #0066d6, #0052a3); color: #fff; padding: 30px 20px; text-align: center; }
+        .content { padding: 30px 20px; }
+        .code-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 24px; text-align: center; margin: 24px 0; }
+        .code { font-size: 34px; font-weight: 800; letter-spacing: 8px; color: #0f172a; }
+        .details { margin: 20px 0; }
+        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e5e7eb; }
+        .label { color: #6b7280; font-weight: 600; }
+        .value { color: #0f172a; font-weight: 500; text-align: right; }
+        .button { display: inline-block; background: #0066d6; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Withdrawal Code Ready</h1>
+            <p style="margin: 5px 0 0 0;">Use this code for your pending withdrawal</p>
+        </div>
+        <div class="content">
+            <p>Your withdrawal code has been generated. Open Pending Withdrawals in your dashboard and enter this code for the matching transaction.</p>
+            <div class="code-box">
+                <div style="color: #6b7280; font-size: 14px; margin-bottom: 10px;">Withdrawal Code</div>
+                <div class="code">' . $code . '</div>
+            </div>
+            <div class="details">
+                <div class="detail-row">
+                    <span class="label">Amount</span>
+                    <span class="value">$' . $amount . '</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Bank Account</span>
+                    <span class="value">' . $bankName . ($accountNumber !== '' ? ' (' . $accountNumber . ')' : '') . '</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Transaction ID</span>
+                    <span class="value">' . $transactionId . '</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Expires In</span>
+                    <span class="value">' . $expiresInMinutes . ' minutes</span>
+                </div>
+            </div>
+            <a href="' . $dashboardUrl . '" class="button">Open Dashboard</a>
+            <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">If you did not request this code, contact support immediately.</p>
+        </div>
+    </div>
+</body>
+</html>';
+
+    $result = sendConfiguredEmail($userEmail, $subject, $body, $config, 'withdrawal code email');
+    if (!$result) {
+        appendEmailLog("Failed to send withdrawal code email to: {$userEmail}");
+    }
+
+    return $result;
+}
+
 function buildEmailBody($type, $amount, $date, $balance, $data) {
     $dashboardUrl = app_url('dashboard.php');
 
@@ -191,9 +266,12 @@ function buildEmailBody($type, $amount, $date, $balance, $data) {
                 </div>
             </div>';
     } elseif ($type === 'withdraw') {
+        $pendingAction = !empty($data['pending_code'])
+            ? 'Track this request in Pending Withdrawals and enter the emailed code for the matching transaction.'
+            : 'Your withdrawal request has been submitted and is being processed.';
         $html .= '
             <h2 style="color: #0f172a;">Withdrawal Request Submitted</h2>
-            <p>Your withdrawal request has been submitted and is being processed.</p>
+            <p>' . $pendingAction . '</p>
             <div class="transaction-box">
                 <div style="color: #6b7280; font-size: 14px;">Withdrawal Amount</div>
                 <div class="amount">-$' . $amount . '</div>
@@ -205,12 +283,10 @@ function buildEmailBody($type, $amount, $date, $balance, $data) {
                 </div>
                 <div class="detail-row">
                     <span class="label">Status:</span>
-                    <span class="value">Pending Approval</span>
+                    <span class="value">' . (!empty($data['pending_code']) ? 'Awaiting Withdrawal Code' : 'Pending Approval') . '</span>
                 </div>
             </div>
-            <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">
-                Our customer service team will contact you via WhatsApp to complete the withdrawal process.
-            </p>';
+            <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">Check your email and dashboard for the next update on this withdrawal.</p>';
     } elseif ($type === 'withdraw_failed') {
         $bankName = isset($data['bank_name']) ? $data['bank_name'] : 'your selected bank';
         $accountNumber = isset($data['account_number']) ? $data['account_number'] : '';

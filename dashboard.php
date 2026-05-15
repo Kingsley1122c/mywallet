@@ -1523,6 +1523,11 @@ if (file_exists($usersFile)) {
             return $tx['user_id'] == $userId;
         });
         usort($userTxs, function($a, $b) { return $b['time'] <=> $a['time']; });
+        $pendingWithdrawals = array_values(array_filter($userTxs, function($tx) {
+            $status = strtolower((string)($tx['status'] ?? ''));
+            $kind = strtolower((string)($tx['kind'] ?? ''));
+            return $kind === 'withdrawal' && in_array($status, ['awaiting_code', 'code_requested'], true);
+        }));
         $recentTxs = array_slice($userTxs, 0, 10);
         ?>
         <div class="bank-wrap">
@@ -1587,6 +1592,42 @@ if (file_exists($usersFile)) {
                 </div>
 
                 <div style="height:18px"></div>
+
+                <?php if (count($pendingWithdrawals) > 0): ?>
+                <div class="transactions-table" id="pending-withdrawals-section" style="margin-bottom:18px;">
+                    <h3>Pending Withdrawals</h3>
+                    <div style="display:grid;gap:12px;">
+                        <?php foreach ($pendingWithdrawals as $pendingTx): ?>
+                            <?php
+                                $pendingStatus = strtolower((string)($pendingTx['status'] ?? 'awaiting_code'));
+                                $pendingLabel = $pendingStatus === 'code_requested' ? 'Code emailed' : 'Awaiting code';
+                                $pendingTime = isset($pendingTx['time']) ? (int)$pendingTx['time'] : 0;
+                            ?>
+                            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px;border:1px solid #dbeafe;border-radius:18px;background:linear-gradient(135deg,#eff6ff 0%,#ffffff 100%);box-shadow:0 10px 24px rgba(2,132,199,0.08);flex-wrap:wrap;">
+                                <div style="display:flex;flex-direction:column;gap:6px;min-width:0;">
+                                    <div style="font-size:15px;font-weight:800;color:#0f172a;">$<?php echo number_format(abs((float)($pendingTx['amount'] ?? 0)), 2); ?> to <?php echo htmlspecialchars((string)($pendingTx['bank_name'] ?? 'Selected bank'), ENT_QUOTES, 'UTF-8'); ?></div>
+                                    <div style="font-size:13px;color:#475569;"><?php echo htmlspecialchars((string)($pendingTx['account_number'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></div>
+                                    <div style="font-size:12px;color:#64748b;">Created <?php echo $pendingTime > 0 ? date('M d, Y H:i', (int) floor($pendingTime / 1000)) : 'Recently'; ?></div>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                                    <span style="padding:8px 12px;border-radius:999px;background:#dbeafe;color:#075985;font-size:12px;font-weight:800;"><?php echo $pendingLabel; ?></span>
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary pending-withdrawal-action"
+                                        data-transaction-id="<?php echo htmlspecialchars((string)($pendingTx['id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-amount="<?php echo htmlspecialchars((string)abs((float)($pendingTx['amount'] ?? 0)), ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-bank-id="<?php echo htmlspecialchars((string)($pendingTx['bank_account_id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-bank-name="<?php echo htmlspecialchars((string)($pendingTx['bank_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-account-number="<?php echo htmlspecialchars((string)($pendingTx['account_number'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                                        data-status="<?php echo htmlspecialchars($pendingStatus, ENT_QUOTES, 'UTF-8'); ?>">
+                                        Enter Code
+                                    </button>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
 
                 <!-- Settings section (hidden by default) -->
                 <div id="settings-section" style="display:none">
@@ -1657,7 +1698,7 @@ if (file_exists($usersFile)) {
                                     $rawDesc = isset($tx['desc']) ? (string) $tx['desc'] : '';
                                     $desc = htmlspecialchars($rawDesc, ENT_QUOTES, 'UTF-8');
                                     $timestamp = isset($tx['time']) ? (int) $tx['time'] : 0;
-                                    $date = $timestamp > 0 ? date('M d, Y H:i', $timestamp / 1000) : '';
+                                    $date = $timestamp > 0 ? date('M d, Y H:i', (int) floor($timestamp / 1000)) : '';
                                     $status = isset($tx['status']) ? $tx['status'] : 'completed';
                                 ?>
                                 <div class="transaction-item" style="display:flex;align-items:center;justify-content:space-between;padding:18px 0;border-bottom:1px solid #f3f6fa;gap:12px;">
@@ -1808,6 +1849,7 @@ if (file_exists($usersFile)) {
                             <button type="button" class="btn btn-primary" id="request-withdrawal-code">Request Withdrawal Code</button>
                             <div id="withdraw-request-status" style="display:none;font-size:14px;font-weight:600;text-align:center;"></div>
                         </div>
+                        <div id="selected-pending-withdrawal" style="display:none;margin-bottom:16px;padding:14px 16px;border-radius:16px;background:#f8fafc;border:1px solid #dbeafe;color:#0f172a;"></div>
                         <div class="form-group">
                             <label for="withdrawal-code">Enter Withdrawal Code</label>
                             <input name="withdrawal-code" id="withdrawal-code" placeholder="6-digit code" maxlength="6" minlength="6" required disabled>
@@ -1939,7 +1981,7 @@ if (file_exists($usersFile)) {
     <link rel="stylesheet" href="bank.css">
     <script src="countries.js"></script>
     <script src="i18n_enhanced.js?v=20260514b"></script>
-    <script src="bank.js?v=20260515a" onerror="document.getElementById('account-balance').textContent='Error: bank.js failed to load. Check file location and browser console.';"></script>
+    <script src="bank.js?v=20260515b" onerror="document.getElementById('account-balance').textContent='Error: bank.js failed to load. Check file location and browser console.';"></script>
     <script src="admin_messages.js"></script>
         <script src="admin_message_popup.js?v=20260514a"></script>
     <script>

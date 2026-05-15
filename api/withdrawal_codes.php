@@ -2,6 +2,8 @@
 session_start();
 header('Content-Type: application/json');
 
+include_once __DIR__ . '/email_notifications.php';
+
 function respond_error($message, $errorCode, $status = 400, $extra = []) {
     http_response_code($status);
     echo json_encode(array_merge(['error' => $message, 'error_code' => $errorCode], $extra));
@@ -24,6 +26,7 @@ function append_audit_event($event, $payload = []) {
 $usersFile = __DIR__ . '/../users.json';
 $codesFile = __DIR__ . '/../withdrawal_codes.json';
 $requestsFile = __DIR__ . '/../withdrawal_code_requests.json';
+$transactionsFile = __DIR__ . '/../transactions.json';
 
 if (!file_exists($usersFile)) {
     respond_error('System error', 'systemError', 500);
@@ -40,6 +43,8 @@ if (!file_exists($requestsFile)) {
 $users = json_decode(file_get_contents($usersFile), true) ?: [];
 $codes = json_decode(file_get_contents($codesFile), true) ?: [];
 $requests = json_decode(file_get_contents($requestsFile), true) ?: [];
+$transactions = file_exists($transactionsFile) ? json_decode(file_get_contents($transactionsFile), true) : [];
+$transactions = is_array($transactions) ? $transactions : [];
 
 if (empty($_SESSION['user_id'])) {
     respond_error('Not authenticated', 'notAuthenticated', 401);
@@ -61,19 +66,33 @@ $input = json_decode(file_get_contents('php://input'), true) ?: [];
 $action = $input['action'] ?? $_GET['action'] ?? '';
 
 if ($action === 'request') {
-    $amount = (float)($input['amount'] ?? 0);
-    $bankAccountId = trim((string)($input['bank_account_id'] ?? ''));
+    $transactionId = trim((string)($input['transaction_id'] ?? ''));
 
-    if ($amount <= 0 || $bankAccountId === '') {
+    if ($transactionId === '') {
         respond_error('Invalid request details', 'invalidRequestData');
     }
+
+    $transaction = null;
+    foreach ($transactions as $existingTransaction) {
+        if (($existingTransaction['id'] ?? '') === $transactionId
+            && ($existingTransaction['user_id'] ?? null) == $currentUser['id']) {
+            $transaction = $existingTransaction;
+            break;
+        }
+    }
+
+    if (!$transaction || strtolower((string)($transaction['kind'] ?? '')) !== 'withdrawal') {
+        respond_error('Pending withdrawal not found', 'pendingWithdrawalNotFound', 404);
+    }
+
+    $amount = abs((float)($transaction['amount'] ?? 0));
+    $bankAccountId = trim((string)($transaction['bank_account_id'] ?? ''));
 
     $now = time();
     foreach ($requests as $request) {
         if (($request['user_id'] ?? null) == $currentUser['id']
-            && ($request['status'] ?? 'pending') === 'pending'
-            && abs(((float)($request['amount'] ?? 0)) - $amount) < 0.01
-            && (string)($request['bank_account_id'] ?? '') === $bankAccountId
+            && (string)($request['transaction_id'] ?? '') === $transactionId
+            && in_array((string)($request['status'] ?? 'pending'), ['pending', 'code_generated', 'validated'], true)
             && ($now - (int)($request['created_at'] ?? 0)) < 900) {
             echo json_encode([
                 'success' => true,
@@ -89,8 +108,11 @@ if ($action === 'request') {
         'id' => uniqid('wcr_', true),
         'user_id' => $currentUser['id'],
         'user_email' => $currentUser['email'] ?? '',
+        'transaction_id' => $transactionId,
         'amount' => $amount,
         'bank_account_id' => $bankAccountId,
+        'bank_name' => (string)($transaction['bank_name'] ?? ''),
+        'account_number' => (string)($transaction['account_number'] ?? ''),
         'status' => 'pending',
         'created_at' => $now
     ];
@@ -102,7 +124,8 @@ if ($action === 'request') {
         'email' => $currentUser['email'] ?? '',
         'amount' => $amount,
         'bank_account_id' => $bankAccountId,
-        'request_id' => $newRequest['id']
+        'request_id' => $newRequest['id'],
+        'transaction_id' => $transactionId
     ]);
 
     echo json_encode([
@@ -116,6 +139,8 @@ if ($action === 'request') {
 if ($action === 'generate' && (($currentUser['role'] ?? 'user') === 'admin')) {
     $targetUserId = (int)($input['user_id'] ?? 0);
     $amount = (float)($input['amount'] ?? 0);
+    $requestId = trim((string)($input['request_id'] ?? ''));
+    $transactionId = trim((string)($input['transaction_id'] ?? ''));
 
     if ($targetUserId <= 0 || $amount <= 0) {
         respond_error('Invalid user ID or amount', 'invalidUserOrAmount');
@@ -131,6 +156,28 @@ if ($action === 'generate' && (($currentUser['role'] ?? 'user') === 'admin')) {
 
     if (!$targetUser) {
         respond_error('User not found', 'userNotFound', 404);
+    }
+
+    $matchedRequestIndex = null;
+    if ($requestId !== '') {
+        foreach ($requests as $index => $request) {
+            if (($request['id'] ?? '') === $requestId) {
+                $matchedRequestIndex = $index;
+                break;
+            }
+        }
+    } elseif ($transactionId !== '') {
+        foreach ($requests as $index => $request) {
+            if (($request['transaction_id'] ?? '') === $transactionId) {
+                $matchedRequestIndex = $index;
+                break;
+            }
+        }
+    }
+
+    if ($matchedRequestIndex !== null) {
+        $amount = (float)($requests[$matchedRequestIndex]['amount'] ?? $amount);
+        $transactionId = (string)($requests[$matchedRequestIndex]['transaction_id'] ?? $transactionId);
     }
 
     do {
@@ -150,6 +197,8 @@ if ($action === 'generate' && (($currentUser['role'] ?? 'user') === 'admin')) {
         'user_id' => $targetUserId,
         'user_email' => $targetUser['email'] ?? '',
         'amount' => $amount,
+        'transaction_id' => $transactionId,
+        'request_id' => $requestId !== '' ? $requestId : (($matchedRequestIndex !== null) ? ($requests[$matchedRequestIndex]['id'] ?? '') : ''),
         'created_at' => time(),
         'created_by' => $currentUser['id'],
         'used' => false,
@@ -158,26 +207,26 @@ if ($action === 'generate' && (($currentUser['role'] ?? 'user') === 'admin')) {
 
     $codes[] = $newCode;
 
-    foreach ($requests as &$request) {
-        if (($request['user_id'] ?? null) == $targetUserId
-            && ($request['status'] ?? 'pending') === 'pending'
-            && abs(((float)($request['amount'] ?? 0)) - $amount) < 0.01) {
-            $request['status'] = 'code_generated';
-            $request['code_id'] = $newCode['id'];
-            $request['code_generated_at'] = time();
-        }
+    if ($matchedRequestIndex !== null) {
+        $requests[$matchedRequestIndex]['status'] = 'code_generated';
+        $requests[$matchedRequestIndex]['code_id'] = $newCode['id'];
+        $requests[$matchedRequestIndex]['code_generated_at'] = time();
+        $requestId = (string)($requests[$matchedRequestIndex]['id'] ?? $requestId);
     }
-    unset($request);
 
     save_json_file($codesFile, $codes);
     save_json_file($requestsFile, $requests);
 
     $to = $targetUser['email'] ?? '';
     if ($to !== '') {
-        $subject = 'Your Withdrawal Code';
-        $message = "Dear user,\n\nA withdrawal code has been generated for your account.\n\nCode: $code\nAmount: $amount\n\nThis code will expire in 10 minutes.\n\nIf you did not request this, please contact support immediately.";
-        $headers = 'From: noreply@yourdomain.com' . "\r\n" . 'Reply-To: support@yourdomain.com';
-        @mail($to, $subject, $message, $headers);
+        @sendWithdrawalCodeEmail($to, [
+            'code' => $code,
+            'amount' => $amount,
+            'transaction_id' => $transactionId,
+            'bank_name' => $matchedRequestIndex !== null ? ($requests[$matchedRequestIndex]['bank_name'] ?? '') : '',
+            'account_number' => $matchedRequestIndex !== null ? ($requests[$matchedRequestIndex]['account_number'] ?? '') : '',
+            'expires_in_minutes' => 10,
+        ]);
     }
 
     echo json_encode(['success' => true, 'code' => $code, 'codeData' => $newCode]);
@@ -194,17 +243,18 @@ if ($action === 'list' && (($currentUser['role'] ?? 'user') === 'admin')) {
 
 if ($action === 'validate') {
     $code = trim((string)($input['code'] ?? ''));
-    $amount = (float)($input['amount'] ?? 0);
+    $transactionId = trim((string)($input['transaction_id'] ?? ''));
 
-    if ($code === '' || $amount <= 0) {
-        respond_error('Invalid code or amount', 'invalidCodeOrAmount');
+    if ($code === '' || $transactionId === '') {
+        respond_error('Invalid code or transaction', 'invalidCodeOrAmount');
     }
 
     $pendingRequestIndex = -1;
     foreach ($requests as $index => $request) {
         if (($request['user_id'] ?? null) == $currentUser['id']
+            && (string)($request['transaction_id'] ?? '') === $transactionId
             && in_array(($request['status'] ?? 'pending'), ['pending', 'code_generated'], true)
-            && abs(((float)($request['amount'] ?? 0)) - $amount) < 0.01) {
+        ) {
             $pendingRequestIndex = $index;
             break;
         }
@@ -218,6 +268,7 @@ if ($action === 'validate') {
     foreach ($codes as $existingCode) {
         if (($existingCode['code'] ?? '') === $code
             && ($existingCode['user_id'] ?? null) == $currentUser['id']
+            && (($existingCode['transaction_id'] ?? '') === '' || ($existingCode['transaction_id'] ?? '') === $transactionId)
             && empty($existingCode['used'])) {
             $matchingCode = $existingCode;
             break;
@@ -229,7 +280,7 @@ if ($action === 'validate') {
             'user_id' => $currentUser['id'],
             'email' => $currentUser['email'] ?? '',
             'code' => $code,
-            'amount' => $amount
+            'transaction_id' => $transactionId
         ]);
         respond_error('Invalid or expired code', 'invalidOrExpiredCode');
     }
@@ -238,7 +289,7 @@ if ($action === 'validate') {
         respond_error('This code has expired. Request a new one.', 'codeExpired');
     }
 
-    if (isset($matchingCode['amount']) && abs(((float)$matchingCode['amount']) - $amount) >= 0.01) {
+    if (isset($matchingCode['amount']) && abs(((float)$matchingCode['amount']) - (float)($requests[$pendingRequestIndex]['amount'] ?? 0)) >= 0.01) {
         respond_error('This code does not match the withdrawal amount.', 'codeAmountMismatch');
     }
 

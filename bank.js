@@ -587,6 +587,8 @@ function formatRecentDescription(rawDesc) {
 function formatRecentStatus(status) {
   const normalized = String(status || 'completed').toLowerCase();
   if (normalized === 'completed') return null;
+  if (normalized === 'awaiting_code') return 'Awaiting code';
+  if (normalized === 'code_requested') return 'Code emailed';
   return getTransactionText(normalized, normalized.charAt(0).toUpperCase() + normalized.slice(1));
 }
 
@@ -681,6 +683,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const withdrawBankSelect = document.getElementById('withdraw-bank');
     const requestWithdrawalCodeBtn = document.getElementById('request-withdrawal-code');
     const withdrawRequestStatus = document.getElementById('withdraw-request-status');
+    const selectedPendingWithdrawal = document.getElementById('selected-pending-withdrawal');
+
+    function getPendingWithdrawalStatusLabel(status) {
+      const normalized = String(status || '').toLowerCase();
+      if (normalized === 'code_requested') return 'Code emailed';
+      if (normalized === 'awaiting_code') return 'Awaiting code';
+      return normalized ? normalized.replace(/_/g, ' ') : 'Pending';
+    }
 
     function setWithdrawRequestStatus(message, isError) {
       if (!withdrawRequestStatus) return;
@@ -698,6 +708,54 @@ document.addEventListener('DOMContentLoaded', function() {
       if (withdrawalCodeInput) withdrawalCodeInput.disabled = !requested;
       if (withdrawCompleteBtn) withdrawCompleteBtn.disabled = !requested;
     }
+
+    function updateSelectedPendingWithdrawal(details) {
+      if (!selectedPendingWithdrawal) return;
+      if (!details || !details.transactionId) {
+        selectedPendingWithdrawal.style.display = 'none';
+        selectedPendingWithdrawal.textContent = '';
+        return;
+      }
+      const bankLabel = [details.bankName || 'Selected bank', details.accountNumber || ''].filter(Boolean).join(' ');
+      selectedPendingWithdrawal.style.display = 'block';
+      selectedPendingWithdrawal.innerHTML = `<div style="font-size:13px;font-weight:700;color:#0284c7;margin-bottom:6px;">Pending withdrawal selected</div><div style="font-size:15px;font-weight:800;margin-bottom:4px;">$${Number(details.amount || 0).toFixed(2)} to ${bankLabel}</div><div style="font-size:12px;color:#64748b;">Transaction ${details.transactionId} • ${getPendingWithdrawalStatusLabel(details.status)}</div>`;
+    }
+
+    function openPendingWithdrawal(details) {
+      if (!details || !details.transactionId) return;
+      withdrawDetails = {
+        transactionId: details.transactionId,
+        amount: Number(details.amount || 0),
+        bank: details.bank || '',
+        bankName: details.bankName || '',
+        accountNumber: details.accountNumber || '',
+        status: details.status || 'awaiting_code'
+      };
+      if (withdrawModal) withdrawModal.style.display = 'flex';
+      if (withdrawForm) withdrawForm.style.display = 'none';
+      if (withdrawCodeForm) withdrawCodeForm.style.display = 'block';
+      if (withdrawalCodeInput) withdrawalCodeInput.value = '';
+      if (withdrawalCodeError) withdrawalCodeError.style.display = 'none';
+      updateSelectedPendingWithdrawal(withdrawDetails);
+      setWithdrawRequestStatus('', false);
+      setWithdrawalCodeRequested(withdrawDetails.status === 'code_requested');
+      if (requestWithdrawalCodeBtn) {
+        requestWithdrawalCodeBtn.textContent = getBankUiText('requestWithdrawalCodeButton');
+      }
+    }
+
+    document.querySelectorAll('.pending-withdrawal-action').forEach((button) => {
+      button.addEventListener('click', function() {
+        openPendingWithdrawal({
+          transactionId: button.dataset.transactionId,
+          amount: button.dataset.amount,
+          bank: button.dataset.bankId,
+          bankName: button.dataset.bankName,
+          accountNumber: button.dataset.accountNumber,
+          status: button.dataset.status
+        });
+      });
+    });
 
     // Populate bank accounts (simulate, replace with real data if needed)
     if (withdrawBankSelect) {
@@ -740,19 +798,44 @@ document.addEventListener('DOMContentLoaded', function() {
               alert(getBankUiText('withdrawalExceedsBalance'));
               return;
             }
-            // Hide details form, show code form
-            withdrawForm.style.display = 'none';
-            withdrawCodeForm.style.display = 'block';
-            withdrawalCodeInput.value = '';
-            withdrawalCodeError.style.display = 'none';
-            setWithdrawRequestStatus('', false);
-            setWithdrawalCodeRequested(false);
+
+            fetch('api/transactions.php', {
+              method: 'POST',
+              credentials: 'same-origin',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                action: 'withdraw',
+                amount: withdrawDetails.amount,
+                bank_account_id: withdrawDetails.bank,
+                csrf_token: csrf
+              })
+            })
+            .then(r => r.json())
+            .then(txData => {
+              if (!txData.success || !txData.tx) {
+                throw txData;
+              }
+              withdrawDetails.transactionId = txData.tx.id;
+              withdrawDetails.bankName = txData.tx.bank_name || '';
+              withdrawDetails.accountNumber = txData.tx.account_number || '';
+              withdrawDetails.status = txData.tx.status || 'awaiting_code';
+              withdrawForm.style.display = 'none';
+              withdrawCodeForm.style.display = 'block';
+              withdrawalCodeInput.value = '';
+              withdrawalCodeError.style.display = 'none';
+              setWithdrawRequestStatus('', false);
+              setWithdrawalCodeRequested(false);
+              updateSelectedPendingWithdrawal(withdrawDetails);
+            })
+            .catch((error) => {
+              alert(localizeBankMessage(error.error_code || error.error, 'withdrawalFailed'));
+            });
           });
       });
       if (requestWithdrawalCodeBtn) {
         requestWithdrawalCodeBtn.addEventListener('click', function() {
           withdrawalCodeError.style.display = 'none';
-          if (!withdrawDetails.amount || !withdrawDetails.bank) {
+          if (!withdrawDetails.transactionId) {
             setWithdrawRequestStatus(getBankUiText('requestWithdrawalCodeFirst'), true);
             return;
           }
@@ -767,8 +850,7 @@ document.addEventListener('DOMContentLoaded', function() {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
               action: 'request',
-              amount: withdrawDetails.amount,
-              bank_account_id: withdrawDetails.bank
+              transaction_id: withdrawDetails.transactionId
             })
           })
           .then(async (response) => {
@@ -779,8 +861,10 @@ document.addEventListener('DOMContentLoaded', function() {
             return data;
           })
           .then(() => {
+            withdrawDetails.status = 'code_requested';
             setWithdrawalCodeRequested(true);
             setWithdrawRequestStatus(getBankUiText('withdrawalCodeRequestPending'), false);
+            updateSelectedPendingWithdrawal(withdrawDetails);
             withdrawalCodeInput.focus();
           })
           .catch((error) => {
@@ -799,6 +883,7 @@ document.addEventListener('DOMContentLoaded', function() {
           withdrawForm.style.display = 'block';
           setWithdrawRequestStatus('', false);
           setWithdrawalCodeRequested(false);
+          updateSelectedPendingWithdrawal(null);
         });
       }
       withdrawCodeForm.addEventListener('submit', function(e) {
@@ -827,7 +912,7 @@ document.addEventListener('DOMContentLoaded', function() {
           method: 'POST',
           credentials: 'same-origin',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({action: 'validate', code: code, amount: withdrawDetails.amount})
+          body: JSON.stringify({action: 'validate', code: code, transaction_id: withdrawDetails.transactionId})
         })
         .then(r => r.json())
         .then(data => {
@@ -837,7 +922,7 @@ document.addEventListener('DOMContentLoaded', function() {
               method: 'POST',
               credentials: 'same-origin',
               headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({action: 'withdraw', amount: withdrawDetails.amount, bank_account_id: withdrawDetails.bank, csrf_token: csrf})
+              body: JSON.stringify({action: 'withdraw', transaction_id: withdrawDetails.transactionId, csrf_token: csrf})
             })
             .then(r => r.json())
             .then(txData => {
@@ -850,6 +935,7 @@ document.addEventListener('DOMContentLoaded', function() {
                   withdrawForm.style.display = 'block';
                   withdrawCodeForm.reset && withdrawCodeForm.reset();
                   withdrawForm.reset && withdrawForm.reset();
+                  updateSelectedPendingWithdrawal(null);
                   window.location.reload();
                 }, 2500);
               } else {
@@ -879,6 +965,7 @@ document.addEventListener('DOMContentLoaded', function() {
           withdrawCodeForm.style.display = 'none';
           setWithdrawRequestStatus('', false);
           setWithdrawalCodeRequested(false);
+          updateSelectedPendingWithdrawal(null);
         });
       }
     }

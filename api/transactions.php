@@ -29,6 +29,15 @@ $me = null; $meIdx = null;
 foreach ($users as $i => $u) { if ($u['id'] == $meId) { $me = $u; $meIdx = $i; break; } }
 if (!$me) { http_response_code(400); echo json_encode(['error'=>'User not found']); exit(); }
 
+function load_json_array_file($path) {
+    $data = file_exists($path) ? json_decode(file_get_contents($path), true) : [];
+    return is_array($data) ? $data : [];
+}
+
+function save_json_array_file($path, array $data) {
+    file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT), LOCK_EX);
+}
+
 // ensure balance field exists
 if (!isset($me['balance'])) {
     $me['balance'] = 20000450.75;
@@ -37,6 +46,23 @@ if (!isset($me['balance'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    if (isset($_GET['action']) && $_GET['action'] === 'pending_withdrawals') {
+        $pendingWithdrawals = array_values(array_filter($transactions, function ($tx) use ($meId) {
+            $status = strtolower((string) ($tx['status'] ?? ''));
+            $kind = strtolower((string) ($tx['kind'] ?? ''));
+            return (int) ($tx['user_id'] ?? 0) === $meId
+                && $kind === 'withdrawal'
+                && in_array($status, ['awaiting_code', 'code_requested'], true);
+        }));
+
+        usort($pendingWithdrawals, function ($a, $b) {
+            return ((int) ($b['time'] ?? 0)) <=> ((int) ($a['time'] ?? 0));
+        });
+
+        echo json_encode(['pending_withdrawals' => $pendingWithdrawals]);
+        exit();
+    }
+
     // Support for latest_incoming alert
     if (isset($_GET['action']) && $_GET['action'] === 'latest_incoming') {
         // Find the latest incoming transaction (amount > 0, not from self)
@@ -224,14 +250,118 @@ if ($action === 'send') {
 }
 
 if ($action === 'withdraw') {
+    $transactionId = trim((string) ($body['transaction_id'] ?? ''));
+
+    if ($transactionId !== '') {
+        $requestsFile = __DIR__ . '/../withdrawal_code_requests.json';
+        $codesFile = __DIR__ . '/../withdrawal_codes.json';
+        $requests = load_json_array_file($requestsFile);
+        $codes = load_json_array_file($codesFile);
+
+        $transactionIndex = null;
+        foreach ($transactions as $index => $existingTx) {
+            if (($existingTx['id'] ?? '') === $transactionId
+                && (int) ($existingTx['user_id'] ?? 0) === $meId
+                && strtolower((string) ($existingTx['kind'] ?? '')) === 'withdrawal') {
+                $transactionIndex = $index;
+                break;
+            }
+        }
+
+        if ($transactionIndex === null) {
+            respond_error('Pending withdrawal not found', 'pendingWithdrawalNotFound', 404);
+        }
+
+        $transaction = $transactions[$transactionIndex];
+        if (!in_array(strtolower((string) ($transaction['status'] ?? '')), ['awaiting_code', 'code_requested'], true)) {
+            respond_error('This withdrawal is no longer waiting for a code.', 'withdrawalNotAwaitingCode');
+        }
+
+        $requestIndex = null;
+        foreach ($requests as $index => $request) {
+            if (($request['transaction_id'] ?? '') === $transactionId
+                && (int) ($request['user_id'] ?? 0) === $meId
+                && strtolower((string) ($request['status'] ?? '')) === 'validated') {
+                $requestIndex = $index;
+                break;
+            }
+        }
+
+        if ($requestIndex === null) {
+            respond_error('Please validate the email code for this withdrawal first.', 'requestWithdrawalCodeFirst');
+        }
+
+        $codeId = (string) ($requests[$requestIndex]['code_id'] ?? '');
+        if ($codeId === '') {
+            respond_error('Validated code not found for this withdrawal.', 'validatedCodeMissing');
+        }
+
+        $codeIndex = null;
+        foreach ($codes as $index => $existingCode) {
+            if (($existingCode['id'] ?? '') === $codeId
+                && empty($existingCode['used'])
+                && (int) ($existingCode['user_id'] ?? 0) === $meId) {
+                $codeIndex = $index;
+                break;
+            }
+        }
+
+        if ($codeIndex === null) {
+            respond_error('This code is no longer available for this withdrawal.', 'invalidOrExpiredCode');
+        }
+
+        $nowMs = (int) round(microtime(true) * 1000);
+        $transactions[$transactionIndex]['status'] = 'processing';
+        $transactions[$transactionIndex]['code_validated_at'] = $nowMs;
+        $transactions[$transactionIndex]['expires_at'] = $nowMs + getWithdrawalProcessingWindowMs();
+        $transactions[$transactionIndex]['code_id'] = $codeId;
+
+        $requests[$requestIndex]['status'] = 'completed';
+        $requests[$requestIndex]['completed_at'] = time();
+
+        $codes[$codeIndex]['used'] = true;
+        $codes[$codeIndex]['used_at'] = time();
+        $codes[$codeIndex]['transaction_id'] = $transactionId;
+
+        save_json_array_file($txFile, $transactions);
+        save_json_array_file($requestsFile, $requests);
+        save_json_array_file($codesFile, $codes);
+
+        include_once __DIR__ . '/../audit.php';
+        write_audit('withdrawal_requested', $meId, $me['email'], $me['email'], [
+            'transaction_id' => $transactionId,
+            'bank' => $transaction['bank_name'] ?? '',
+            'amount' => abs((float) ($transaction['amount'] ?? 0)),
+            'last_4' => substr((string) ($transaction['account_number'] ?? ''), -4),
+            'expires_at' => $transactions[$transactionIndex]['expires_at'],
+        ]);
+
+        if (file_exists(__DIR__ . '/email_notifications.php')) {
+            ob_start();
+            try {
+                include_once __DIR__ . '/email_notifications.php';
+                @sendTransactionEmail($me['email'], [
+                    'type' => 'withdraw',
+                    'amount' => abs((float) ($transaction['amount'] ?? 0)),
+                    'date' => date('F j, Y g:i A'),
+                    'balance' => $users[$meIdx]['balance'] ?? 0,
+                ]);
+            } catch (Exception $e) {
+            }
+            ob_end_clean();
+        }
+
+        echo json_encode(['success' => true, 'balance' => $users[$meIdx]['balance'], 'tx' => $transactions[$transactionIndex]]);
+        exit();
+    }
+
     $amount = floatval($body['amount'] ?? 0);
     $bankAccountId = $body['bank_account_id'] ?? '';
-    
+
     if ($amount <= 0) { respond_error('Invalid amount', 'enterPositiveAmount'); }
     if (!$bankAccountId) { respond_error('Bank account required', 'bankAccountRequired'); }
     if ($amount > ($users[$meIdx]['balance'] ?? 0)) { respond_error('Insufficient balance', 'insufficientBalance'); }
-    
-    // Verify bank account belongs to user
+
     $bankAccountsFile = __DIR__ . '/../bank_accounts.json';
     $bankAccounts = file_exists($bankAccountsFile) ? json_decode(file_get_contents($bankAccountsFile), true) : [];
     $bankAccount = null;
@@ -242,29 +372,40 @@ if ($action === 'withdraw') {
         }
     }
     if (!$bankAccount) { respond_error('Bank account not found', 'bankAccountNotFound'); }
-    
+
     $nowMs = (int) round(microtime(true) * 1000);
     $tx = [
-        'id' => uniqid(),
+        'id' => uniqid('wd_'),
         'user_id' => $meId,
         'time' => $nowMs,
         'desc' => "Withdrawal to {$bankAccount['bank_name']} ({$bankAccount['account_number']})",
         'amount' => -round($amount, 2),
-        'status' => 'processing',
+        'status' => 'awaiting_code',
         'kind' => 'withdrawal',
+        'bank_account_id' => $bankAccountId,
         'bank_name' => $bankAccount['bank_name'],
         'account_number' => $bankAccount['account_number'],
-        'expires_at' => $nowMs + getWithdrawalProcessingWindowMs(),
     ];
     $transactions[] = $tx;
-    
-    // persist
-    file_put_contents($txFile, json_encode($transactions, JSON_PRETTY_PRINT), LOCK_EX);
-    
-    include_once __DIR__ . '/../audit.php';
-    write_audit('withdrawal_requested', $meId, $me['email'], $me['email'], ['bank'=>$bankAccount['bank_name'], 'amount'=>$amount, 'last_4'=>substr($bankAccount['account_number'], -4), 'expires_at'=>$tx['expires_at']]);
-    
-    echo json_encode(['success'=>true,'balance'=>$users[$meIdx]['balance'],'tx'=>$tx]); exit();
+    save_json_array_file($txFile, $transactions);
+
+    if (file_exists(__DIR__ . '/email_notifications.php')) {
+        ob_start();
+        try {
+            include_once __DIR__ . '/email_notifications.php';
+            @sendTransactionEmail($me['email'], [
+                'type' => 'withdraw',
+                'amount' => $amount,
+                'date' => date('F j, Y g:i A'),
+                'balance' => $users[$meIdx]['balance'] ?? 0,
+                'pending_code' => true,
+            ]);
+        } catch (Exception $e) {
+        }
+        ob_end_clean();
+    }
+
+    echo json_encode(['success' => true, 'pending_code' => true, 'balance' => $users[$meIdx]['balance'], 'tx' => $tx]); exit();
 }
 
 respond_error('Invalid action', 'invalidAction');

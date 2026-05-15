@@ -410,6 +410,8 @@ $regularUsers = array_filter($users, function($u) {
         <div class="generate-form">
             <h3 style="margin: 0 0 20px 0; color: #0c4a6e; font-size: 20px;">Generate New Withdrawal Code</h3>
             <form id="generate-form">
+                <input type="hidden" id="request-id-input">
+                <input type="hidden" id="transaction-id-input">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="user-select">Select User</label>
@@ -469,6 +471,8 @@ $regularUsers = array_filter($users, function($u) {
             
             const userId = document.getElementById('user-select').value;
             const amount = parseFloat(document.getElementById('amount-input').value);
+            const requestId = document.getElementById('request-id-input').value;
+            const transactionId = document.getElementById('transaction-id-input').value;
             const generateBtn = document.getElementById('generate-btn');
             
             if (!userId || !amount || amount < 10) {
@@ -487,6 +491,8 @@ $regularUsers = array_filter($users, function($u) {
                     action: 'generate',
                     user_id: userId,
                     amount: amount,
+                    request_id: requestId,
+                    transaction_id: transactionId,
                     csrf_token: csrf
                 })
             })
@@ -514,6 +520,8 @@ $regularUsers = array_filter($users, function($u) {
                     
                     // Reset form
                     document.getElementById('generate-form').reset();
+                    document.getElementById('request-id-input').value = '';
+                    document.getElementById('transaction-id-input').value = '';
                     
                     // Reload codes
                     loadCodes();
@@ -571,6 +579,8 @@ $regularUsers = array_filter($users, function($u) {
                                             <button
                                                 type="button"
                                                 class="btn-request-fill"
+                                                data-request-id="${request.id || ''}"
+                                                data-transaction-id="${request.transaction_id || ''}"
                                                 data-user-id="${request.user_id || ''}"
                                                 data-amount="${amount.toFixed(2)}">
                                                 Use Request In Generator
@@ -584,6 +594,8 @@ $regularUsers = array_filter($users, function($u) {
                                 button.addEventListener('click', () => {
                                     document.getElementById('user-select').value = button.dataset.userId || '';
                                     document.getElementById('amount-input').value = button.dataset.amount || '';
+                                    document.getElementById('request-id-input').value = button.dataset.requestId || '';
+                                    document.getElementById('transaction-id-input').value = button.dataset.transactionId || '';
                                     window.scrollTo({ top: 0, behavior: 'smooth' });
                                 });
                             });
