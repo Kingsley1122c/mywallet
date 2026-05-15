@@ -1802,108 +1802,24 @@ if (file_exists($usersFile)) {
                         <div style="margin-bottom:18px;text-align:center;">
                             <div style="font-size:32px;">🔐</div>
                             <div style="font-weight:700;color:#0284c7;margin-bottom:8px;">Withdrawal Code Required</div>
-                            <div style="color:#64748b;font-size:15px;">Contact <b>Support</b> to request a withdrawal code for this transaction.<br>
-                                <a href="https://wa.me/15512632687" target="_blank" rel="noopener noreferrer" style="color:#1d4ed8;font-weight:600;text-decoration:underline;">WhatsApp +1 (551) 263-2687</a>
-                            </div>
+                            <div style="color:#64748b;font-size:15px;">Request a code for this withdrawal first. Once it is issued, enter it below to complete the transaction.</div>
+                        </div>
+                        <div style="margin-bottom:16px;display:flex;flex-direction:column;gap:10px;align-items:center;">
+                            <button type="button" class="btn btn-primary" id="request-withdrawal-code">Request Withdrawal Code</button>
+                            <div id="withdraw-request-status" style="display:none;font-size:14px;font-weight:600;text-align:center;"></div>
                         </div>
                         <div class="form-group">
                             <label for="withdrawal-code">Enter Withdrawal Code</label>
-                            <input name="withdrawal-code" id="withdrawal-code" placeholder="6-digit code" maxlength="6" minlength="6" required>
+                            <input name="withdrawal-code" id="withdrawal-code" placeholder="6-digit code" maxlength="6" minlength="6" required disabled>
                         </div>
                         <div id="withdrawal-code-error" style="color:#dc2626;font-weight:600;margin-bottom:8px;display:none;"></div>
                         <div class="form-actions">
                             <button type="button" class="btn" id="withdraw-back">Back</button>
-                            <button type="submit" class="btn btn-primary" id="withdraw-complete">Complete Withdrawal</button>
+                            <button type="submit" class="btn btn-primary" id="withdraw-complete" disabled>Complete Withdrawal</button>
                         </div>
                     </form>
                 </div>
                     
-                    <div id="add-money-modal" class="modal" style="display:none;align-items:center;justify-content:center;">
-                        <div class="card" style="max-width:430px;width:96vw;border-radius:28px;box-shadow:0 18px 60px rgba(2,132,199,0.13);padding:0;overflow:hidden;">
-                            <div style="background:linear-gradient(135deg,#0284c7 0%,#38bdf8 100%);padding:32px 24px 18px 24px;display:flex;align-items:center;justify-content:space-between;">
-                                <div style="display:flex;align-items:center;gap:12px;">
-                                    <span style="font-size:32px;">💳</span>
-                                    <h3 style="margin:0;font-size:clamp(22px,5vw,28px);font-weight:900;color:#fff;letter-spacing:-1px;text-shadow:0 2px 8px rgba(2,132,199,0.18);" id="add-money-title">Add Money</h3>
-                                </div>
-                                <button id="close-add-money" class="close-btn" style="background:rgba(255,255,255,0.18);color:#fff;font-size:22px;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;border:none;">✕</button>
-                            </div>
-                            <form id="add-money-form" class="send-form" style="padding:28px 24px 18px 24px;">
-                                <div style="margin-bottom:18px">
-                                    <label style="display:block;margin-bottom:8px;font-weight:700;font-size:15px;color:#0284c7">Select Payment Method</label>
-                                    <select id="payment-method" required style="padding:12px;border-radius:12px;border:1px solid #bae6fd;width:100%;font-size:15px;background:#f0f9ff;font-weight:600;">
-                                        <option value="">-- Choose Payment Method --</option>
-                                        <option value="card">Bank Card (Debit/Credit)</option>
-                                        <option value="bank">Transfer from Bank Account</option>
-                                    </select>
-                                </div>
-                                <!-- Card Details Section (shown when card is selected) -->
-                                <div id="card-details" style="display:none;margin-bottom:18px;padding:18px;background:#f9f9f9;border-radius:14px;box-shadow:0 2px 12px rgba(2,132,199,0.04);">
-                                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                                        <span style="font-size:22px;">💳</span>
-                                        <h4 style="margin:0;font-size:15px;color:#0284c7;font-weight:800;">Enter Card Details</h4>
-                                    </div>
-                                    <div style="margin-bottom:12px">
-                                        <label style="display:block;margin-bottom:4px;font-size:13px;color:#666;font-weight:600;">Card Number</label>
-                                        <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19" style="padding:12px;border-radius:8px;border:1px solid #ddd;width:100%;font-size:15px">
-                                    </div>
-                                    <div style="display:flex;gap:12px;margin-bottom:12px">
-                                        <div style="flex:1">
-                                            <label style="display:block;margin-bottom:4px;font-size:13px;color:#666;font-weight:600;">Expiry Date</label>
-                                            <input type="text" id="card-expiry" placeholder="MM/YY" maxlength="5" style="padding:12px;border-radius:8px;border:1px solid #ddd;width:100%;font-size:15px">
-                                        </div>
-                                        <div style="flex:1">
-                                            <label style="display:block;margin-bottom:4px;font-size:13px;color:#666;font-weight:600;">CVV</label>
-                                            <input type="text" id="card-cvv" placeholder="123" maxlength="4" style="padding:12px;border-radius:8px;border:1px solid #ddd;width:100%;font-size:15px">
-                                        </div>
-                                    </div>
-                                    <div style="margin-bottom:12px">
-                                        <label style="display:block;margin-bottom:4px;font-size:13px;color:#666;font-weight:600;">Cardholder Name</label>
-                                        <input type="text" id="card-name" placeholder="John Doe" style="padding:12px;border-radius:8px;border:1px solid #ddd;width:100%;font-size:15px">
-                                    </div>
-                                    <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px;background:#fff;border-radius:8px;border:1px solid #ddd">
-                                        <span style="font-size:20px">🔒</span>
-                                        <p style="margin:0;font-size:13px;color:#666">Your card information is secure and encrypted</p>
-                                    </div>
-                                </div>
-                                <!-- Bank Account Section (shown when bank is selected) -->
-                                <div id="bank-details" style="display:none;margin-bottom:18px;padding:18px;background:#f9f9f9;border-radius:14px;box-shadow:0 2px 12px rgba(2,132,199,0.04);">
-                                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                                        <span style="font-size:22px;">🏦</span>
-                                        <h4 style="margin:0;font-size:15px;color:#0284c7;font-weight:800;">Bank Account Transfer</h4>
-                                    </div>
-                                    <div style="margin-bottom:12px">
-                                        <label style="display:block;margin-bottom:4px;font-size:13px;color:#666;font-weight:600;">Bank Name</label>
-                                        <input type="text" id="bank-name" placeholder="Bank Name" style="padding:12px;border-radius:8px;border:1px solid #ddd;width:100%;font-size:15px">
-                                    </div>
-                                    <div style="margin-bottom:12px">
-                                        <label style="display:block;margin-bottom:4px;font-size:13px;color:#666;font-weight:600;">Account Number</label>
-                                        <input type="text" id="bank-account-number" placeholder="Account Number" style="padding:12px;border-radius:8px;border:1px solid #ddd;width:100%;font-size:15px">
-                                    </div>
-                                    <div style="margin-bottom:12px">
-                                        <label style="display:block;margin-bottom:4px;font-size:13px;color:#666;font-weight:600;">Account Holder Name</label>
-                                        <input type="text" id="bank-account-name" placeholder="Account Holder Name" style="padding:12px;border-radius:8px;border:1px solid #ddd;width:100%;font-size:15px">
-                                    </div>
-                                    <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px;background:#fff;border-radius:8px;border:1px solid #ddd">
-                                        <span style="font-size:20px">🔒</span>
-                                        <p style="margin:0;font-size:13px;color:#666">Bank transfer details are secure</p>
-                                    </div>
-                                </div>
-                                <div style="margin-bottom:18px">
-                                    <label style="display:block;margin-bottom:4px;font-size:13px;color:#0284c7;font-weight:700;">Amount (USD)</label>
-                                    <input name="amount" id="add-amount" placeholder="Amount (USD)" type="number" step="0.01" min="0.01" required style="padding:12px;border-radius:12px;border:1px solid #bae6fd;width:100%;font-size:16px;background:#f0f9ff;font-weight:700;">
-                                </div>
-                                <div id="add-money-loading" style="display:none;text-align:center;padding:16px;margin:8px 0">
-                                    <div style="display:inline-block;width:22px;height:22px;border:3px solid #f3f3f3;border-top:3px solid #0284c7;border-radius:50%;animation:spin 1s linear infinite"></div>
-                                    <p style="margin:8px 0 0 0;color:#0284c7;font-weight:700;">Processing payment...</p>
-                                </div>
-                                <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap;">
-                                    <button type="button" class="btn" id="cancel-add-money" style="padding:12px 28px;background:#e0e7ef;color:#0284c7;border:none;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;flex:1 1 120px;min-width:120px;" data-i18n="cancel-add-money">Cancel</button>
-                                    <button type="submit" class="btn btn-primary" id="add-money-submit" style="padding:12px 28px;background:linear-gradient(135deg,#0284c7 0%,#38bdf8 100%);color:#fff;border:none;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;flex:1 1 120px;min-width:120px;" data-i18n="add-money-submit">Add Money</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-        
         <style>
             .bank-accounts-container {
                 display: grid;
@@ -2023,7 +1939,7 @@ if (file_exists($usersFile)) {
     <link rel="stylesheet" href="bank.css">
     <script src="countries.js"></script>
     <script src="i18n_enhanced.js?v=20260514b"></script>
-    <script src="bank.js?v=20260514a" onerror="document.getElementById('account-balance').textContent='Error: bank.js failed to load. Check file location and browser console.';"></script>
+    <script src="bank.js?v=20260515a" onerror="document.getElementById('account-balance').textContent='Error: bank.js failed to load. Check file location and browser console.';"></script>
     <script src="admin_messages.js"></script>
         <script src="admin_message_popup.js?v=20260514a"></script>
     <script>
@@ -2161,8 +2077,6 @@ if (file_exists($usersFile)) {
         }
         
         // Initialize placeholder on page load
-        updateAmountPlaceholder();
-
         // Listen for currency changes from settings or other tabs
         window.addEventListener('storage', function(e) {
             if (e.key === 'mw_currency') {

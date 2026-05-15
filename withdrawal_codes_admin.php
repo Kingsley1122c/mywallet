@@ -161,6 +161,84 @@ $regularUsers = array_filter($users, function($u) {
         .codes-list {
             margin-top: 32px;
         }
+
+        .requests-list {
+            margin-top: 32px;
+        }
+
+        .request-card {
+            background: linear-gradient(135deg, #fff7ed 0%, #fffbeb 100%);
+            border: 2px solid #fed7aa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .request-card.resolved {
+            background: #f9fafb;
+            border-color: #e5e7eb;
+        }
+
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .request-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #9a3412;
+        }
+
+        .request-card.resolved .request-title {
+            color: #374151;
+        }
+
+        .request-status {
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .request-status.pending {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .request-status.code-generated {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .request-status.validated {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .request-actions {
+            margin-top: 16px;
+        }
+
+        .btn-request-fill {
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-request-fill:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(194, 65, 12, 0.25);
+        }
         
         .codes-list h3 {
             font-size: 20px;
@@ -356,6 +434,15 @@ $regularUsers = array_filter($users, function($u) {
                 </button>
             </form>
         </div>
+
+        <div class="requests-list">
+            <h3>🟠 Pending Withdrawal Code Requests</h3>
+            <div id="requests-container">
+                <div style="text-align: center; padding: 40px; color: #9ca3af;">
+                    Loading requests...
+                </div>
+            </div>
+        </div>
         
         <div class="codes-list">
             <h3>📋 Recent Withdrawal Codes</h3>
@@ -446,6 +533,62 @@ $regularUsers = array_filter($users, function($u) {
                 .then(r => r.json())
                 .then(data => {
                     const container = document.getElementById('codes-container');
+                    const requestsContainer = document.getElementById('requests-container');
+                    const requests = Array.isArray(data.requests) ? data.requests : [];
+                    const sortedRequests = requests.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+                    const pendingRequests = sortedRequests.filter(request => (request.status || 'pending') === 'pending');
+
+                    if (requestsContainer) {
+                        if (pendingRequests.length === 0) {
+                            requestsContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #9ca3af;">No pending withdrawal code requests.</div>';
+                        } else {
+                            requestsContainer.innerHTML = pendingRequests.map(request => {
+                                const createdDate = new Date((request.created_at || 0) * 1000).toLocaleString();
+                                const amount = Number(request.amount || 0);
+                                const escapedEmail = String(request.user_email || '').replace(/"/g, '&quot;');
+
+                                return `
+                                    <div class="request-card">
+                                        <div class="request-header">
+                                            <div class="request-title">${escapedEmail || 'Unknown user'}</div>
+                                            <div class="request-status pending">Pending</div>
+                                        </div>
+                                        <div class="code-details">
+                                            <div class="code-detail">
+                                                <span class="code-detail-label">Amount</span>
+                                                <span class="code-detail-value">$${amount.toFixed(2)}</span>
+                                            </div>
+                                            <div class="code-detail">
+                                                <span class="code-detail-label">Bank Account ID</span>
+                                                <span class="code-detail-value">${request.bank_account_id || 'N/A'}</span>
+                                            </div>
+                                            <div class="code-detail">
+                                                <span class="code-detail-label">Requested</span>
+                                                <span class="code-detail-value">${createdDate}</span>
+                                            </div>
+                                        </div>
+                                        <div class="request-actions">
+                                            <button
+                                                type="button"
+                                                class="btn-request-fill"
+                                                data-user-id="${request.user_id || ''}"
+                                                data-amount="${amount.toFixed(2)}">
+                                                Use Request In Generator
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('');
+
+                            requestsContainer.querySelectorAll('.btn-request-fill').forEach(button => {
+                                button.addEventListener('click', () => {
+                                    document.getElementById('user-select').value = button.dataset.userId || '';
+                                    document.getElementById('amount-input').value = button.dataset.amount || '';
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                });
+                            });
+                        }
+                    }
                     
                     if (!data.codes || data.codes.length === 0) {
                         container.innerHTML = '<div style="text-align: center; padding: 40px; color: #9ca3af;">No withdrawal codes generated yet.</div>';

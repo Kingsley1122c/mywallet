@@ -1,4 +1,4 @@
-// Helper to get display sender name (first name or full name)
+﻿// Helper to get display sender name (first name or full name)
 function getDisplaySenderName(senderName, senderEmail) {
   if (!senderName) {
     if (senderEmail) return senderEmail.split('@')[0];
@@ -55,12 +55,12 @@ const transactionText = {
   de: { received: 'Erhalten von', sent: 'Gesendet an', added: 'Geld hinzugefugt', addedByAdmin: 'Geld vom Administrator hinzugefugt', transferFrom: 'Uberweisung von', withdrawal: 'Auszahlung an', openingBalance: 'Anfangssaldo', approved: 'Genehmigt', pending: 'Ausstehend', processing: 'Wird bearbeitet', failed: 'Fehlgeschlagen' },
   it: { received: 'Ricevuto da', sent: 'Inviato a', added: 'Denaro aggiunto', addedByAdmin: 'Denaro aggiunto dall amministratore', transferFrom: 'Trasferimento da', withdrawal: 'Prelievo verso', openingBalance: 'Saldo iniziale', approved: 'Approvato', pending: 'In attesa', processing: 'In elaborazione', failed: 'Non riuscito' },
   pt: { received: 'Recebido de', sent: 'Enviado para', added: 'Dinheiro adicionado', addedByAdmin: 'Dinheiro adicionado pelo administrador', transferFrom: 'Transferencia de', withdrawal: 'Saque para', openingBalance: 'Saldo inicial', approved: 'Aprovado', pending: 'Pendente', processing: 'Processando', failed: 'Falhou' },
-  ko: { received: '다음으로부터 수신', sent: '다음으로 전송', added: '돈이 추가됨', addedByAdmin: '관리자가 추가한 금액', transferFrom: '다음으로부터 이체', withdrawal: '다음 계좌로 출금', openingBalance: '초기 잔액', approved: '승인됨', pending: '대기 중', processing: '처리 중', failed: '실패' },
-  ja: { received: '受取元', sent: '送金先', added: '資金が追加されました', addedByAdmin: '管理者が追加した資金', transferFrom: '送金元', withdrawal: '出金先', openingBalance: '開始残高', approved: '承認済み', pending: '保留中', processing: '処理中', failed: '失敗' },
-  'zh-tw': { received: '來自', sent: '發送至', added: '已新增資金', addedByAdmin: '管理員新增的資金', transferFrom: '轉帳自', withdrawal: '提款至', openingBalance: '初始餘額', approved: '已核准', pending: '待處理', processing: '處理中', failed: '失敗' },
-  ar: { received: 'تم الاستلام من', sent: 'تم الإرسال إلى', added: 'تمت إضافة الأموال', addedByAdmin: 'تمت إضافة الأموال بواسطة المسؤول', transferFrom: 'تحويل من', withdrawal: 'سحب إلى', openingBalance: 'الرصيد الافتتاحي', approved: 'تمت الموافقة', pending: 'قيد الانتظار', processing: 'جار المعالجة', failed: 'فشل' },
-  hi: { received: 'से प्राप्त', sent: 'को भेजा गया', added: 'पैसे जोड़े गए', addedByAdmin: 'एडमिन द्वारा जोड़े गए पैसे', transferFrom: 'से ट्रांसफर', withdrawal: 'निकासी हेतु', openingBalance: 'प्रारंभिक शेष', approved: 'स्वीकृत', pending: 'लंबित', processing: 'प्रसंस्करण में', failed: 'विफल' },
-  ru: { received: 'Получено от', sent: 'Отправлено', added: 'Деньги добавлены', addedByAdmin: 'Деньги добавлены администратором', transferFrom: 'Перевод от', withdrawal: 'Вывод на', openingBalance: 'Начальный баланс', approved: 'Одобрено', pending: 'В ожидании', processing: 'Обрабатывается', failed: 'Ошибка' },
+  ko: { received: 'δïñ∞¥î∞£╝δí£δ╢Çφä░ ∞êÿ∞ïá', sent: 'δïñ∞¥î∞£╝δí£ ∞áä∞åí', added: 'δÅê∞¥┤ ∞╢öΩ░ÇδÉ¿', addedByAdmin: 'Ω┤Çδª¼∞₧ÉΩ░Ç ∞╢öΩ░Çφò£ Ω╕ê∞òí', transferFrom: 'δïñ∞¥î∞£╝δí£δ╢Çφä░ ∞¥┤∞▓┤', withdrawal: 'δïñ∞¥î Ω│ä∞óîδí£ ∞╢£Ω╕ê', openingBalance: '∞┤êΩ╕░ ∞₧ö∞òí', approved: '∞è╣∞¥╕δÉ¿', pending: 'δîÇΩ╕░ ∞ñæ', processing: '∞▓ÿδª¼ ∞ñæ', failed: '∞ïñφî¿' },
+  ja: { received: 'σÅùσÅûσàâ', sent: 'ΘÇüΘçæσàê', added: 'Φ│çΘçæπüîΦ┐╜σèáπüòπéîπü╛πüùπüƒ', addedByAdmin: 'τ«íτÉåΦÇàπüîΦ┐╜σèáπüùπüƒΦ│çΘçæ', transferFrom: 'ΘÇüΘçæσàâ', withdrawal: 'σç║Θçæσàê', openingBalance: 'Θûïσºïµ«ïΘ½ÿ', approved: 'µë┐Φ¬ìµ╕êπü┐', pending: 'Σ┐¥τòÖΣ╕¡', processing: 'σçªτÉåΣ╕¡', failed: 'σñ▒µòù' },
+  'zh-tw': { received: 'Σ╛åΦç¬', sent: 'τÖ╝ΘÇüΦç│', added: 'σ╖▓µû░σó₧Φ│çΘçæ', addedByAdmin: 'τ«íτÉåσôíµû░σó₧τÜäΦ│çΘçæ', transferFrom: 'Φ╜ëσ╕│Φç¬', withdrawal: 'µÅÉµ¼╛Φç│', openingBalance: 'σê¥σºïΘñÿΘíì', approved: 'σ╖▓µá╕σçå', pending: 'σ╛àΦÖòτÉå', processing: 'ΦÖòτÉåΣ╕¡', failed: 'σñ▒µòù' },
+  ar: { received: '╪¬┘à ╪º┘ä╪º╪│╪¬┘ä╪º┘à ┘à┘å', sent: '╪¬┘à ╪º┘ä╪Ñ╪▒╪│╪º┘ä ╪Ñ┘ä┘ë', added: '╪¬┘à╪¬ ╪Ñ╪╢╪º┘ü╪⌐ ╪º┘ä╪ú┘à┘ê╪º┘ä', addedByAdmin: '╪¬┘à╪¬ ╪Ñ╪╢╪º┘ü╪⌐ ╪º┘ä╪ú┘à┘ê╪º┘ä ╪¿┘ê╪º╪│╪╖╪⌐ ╪º┘ä┘à╪│╪ñ┘ê┘ä', transferFrom: '╪¬╪¡┘ê┘è┘ä ┘à┘å', withdrawal: '╪│╪¡╪¿ ╪Ñ┘ä┘ë', openingBalance: '╪º┘ä╪▒╪╡┘è╪» ╪º┘ä╪º┘ü╪¬╪¬╪º╪¡┘è', approved: '╪¬┘à╪¬ ╪º┘ä┘à┘ê╪º┘ü┘é╪⌐', pending: '┘é┘è╪» ╪º┘ä╪º┘å╪¬╪╕╪º╪▒', processing: '╪¼╪º╪▒ ╪º┘ä┘à╪╣╪º┘ä╪¼╪⌐', failed: '┘ü╪┤┘ä' },
+  hi: { received: 'αñ╕αÑç αñ¬αÑìαñ░αñ╛αñ¬αÑìαññ', sent: 'αñòαÑï αñ¡αÑçαñ£αñ╛ αñùαñ»αñ╛', added: 'αñ¬αÑêαñ╕αÑç αñ£αÑïαñíαñ╝αÑç αñùαñÅ', addedByAdmin: 'αñÅαñíαñ«αñ┐αñ¿ αñªαÑìαñ╡αñ╛αñ░αñ╛ αñ£αÑïαñíαñ╝αÑç αñùαñÅ αñ¬αÑêαñ╕αÑç', transferFrom: 'αñ╕αÑç αñƒαÑìαñ░αñ╛αñéαñ╕αñ½αñ░', withdrawal: 'αñ¿αñ┐αñòαñ╛αñ╕αÑÇ αñ╣αÑçαññαÑü', openingBalance: 'αñ¬αÑìαñ░αñ╛αñ░αñéαñ¡αñ┐αñò αñ╢αÑçαñ╖', approved: 'αñ╕αÑìαñ╡αÑÇαñòαÑâαññ', pending: 'αñ▓αñéαñ¼αñ┐αññ', processing: 'αñ¬αÑìαñ░αñ╕αñéαñ╕αÑìαñòαñ░αñú αñ«αÑçαñé', failed: 'αñ╡αñ┐αñ½αñ▓' },
+  ru: { received: '╨ƒ╨╛╨╗╤â╤ç╨╡╨╜╨╛ ╨╛╤é', sent: '╨₧╤é╨┐╤Ç╨░╨▓╨╗╨╡╨╜╨╛', added: '╨ö╨╡╨╜╤î╨│╨╕ ╨┤╨╛╨▒╨░╨▓╨╗╨╡╨╜╤ï', addedByAdmin: '╨ö╨╡╨╜╤î╨│╨╕ ╨┤╨╛╨▒╨░╨▓╨╗╨╡╨╜╤ï ╨░╨┤╨╝╨╕╨╜╨╕╤ü╤é╤Ç╨░╤é╨╛╤Ç╨╛╨╝', transferFrom: '╨ƒ╨╡╤Ç╨╡╨▓╨╛╨┤ ╨╛╤é', withdrawal: '╨Æ╤ï╨▓╨╛╨┤ ╨╜╨░', openingBalance: '╨¥╨░╤ç╨░╨╗╤î╨╜╤ï╨╣ ╨▒╨░╨╗╨░╨╜╤ü', approved: '╨₧╨┤╨╛╨▒╤Ç╨╡╨╜╨╛', pending: '╨Æ ╨╛╨╢╨╕╨┤╨░╨╜╨╕╨╕', processing: '╨₧╨▒╤Ç╨░╨▒╨░╤é╤ï╨▓╨░╨╡╤é╤ü╤Å', failed: '╨₧╤ê╨╕╨▒╨║╨░' },
   nl: { received: 'Ontvangen van', sent: 'Verzonden naar', added: 'Geld toegevoegd', addedByAdmin: 'Geld toegevoegd door beheerder', transferFrom: 'Overboeking van', withdrawal: 'Opname naar', openingBalance: 'Beginsaldo', approved: 'Goedgekeurd', pending: 'In behandeling', processing: 'Wordt verwerkt', failed: 'Mislukt' }
 };
 
@@ -71,79 +71,21 @@ const supportLabelText = {
   de: 'Support',
   it: 'Supporto',
   pt: 'Suporte',
-  ko: '지원',
-  ja: 'サポート',
-  'zh-tw': '支援',
-  ar: 'الدعم',
-  hi: 'सहायता',
-  ru: 'Поддержка',
+  ko: '∞ºÇ∞¢É',
+  ja: 'πé╡πâ¥πâ╝πâê',
+  'zh-tw': 'µö»µÅ┤',
+  ar: '╪º┘ä╪»╪╣┘à',
+  hi: 'αñ╕αñ╣αñ╛αñ»αññαñ╛',
+  ru: '╨ƒ╨╛╨┤╨┤╨╡╤Ç╨╢╨║╨░',
   nl: 'Ondersteuning'
 };
 
 const bankUiText = {
   en: {
-    addMoneyTitle: 'Add Money',
-    addMoneySubtitle: 'Deposit funds to your account',
-    enterAmount: 'Enter amount',
-    selectPaymentMethod: 'Select payment method',
-    cardOption: 'Card',
-    bankTransferOption: 'Bank Transfer',
-    addMoneyButton: 'Add Money',
-    cancelButton: 'Cancel',
-    processing: 'Processing...',
-    pleaseSelectPaymentMethod: 'Please select a payment method',
-    enterPositiveAmount: 'Enter a valid positive amount',
-    maxAmount: 'Maximum amount per transaction is $10,000',
-    validCardNumber: 'Please enter a valid card number',
-    validExpiryDate: 'Please enter valid expiry date (MM/YY)',
-    validCvv: 'Please enter valid CVV',
-    cardholderName: 'Please enter cardholder name',
-    moneyAddedSuccess: 'Money added successfully!',
-    networkError: 'Network error',
-    securityTokenNotLoaded: 'Security token not loaded yet. Please wait a moment and try again.',
-    enterRecipientAndAmount: 'Enter recipient and a valid positive amount',
-    insufficientBalance: 'Insufficient balance',
-    transferUnexpected: 'Transfer completed but response format unexpected. Please refresh the page.',
-    networkErrorWithMessage: 'Network error: {message}',
-    serverErrorWithMessage: 'Server error: {message}',
-    withdrawalExceedsBalance: 'Withdrawal amount exceeds your available balance.',
-    validSixDigitCode: 'Please enter a valid 6-digit code.',
-    withdrawalFailed: 'Withdrawal failed.',
-    invalidOrExpiredCode: 'Invalid or expired code.',
-    networkErrorTryAgain: 'Network error. Please try again.',
-    withdrawLoadingDescription: 'Verifying your code and preparing the transfer request.',
-    withdrawLoadingCodeCheck: 'Code check',
-    withdrawLoadingSecureQueue: 'Secure queue',
-    withdrawLoadingStatusUpdate: 'Status update'
-  },
-  es: {
-    addMoneyTitle: 'Agregar dinero',
-    addMoneySubtitle: 'Deposita fondos en tu cuenta',
-    enterAmount: 'Ingresa el monto',
-    selectPaymentMethod: 'Selecciona el metodo de pago',
-    cardOption: 'Tarjeta',
-    bankTransferOption: 'Transferencia bancaria',
-    addMoneyButton: 'Agregar dinero',
-    cancelButton: 'Cancelar',
-    processing: 'Procesando...',
-    pleaseSelectPaymentMethod: 'Por favor selecciona un metodo de pago',
-    enterPositiveAmount: 'Ingresa un monto positivo valido',
-    maxAmount: 'El monto maximo por transaccion es $10,000',
-    validCardNumber: 'Por favor ingresa un numero de tarjeta valido',
-    validExpiryDate: 'Por favor ingresa una fecha de vencimiento valida (MM/AA)',
-    validCvv: 'Por favor ingresa un CVV valido',
-    cardholderName: 'Por favor ingresa el nombre del titular',
-    moneyAddedSuccess: 'Dinero agregado correctamente',
-    networkError: 'Error de red',
-    securityTokenNotLoaded: 'El token de seguridad aun no se ha cargado. Espera un momento e intentalo de nuevo.',
-    enterRecipientAndAmount: 'Ingresa el destinatario y un monto positivo valido',
-    insufficientBalance: 'Saldo insuficiente',
-    transferUnexpected: 'La transferencia se completo, pero el formato de la respuesta fue inesperado. Actualiza la pagina.',
-    networkErrorWithMessage: 'Error de red: {message}',
-    serverErrorWithMessage: 'Error del servidor: {message}',
-    withdrawalExceedsBalance: 'El monto del retiro excede tu saldo disponible.',
-    validSixDigitCode: 'Por favor ingresa un codigo valido de 6 digitos.',
-    withdrawalFailed: 'El retiro fallo.',
+    requestWithdrawalCodeButton: 'Request Withdrawal Code',
+    withdrawalCodeRequestPending: 'Your withdrawal code request has been sent. Enter the code here once you receive it.',
+    withdrawalCodeRequestFailed: 'Unable to send the withdrawal code request right now. Please try again.',
+    requestWithdrawalCodeFirst: 'Request a withdrawal code first before completing this withdrawal.',
     invalidOrExpiredCode: 'Codigo invalido o vencido.',
     networkErrorTryAgain: 'Error de red. Intentalo de nuevo.',
     withdrawLoadingDescription: 'Verificando tu codigo y preparando la solicitud de transferencia.',
@@ -292,214 +234,214 @@ const bankUiText = {
     withdrawLoadingStatusUpdate: 'Atualizacao de status'
   },
   ko: {
-    addMoneyTitle: '자금 추가',
-    addMoneySubtitle: '계정에 자금을 입금하세요',
-    enterAmount: '금액 입력',
-    selectPaymentMethod: '결제 방법 선택',
-    cardOption: '카드',
-    bankTransferOption: '은행 송금',
-    addMoneyButton: '자금 추가',
-    cancelButton: '취소',
-    processing: '처리 중...',
-    pleaseSelectPaymentMethod: '결제 방법을 선택하세요',
-    enterPositiveAmount: '유효한 양수 금액을 입력하세요',
-    maxAmount: '거래당 최대 금액은 $10,000입니다',
-    validCardNumber: '유효한 카드 번호를 입력하세요',
-    validExpiryDate: '유효한 만료일을 입력하세요 (MM/YY)',
-    validCvv: '유효한 CVV를 입력하세요',
-    cardholderName: '카드 소유자 이름을 입력하세요',
-    moneyAddedSuccess: '자금이 성공적으로 추가되었습니다',
-    networkError: '네트워크 오류',
-    securityTokenNotLoaded: '보안 토큰이 아직 로드되지 않았습니다. 잠시 후 다시 시도하세요.',
-    enterRecipientAndAmount: '수신자와 유효한 양수 금액을 입력하세요',
-    insufficientBalance: '잔액이 부족합니다',
-    transferUnexpected: '이체가 완료되었지만 응답 형식이 예상과 다릅니다. 페이지를 새로고침하세요.',
-    networkErrorWithMessage: '네트워크 오류: {message}',
-    serverErrorWithMessage: '서버 오류: {message}',
-    withdrawalExceedsBalance: '출금 금액이 사용 가능한 잔액을 초과합니다.',
-    validSixDigitCode: '유효한 6자리 코드를 입력하세요.',
-    withdrawalFailed: '출금에 실패했습니다.',
-    invalidOrExpiredCode: '코드가 유효하지 않거나 만료되었습니다.',
-    networkErrorTryAgain: '네트워크 오류입니다. 다시 시도하세요.',
-    withdrawLoadingDescription: '코드를 확인하고 이체 요청을 준비하고 있습니다.',
-    withdrawLoadingCodeCheck: '코드 확인',
-    withdrawLoadingSecureQueue: '보안 대기열',
-    withdrawLoadingStatusUpdate: '상태 업데이트'
+    addMoneyTitle: '∞₧ÉΩ╕ê ∞╢öΩ░Ç',
+    addMoneySubtitle: 'Ω│ä∞áò∞ùÉ ∞₧ÉΩ╕ê∞¥ä ∞₧àΩ╕êφòÿ∞ä╕∞Üö',
+    enterAmount: 'Ω╕ê∞òí ∞₧àδáÑ',
+    selectPaymentMethod: 'Ω▓░∞á£ δ░⌐δ▓ò ∞äáφâ¥',
+    cardOption: '∞╣┤δô£',
+    bankTransferOption: '∞¥Çφûë ∞åíΩ╕ê',
+    addMoneyButton: '∞₧ÉΩ╕ê ∞╢öΩ░Ç',
+    cancelButton: '∞╖¿∞åî',
+    processing: '∞▓ÿδª¼ ∞ñæ...',
+    pleaseSelectPaymentMethod: 'Ω▓░∞á£ δ░⌐δ▓ò∞¥ä ∞äáφâ¥φòÿ∞ä╕∞Üö',
+    enterPositiveAmount: '∞£áφÜ¿φò£ ∞ûæ∞êÿ Ω╕ê∞òí∞¥ä ∞₧àδáÑφòÿ∞ä╕∞Üö',
+    maxAmount: 'Ω▒░δ₧ÿδï╣ ∞╡£δîÇ Ω╕ê∞òí∞¥Ç $10,000∞₧àδïêδïñ',
+    validCardNumber: '∞£áφÜ¿φò£ ∞╣┤δô£ δ▓êφÿ╕δÑ╝ ∞₧àδáÑφòÿ∞ä╕∞Üö',
+    validExpiryDate: '∞£áφÜ¿φò£ δºîδúî∞¥╝∞¥ä ∞₧àδáÑφòÿ∞ä╕∞Üö (MM/YY)',
+    validCvv: '∞£áφÜ¿φò£ CVVδÑ╝ ∞₧àδáÑφòÿ∞ä╕∞Üö',
+    cardholderName: '∞╣┤δô£ ∞åî∞£á∞₧É ∞¥┤δªä∞¥ä ∞₧àδáÑφòÿ∞ä╕∞Üö',
+    moneyAddedSuccess: '∞₧ÉΩ╕ê∞¥┤ ∞ä▒Ω│╡∞áü∞£╝δí£ ∞╢öΩ░ÇδÉÿ∞ùê∞è╡δïêδïñ',
+    networkError: 'δäñφè╕∞¢îφü¼ ∞ÿñδÑÿ',
+    securityTokenNotLoaded: 'δ│┤∞òê φåáφü░∞¥┤ ∞òä∞ºü δí£δô£δÉÿ∞ºÇ ∞òè∞òÿ∞è╡δïêδïñ. ∞₧á∞ï£ φ¢ä δïñ∞ï£ ∞ï£δÅäφòÿ∞ä╕∞Üö.',
+    enterRecipientAndAmount: '∞êÿ∞ïá∞₧É∞ÖÇ ∞£áφÜ¿φò£ ∞ûæ∞êÿ Ω╕ê∞òí∞¥ä ∞₧àδáÑφòÿ∞ä╕∞Üö',
+    insufficientBalance: '∞₧ö∞òí∞¥┤ δ╢Ç∞í▒φò⌐δïêδïñ',
+    transferUnexpected: '∞¥┤∞▓┤Ω░Ç ∞ÖäδúîδÉÿ∞ùê∞ºÇδºî ∞¥æδï╡ φÿò∞ï¥∞¥┤ ∞ÿê∞âüΩ│╝ δïñδªàδïêδïñ. φÄÿ∞¥┤∞ºÇδÑ╝ ∞âêδí£Ω│á∞╣¿φòÿ∞ä╕∞Üö.',
+    networkErrorWithMessage: 'δäñφè╕∞¢îφü¼ ∞ÿñδÑÿ: {message}',
+    serverErrorWithMessage: '∞ä£δ▓ä ∞ÿñδÑÿ: {message}',
+    withdrawalExceedsBalance: '∞╢£Ω╕ê Ω╕ê∞òí∞¥┤ ∞é¼∞Ü⌐ Ω░ÇδèÑφò£ ∞₧ö∞òí∞¥ä ∞┤êΩ│╝φò⌐δïêδïñ.',
+    validSixDigitCode: '∞£áφÜ¿φò£ 6∞₧Éδª¼ ∞╜öδô£δÑ╝ ∞₧àδáÑφòÿ∞ä╕∞Üö.',
+    withdrawalFailed: '∞╢£Ω╕ê∞ùÉ ∞ïñφî¿φûê∞è╡δïêδïñ.',
+    invalidOrExpiredCode: '∞╜öδô£Ω░Ç ∞£áφÜ¿φòÿ∞ºÇ ∞òèΩ▒░δéÿ δºîδúîδÉÿ∞ùê∞è╡δïêδïñ.',
+    networkErrorTryAgain: 'δäñφè╕∞¢îφü¼ ∞ÿñδÑÿ∞₧àδïêδïñ. δïñ∞ï£ ∞ï£δÅäφòÿ∞ä╕∞Üö.',
+    withdrawLoadingDescription: '∞╜öδô£δÑ╝ φÖò∞¥╕φòÿΩ│á ∞¥┤∞▓┤ ∞Üö∞▓¡∞¥ä ∞ñÇδ╣äφòÿΩ│á ∞₧ê∞è╡δïêδïñ.',
+    withdrawLoadingCodeCheck: '∞╜öδô£ φÖò∞¥╕',
+    withdrawLoadingSecureQueue: 'δ│┤∞òê δîÇΩ╕░∞ù┤',
+    withdrawLoadingStatusUpdate: '∞âüφâ£ ∞ùàδì░∞¥┤φè╕'
   },
   ja: {
-    addMoneyTitle: '資金を追加',
-    addMoneySubtitle: '口座に資金を入金します',
-    enterAmount: '金額を入力',
-    selectPaymentMethod: '支払い方法を選択',
-    cardOption: 'カード',
-    bankTransferOption: '銀行振込',
-    addMoneyButton: '資金を追加',
-    cancelButton: 'キャンセル',
-    processing: '処理中...',
-    pleaseSelectPaymentMethod: '支払い方法を選択してください',
-    enterPositiveAmount: '有効な正の金額を入力してください',
-    maxAmount: '1回の取引あたりの上限額は$10,000です',
-    validCardNumber: '有効なカード番号を入力してください',
-    validExpiryDate: '有効な有効期限を入力してください (MM/YY)',
-    validCvv: '有効なCVVを入力してください',
-    cardholderName: 'カード名義人を入力してください',
-    moneyAddedSuccess: '資金が正常に追加されました',
-    networkError: 'ネットワークエラー',
-    securityTokenNotLoaded: 'セキュリティトークンがまだ読み込まれていません。少し待ってから再試行してください。',
-    enterRecipientAndAmount: '受取人と有効な正の金額を入力してください',
-    insufficientBalance: '残高不足です',
-    transferUnexpected: '送金は完了しましたが、応答形式が予期したものではありません。ページを更新してください。',
-    networkErrorWithMessage: 'ネットワークエラー: {message}',
-    serverErrorWithMessage: 'サーバーエラー: {message}',
-    withdrawalExceedsBalance: '出金額が利用可能残高を超えています。',
-    validSixDigitCode: '有効な6桁のコードを入力してください。',
-    withdrawalFailed: '出金に失敗しました。',
-    invalidOrExpiredCode: 'コードが無効か期限切れです。',
-    networkErrorTryAgain: 'ネットワークエラーです。もう一度お試しください。',
-    withdrawLoadingDescription: 'コードを確認し、送金リクエストを準備しています。',
-    withdrawLoadingCodeCheck: 'コード確認',
-    withdrawLoadingSecureQueue: '安全なキュー',
-    withdrawLoadingStatusUpdate: 'ステータス更新'
+    addMoneyTitle: 'Φ│çΘçæπéÆΦ┐╜σèá',
+    addMoneySubtitle: 'σÅúσ║ºπü½Φ│çΘçæπéÆσàÑΘçæπüùπü╛πüÖ',
+    enterAmount: 'ΘçæΘíìπéÆσàÑσè¢',
+    selectPaymentMethod: 'µö»µëòπüäµû╣µ│òπéÆΘü╕µè₧',
+    cardOption: 'πé½πâ╝πâë',
+    bankTransferOption: 'ΘèÇΦíîµî»Φ╛╝',
+    addMoneyButton: 'Φ│çΘçæπéÆΦ┐╜σèá',
+    cancelButton: 'πé¡πâúπâ│πé╗πâ½',
+    processing: 'σçªτÉåΣ╕¡...',
+    pleaseSelectPaymentMethod: 'µö»µëòπüäµû╣µ│òπéÆΘü╕µè₧πüùπüªπüÅπüáπüòπüä',
+    enterPositiveAmount: 'µ£ëσè╣πü¬µ¡úπü«ΘçæΘíìπéÆσàÑσè¢πüùπüªπüÅπüáπüòπüä',
+    maxAmount: '1σ¢₧πü«σÅûσ╝òπüéπüƒπéèπü«Σ╕èΘÖÉΘíìπü»$10,000πüºπüÖ',
+    validCardNumber: 'µ£ëσè╣πü¬πé½πâ╝πâëτò¬σÅ╖πéÆσàÑσè¢πüùπüªπüÅπüáπüòπüä',
+    validExpiryDate: 'µ£ëσè╣πü¬µ£ëσè╣µ£ƒΘÖÉπéÆσàÑσè¢πüùπüªπüÅπüáπüòπüä (MM/YY)',
+    validCvv: 'µ£ëσè╣πü¬CVVπéÆσàÑσè¢πüùπüªπüÅπüáπüòπüä',
+    cardholderName: 'πé½πâ╝πâëσÉìτ╛⌐Σ║║πéÆσàÑσè¢πüùπüªπüÅπüáπüòπüä',
+    moneyAddedSuccess: 'Φ│çΘçæπüîµ¡úσ╕╕πü½Φ┐╜σèáπüòπéîπü╛πüùπüƒ',
+    networkError: 'πâìπââπâêπâ»πâ╝πé»πé¿πâ⌐πâ╝',
+    securityTokenNotLoaded: 'πé╗πé¡πâÑπâ¬πâåπéúπâêπâ╝πé»πâ│πüîπü╛πüáΦ¬¡πü┐Φ╛╝πü╛πéîπüªπüäπü╛πü¢πéôπÇéσ░æπüùσ╛àπüúπüªπüïπéëσåìΦ⌐ªΦíîπüùπüªπüÅπüáπüòπüäπÇé',
+    enterRecipientAndAmount: 'σÅùσÅûΣ║║πü¿µ£ëσè╣πü¬µ¡úπü«ΘçæΘíìπéÆσàÑσè¢πüùπüªπüÅπüáπüòπüä',
+    insufficientBalance: 'µ«ïΘ½ÿΣ╕ìΦ╢│πüºπüÖ',
+    transferUnexpected: 'ΘÇüΘçæπü»σ«îΣ║åπüùπü╛πüùπüƒπüîπÇüσ┐£τ¡öσ╜óσ╝ÅπüîΣ║êµ£ƒπüùπüƒπééπü«πüºπü»πüéπéèπü╛πü¢πéôπÇéπâÜπâ╝πé╕πéÆµ¢┤µû░πüùπüªπüÅπüáπüòπüäπÇé',
+    networkErrorWithMessage: 'πâìπââπâêπâ»πâ╝πé»πé¿πâ⌐πâ╝: {message}',
+    serverErrorWithMessage: 'πé╡πâ╝πâÉπâ╝πé¿πâ⌐πâ╝: {message}',
+    withdrawalExceedsBalance: 'σç║ΘçæΘíìπüîσê⌐τö¿σÅ»Φâ╜µ«ïΘ½ÿπéÆΦ╢àπüêπüªπüäπü╛πüÖπÇé',
+    validSixDigitCode: 'µ£ëσè╣πü¬6µíüπü«πé│πâ╝πâëπéÆσàÑσè¢πüùπüªπüÅπüáπüòπüäπÇé',
+    withdrawalFailed: 'σç║Θçæπü½σñ▒µòùπüùπü╛πüùπüƒπÇé',
+    invalidOrExpiredCode: 'πé│πâ╝πâëπüîτäíσè╣πüïµ£ƒΘÖÉσêçπéîπüºπüÖπÇé',
+    networkErrorTryAgain: 'πâìπââπâêπâ»πâ╝πé»πé¿πâ⌐πâ╝πüºπüÖπÇéπééπüåΣ╕Çσ║ªπüèΦ⌐ªπüùπüÅπüáπüòπüäπÇé',
+    withdrawLoadingDescription: 'πé│πâ╝πâëπéÆτó║Φ¬ìπüùπÇüΘÇüΘçæπâ¬πé»πé¿πé╣πâêπéÆµ║ûσéÖπüùπüªπüäπü╛πüÖπÇé',
+    withdrawLoadingCodeCheck: 'πé│πâ╝πâëτó║Φ¬ì',
+    withdrawLoadingSecureQueue: 'σ«ëσà¿πü¬πé¡πâÑπâ╝',
+    withdrawLoadingStatusUpdate: 'πé╣πâåπâ╝πé┐πé╣µ¢┤µû░'
   },
   'zh-tw': {
-    addMoneyTitle: '新增資金',
-    addMoneySubtitle: '將資金存入您的帳戶',
-    enterAmount: '輸入金額',
-    selectPaymentMethod: '選擇付款方式',
-    cardOption: '卡片',
-    bankTransferOption: '銀行轉帳',
-    addMoneyButton: '新增資金',
-    cancelButton: '取消',
-    processing: '處理中...',
-    pleaseSelectPaymentMethod: '請選擇付款方式',
-    enterPositiveAmount: '請輸入有效的正數金額',
-    maxAmount: '每筆交易的最高金額為 $10,000',
-    validCardNumber: '請輸入有效的卡號',
-    validExpiryDate: '請輸入有效的到期日 (MM/YY)',
-    validCvv: '請輸入有效的 CVV',
-    cardholderName: '請輸入持卡人姓名',
-    moneyAddedSuccess: '資金已成功新增',
-    networkError: '網路錯誤',
-    securityTokenNotLoaded: '安全權杖尚未載入。請稍候再試。',
-    enterRecipientAndAmount: '請輸入收款人和有效的正數金額',
-    insufficientBalance: '餘額不足',
-    transferUnexpected: '轉帳已完成，但回應格式不符合預期。請重新整理頁面。',
-    networkErrorWithMessage: '網路錯誤: {message}',
-    serverErrorWithMessage: '伺服器錯誤: {message}',
-    withdrawalExceedsBalance: '提款金額超過您的可用餘額。',
-    validSixDigitCode: '請輸入有效的 6 位數代碼。',
-    withdrawalFailed: '提款失敗。',
-    invalidOrExpiredCode: '代碼無效或已過期。',
-    networkErrorTryAgain: '網路錯誤。請再試一次。',
-    withdrawLoadingDescription: '正在驗證您的代碼並準備轉帳請求。',
-    withdrawLoadingCodeCheck: '代碼檢查',
-    withdrawLoadingSecureQueue: '安全佇列',
-    withdrawLoadingStatusUpdate: '狀態更新'
+    addMoneyTitle: 'µû░σó₧Φ│çΘçæ',
+    addMoneySubtitle: 'σ░çΦ│çΘçæσ¡ÿσàÑµé¿τÜäσ╕│µê╢',
+    enterAmount: 'Φ╝╕σàÑΘçæΘíì',
+    selectPaymentMethod: 'Θü╕µôçΣ╗ÿµ¼╛µû╣σ╝Å',
+    cardOption: 'σìíτëç',
+    bankTransferOption: 'ΘèÇΦíîΦ╜ëσ╕│',
+    addMoneyButton: 'µû░σó₧Φ│çΘçæ',
+    cancelButton: 'σÅûµ╢ê',
+    processing: 'ΦÖòτÉåΣ╕¡...',
+    pleaseSelectPaymentMethod: 'Φ½ïΘü╕µôçΣ╗ÿµ¼╛µû╣σ╝Å',
+    enterPositiveAmount: 'Φ½ïΦ╝╕σàÑµ£ëµòêτÜäµ¡úµò╕ΘçæΘíì',
+    maxAmount: 'µ»Åτ¡åΣ║ñµÿôτÜäµ£ÇΘ½ÿΘçæΘíìτé║ $10,000',
+    validCardNumber: 'Φ½ïΦ╝╕σàÑµ£ëµòêτÜäσìíΦÖƒ',
+    validExpiryDate: 'Φ½ïΦ╝╕σàÑµ£ëµòêτÜäσê░µ£ƒµùÑ (MM/YY)',
+    validCvv: 'Φ½ïΦ╝╕σàÑµ£ëµòêτÜä CVV',
+    cardholderName: 'Φ½ïΦ╝╕σàÑµîüσìíΣ║║σºôσÉì',
+    moneyAddedSuccess: 'Φ│çΘçæσ╖▓µêÉσèƒµû░σó₧',
+    networkError: 'τ╢▓Φ╖»Θî»Φ¬ñ',
+    securityTokenNotLoaded: 'σ«ëσà¿µ¼èµ¥ûσ░Üµ£¬Φ╝ëσàÑπÇéΦ½ïτ¿ìσÇÖσåìΦ⌐ªπÇé',
+    enterRecipientAndAmount: 'Φ½ïΦ╝╕σàÑµö╢µ¼╛Σ║║σÆîµ£ëµòêτÜäµ¡úµò╕ΘçæΘíì',
+    insufficientBalance: 'ΘñÿΘíìΣ╕ìΦ╢│',
+    transferUnexpected: 'Φ╜ëσ╕│σ╖▓σ«îµêÉ∩╝îΣ╜åσ¢₧µçëµá╝σ╝ÅΣ╕ìτ¼ªσÉêΘáÉµ£ƒπÇéΦ½ïΘçìµû░µò┤τÉåΘáüΘ¥óπÇé',
+    networkErrorWithMessage: 'τ╢▓Φ╖»Θî»Φ¬ñ: {message}',
+    serverErrorWithMessage: 'Σ╝║µ£ìσÖ¿Θî»Φ¬ñ: {message}',
+    withdrawalExceedsBalance: 'µÅÉµ¼╛ΘçæΘíìΦ╢àΘüÄµé¿τÜäσÅ»τö¿ΘñÿΘíìπÇé',
+    validSixDigitCode: 'Φ½ïΦ╝╕σàÑµ£ëµòêτÜä 6 Σ╜ìµò╕Σ╗úτó╝πÇé',
+    withdrawalFailed: 'µÅÉµ¼╛σñ▒µòùπÇé',
+    invalidOrExpiredCode: 'Σ╗úτó╝τäíµòêµêûσ╖▓ΘüÄµ£ƒπÇé',
+    networkErrorTryAgain: 'τ╢▓Φ╖»Θî»Φ¬ñπÇéΦ½ïσåìΦ⌐ªΣ╕Çµ¼íπÇé',
+    withdrawLoadingDescription: 'µ¡úσ£¿Θ⌐ùΦ¡ëµé¿τÜäΣ╗úτó╝Σ╕ªµ║ûσéÖΦ╜ëσ╕│Φ½ïµ▒éπÇé',
+    withdrawLoadingCodeCheck: 'Σ╗úτó╝µ¬óµƒÑ',
+    withdrawLoadingSecureQueue: 'σ«ëσà¿Σ╜çσêù',
+    withdrawLoadingStatusUpdate: 'τïÇµàïµ¢┤µû░'
   },
   ar: {
-    addMoneyTitle: 'إضافة أموال',
-    addMoneySubtitle: 'أودع أموالاً في حسابك',
-    enterAmount: 'أدخل المبلغ',
-    selectPaymentMethod: 'اختر طريقة الدفع',
-    cardOption: 'بطاقة',
-    bankTransferOption: 'تحويل بنكي',
-    addMoneyButton: 'إضافة أموال',
-    cancelButton: 'إلغاء',
-    processing: 'جار المعالجة...',
-    pleaseSelectPaymentMethod: 'يرجى اختيار طريقة دفع',
-    enterPositiveAmount: 'أدخل مبلغاً موجباً صالحاً',
-    maxAmount: 'الحد الأقصى لكل معاملة هو $10,000',
-    validCardNumber: 'يرجى إدخال رقم بطاقة صالح',
-    validExpiryDate: 'يرجى إدخال تاريخ انتهاء صالح (MM/YY)',
-    validCvv: 'يرجى إدخال CVV صالح',
-    cardholderName: 'يرجى إدخال اسم حامل البطاقة',
-    moneyAddedSuccess: 'تمت إضافة الأموال بنجاح',
-    networkError: 'خطأ في الشبكة',
-    securityTokenNotLoaded: 'لم يتم تحميل رمز الأمان بعد. يرجى الانتظار قليلاً ثم المحاولة مرة أخرى.',
-    enterRecipientAndAmount: 'أدخل المستلم ومبلغاً موجباً صالحاً',
-    insufficientBalance: 'الرصيد غير كاف',
-    transferUnexpected: 'اكتمل التحويل ولكن تنسيق الاستجابة غير متوقع. يرجى تحديث الصفحة.',
-    networkErrorWithMessage: 'خطأ في الشبكة: {message}',
-    serverErrorWithMessage: 'خطأ في الخادم: {message}',
-    withdrawalExceedsBalance: 'مبلغ السحب يتجاوز رصيدك المتاح.',
-    validSixDigitCode: 'يرجى إدخال رمز صالح مكون من 6 أرقام.',
-    withdrawalFailed: 'فشل السحب.',
-    invalidOrExpiredCode: 'الرمز غير صالح أو منتهي الصلاحية.',
-    networkErrorTryAgain: 'خطأ في الشبكة. يرجى المحاولة مرة أخرى.',
-    withdrawLoadingDescription: 'جار التحقق من الرمز الخاص بك وتجهيز طلب التحويل.',
-    withdrawLoadingCodeCheck: 'فحص الرمز',
-    withdrawLoadingSecureQueue: 'قائمة آمنة',
-    withdrawLoadingStatusUpdate: 'تحديث الحالة'
+    addMoneyTitle: '╪Ñ╪╢╪º┘ü╪⌐ ╪ú┘à┘ê╪º┘ä',
+    addMoneySubtitle: '╪ú┘ê╪»╪╣ ╪ú┘à┘ê╪º┘ä╪º┘ï ┘ü┘è ╪¡╪│╪º╪¿┘â',
+    enterAmount: '╪ú╪»╪«┘ä ╪º┘ä┘à╪¿┘ä╪║',
+    selectPaymentMethod: '╪º╪«╪¬╪▒ ╪╖╪▒┘è┘é╪⌐ ╪º┘ä╪»┘ü╪╣',
+    cardOption: '╪¿╪╖╪º┘é╪⌐',
+    bankTransferOption: '╪¬╪¡┘ê┘è┘ä ╪¿┘å┘â┘è',
+    addMoneyButton: '╪Ñ╪╢╪º┘ü╪⌐ ╪ú┘à┘ê╪º┘ä',
+    cancelButton: '╪Ñ┘ä╪║╪º╪í',
+    processing: '╪¼╪º╪▒ ╪º┘ä┘à╪╣╪º┘ä╪¼╪⌐...',
+    pleaseSelectPaymentMethod: '┘è╪▒╪¼┘ë ╪º╪«╪¬┘è╪º╪▒ ╪╖╪▒┘è┘é╪⌐ ╪»┘ü╪╣',
+    enterPositiveAmount: '╪ú╪»╪«┘ä ┘à╪¿┘ä╪║╪º┘ï ┘à┘ê╪¼╪¿╪º┘ï ╪╡╪º┘ä╪¡╪º┘ï',
+    maxAmount: '╪º┘ä╪¡╪» ╪º┘ä╪ú┘é╪╡┘ë ┘ä┘â┘ä ┘à╪╣╪º┘à┘ä╪⌐ ┘ç┘ê $10,000',
+    validCardNumber: '┘è╪▒╪¼┘ë ╪Ñ╪»╪«╪º┘ä ╪▒┘é┘à ╪¿╪╖╪º┘é╪⌐ ╪╡╪º┘ä╪¡',
+    validExpiryDate: '┘è╪▒╪¼┘ë ╪Ñ╪»╪«╪º┘ä ╪¬╪º╪▒┘è╪« ╪º┘å╪¬┘ç╪º╪í ╪╡╪º┘ä╪¡ (MM/YY)',
+    validCvv: '┘è╪▒╪¼┘ë ╪Ñ╪»╪«╪º┘ä CVV ╪╡╪º┘ä╪¡',
+    cardholderName: '┘è╪▒╪¼┘ë ╪Ñ╪»╪«╪º┘ä ╪º╪│┘à ╪¡╪º┘à┘ä ╪º┘ä╪¿╪╖╪º┘é╪⌐',
+    moneyAddedSuccess: '╪¬┘à╪¬ ╪Ñ╪╢╪º┘ü╪⌐ ╪º┘ä╪ú┘à┘ê╪º┘ä ╪¿┘å╪¼╪º╪¡',
+    networkError: '╪«╪╖╪ú ┘ü┘è ╪º┘ä╪┤╪¿┘â╪⌐',
+    securityTokenNotLoaded: '┘ä┘à ┘è╪¬┘à ╪¬╪¡┘à┘è┘ä ╪▒┘à╪▓ ╪º┘ä╪ú┘à╪º┘å ╪¿╪╣╪». ┘è╪▒╪¼┘ë ╪º┘ä╪º┘å╪¬╪╕╪º╪▒ ┘é┘ä┘è┘ä╪º┘ï ╪½┘à ╪º┘ä┘à╪¡╪º┘ê┘ä╪⌐ ┘à╪▒╪⌐ ╪ú╪«╪▒┘ë.',
+    enterRecipientAndAmount: '╪ú╪»╪«┘ä ╪º┘ä┘à╪│╪¬┘ä┘à ┘ê┘à╪¿┘ä╪║╪º┘ï ┘à┘ê╪¼╪¿╪º┘ï ╪╡╪º┘ä╪¡╪º┘ï',
+    insufficientBalance: '╪º┘ä╪▒╪╡┘è╪» ╪║┘è╪▒ ┘â╪º┘ü',
+    transferUnexpected: '╪º┘â╪¬┘à┘ä ╪º┘ä╪¬╪¡┘ê┘è┘ä ┘ê┘ä┘â┘å ╪¬┘å╪│┘è┘é ╪º┘ä╪º╪│╪¬╪¼╪º╪¿╪⌐ ╪║┘è╪▒ ┘à╪¬┘ê┘é╪╣. ┘è╪▒╪¼┘ë ╪¬╪¡╪»┘è╪½ ╪º┘ä╪╡┘ü╪¡╪⌐.',
+    networkErrorWithMessage: '╪«╪╖╪ú ┘ü┘è ╪º┘ä╪┤╪¿┘â╪⌐: {message}',
+    serverErrorWithMessage: '╪«╪╖╪ú ┘ü┘è ╪º┘ä╪«╪º╪»┘à: {message}',
+    withdrawalExceedsBalance: '┘à╪¿┘ä╪║ ╪º┘ä╪│╪¡╪¿ ┘è╪¬╪¼╪º┘ê╪▓ ╪▒╪╡┘è╪»┘â ╪º┘ä┘à╪¬╪º╪¡.',
+    validSixDigitCode: '┘è╪▒╪¼┘ë ╪Ñ╪»╪«╪º┘ä ╪▒┘à╪▓ ╪╡╪º┘ä╪¡ ┘à┘â┘ê┘å ┘à┘å 6 ╪ú╪▒┘é╪º┘à.',
+    withdrawalFailed: '┘ü╪┤┘ä ╪º┘ä╪│╪¡╪¿.',
+    invalidOrExpiredCode: '╪º┘ä╪▒┘à╪▓ ╪║┘è╪▒ ╪╡╪º┘ä╪¡ ╪ú┘ê ┘à┘å╪¬┘ç┘è ╪º┘ä╪╡┘ä╪º╪¡┘è╪⌐.',
+    networkErrorTryAgain: '╪«╪╖╪ú ┘ü┘è ╪º┘ä╪┤╪¿┘â╪⌐. ┘è╪▒╪¼┘ë ╪º┘ä┘à╪¡╪º┘ê┘ä╪⌐ ┘à╪▒╪⌐ ╪ú╪«╪▒┘ë.',
+    withdrawLoadingDescription: '╪¼╪º╪▒ ╪º┘ä╪¬╪¡┘é┘é ┘à┘å ╪º┘ä╪▒┘à╪▓ ╪º┘ä╪«╪º╪╡ ╪¿┘â ┘ê╪¬╪¼┘ç┘è╪▓ ╪╖┘ä╪¿ ╪º┘ä╪¬╪¡┘ê┘è┘ä.',
+    withdrawLoadingCodeCheck: '┘ü╪¡╪╡ ╪º┘ä╪▒┘à╪▓',
+    withdrawLoadingSecureQueue: '┘é╪º╪ª┘à╪⌐ ╪ó┘à┘å╪⌐',
+    withdrawLoadingStatusUpdate: '╪¬╪¡╪»┘è╪½ ╪º┘ä╪¡╪º┘ä╪⌐'
   },
   hi: {
-    addMoneyTitle: 'पैसे जोड़ें',
-    addMoneySubtitle: 'अपने खाते में धन जमा करें',
-    enterAmount: 'राशि दर्ज करें',
-    selectPaymentMethod: 'भुगतान विधि चुनें',
-    cardOption: 'कार्ड',
-    bankTransferOption: 'बैंक ट्रांसफर',
-    addMoneyButton: 'पैसे जोड़ें',
-    cancelButton: 'रद्द करें',
-    processing: 'प्रोसेस हो रहा है...',
-    pleaseSelectPaymentMethod: 'कृपया भुगतान विधि चुनें',
-    enterPositiveAmount: 'मान्य धनात्मक राशि दर्ज करें',
-    maxAmount: 'प्रति लेनदेन अधिकतम राशि $10,000 है',
-    validCardNumber: 'कृपया मान्य कार्ड नंबर दर्ज करें',
-    validExpiryDate: 'कृपया मान्य समाप्ति तिथि दर्ज करें (MM/YY)',
-    validCvv: 'कृपया मान्य CVV दर्ज करें',
-    cardholderName: 'कृपया कार्डधारक का नाम दर्ज करें',
-    moneyAddedSuccess: 'पैसे सफलतापूर्वक जोड़ दिए गए',
-    networkError: 'नेटवर्क त्रुटि',
-    securityTokenNotLoaded: 'सुरक्षा टोकन अभी लोड नहीं हुआ है। कृपया थोड़ी देर प्रतीक्षा करें और फिर से प्रयास करें।',
-    enterRecipientAndAmount: 'प्राप्तकर्ता और मान्य धनात्मक राशि दर्ज करें',
-    insufficientBalance: 'अपर्याप्त शेष राशि',
-    transferUnexpected: 'ट्रांसफर पूरा हो गया, लेकिन प्रतिक्रिया प्रारूप अप्रत्याशित था। कृपया पेज रीफ्रेश करें।',
-    networkErrorWithMessage: 'नेटवर्क त्रुटि: {message}',
-    serverErrorWithMessage: 'सर्वर त्रुटि: {message}',
-    withdrawalExceedsBalance: 'निकासी राशि आपकी उपलब्ध शेष राशि से अधिक है।',
-    validSixDigitCode: 'कृपया मान्य 6-अंकीय कोड दर्ज करें।',
-    withdrawalFailed: 'निकासी विफल रही।',
-    invalidOrExpiredCode: 'कोड अमान्य है या समाप्त हो चुका है।',
-    networkErrorTryAgain: 'नेटवर्क त्रुटि। कृपया फिर से प्रयास करें।',
-    withdrawLoadingDescription: 'आपके कोड का सत्यापन किया जा रहा है और ट्रांसफर अनुरोध तैयार किया जा रहा है।',
-    withdrawLoadingCodeCheck: 'कोड जांच',
-    withdrawLoadingSecureQueue: 'सुरक्षित कतार',
-    withdrawLoadingStatusUpdate: 'स्थिति अपडेट'
+    addMoneyTitle: 'αñ¬αÑêαñ╕αÑç αñ£αÑïαñíαñ╝αÑçαñé',
+    addMoneySubtitle: 'αñàαñ¬αñ¿αÑç αñûαñ╛αññαÑç αñ«αÑçαñé αñºαñ¿ αñ£αñ«αñ╛ αñòαñ░αÑçαñé',
+    enterAmount: 'αñ░αñ╛αñ╢αñ┐ αñªαñ░αÑìαñ£ αñòαñ░αÑçαñé',
+    selectPaymentMethod: 'αñ¡αÑüαñùαññαñ╛αñ¿ αñ╡αñ┐αñºαñ┐ αñÜαÑüαñ¿αÑçαñé',
+    cardOption: 'αñòαñ╛αñ░αÑìαñí',
+    bankTransferOption: 'αñ¼αÑêαñéαñò αñƒαÑìαñ░αñ╛αñéαñ╕αñ½αñ░',
+    addMoneyButton: 'αñ¬αÑêαñ╕αÑç αñ£αÑïαñíαñ╝αÑçαñé',
+    cancelButton: 'αñ░αñªαÑìαñª αñòαñ░αÑçαñé',
+    processing: 'αñ¬αÑìαñ░αÑïαñ╕αÑçαñ╕ αñ╣αÑï αñ░αñ╣αñ╛ αñ╣αÑê...',
+    pleaseSelectPaymentMethod: 'αñòαÑâαñ¬αñ»αñ╛ αñ¡αÑüαñùαññαñ╛αñ¿ αñ╡αñ┐αñºαñ┐ αñÜαÑüαñ¿αÑçαñé',
+    enterPositiveAmount: 'αñ«αñ╛αñ¿αÑìαñ» αñºαñ¿αñ╛αññαÑìαñ«αñò αñ░αñ╛αñ╢αñ┐ αñªαñ░αÑìαñ£ αñòαñ░αÑçαñé',
+    maxAmount: 'αñ¬αÑìαñ░αññαñ┐ αñ▓αÑçαñ¿αñªαÑçαñ¿ αñàαñºαñ┐αñòαññαñ« αñ░αñ╛αñ╢αñ┐ $10,000 αñ╣αÑê',
+    validCardNumber: 'αñòαÑâαñ¬αñ»αñ╛ αñ«αñ╛αñ¿αÑìαñ» αñòαñ╛αñ░αÑìαñí αñ¿αñéαñ¼αñ░ αñªαñ░αÑìαñ£ αñòαñ░αÑçαñé',
+    validExpiryDate: 'αñòαÑâαñ¬αñ»αñ╛ αñ«αñ╛αñ¿αÑìαñ» αñ╕αñ«αñ╛αñ¬αÑìαññαñ┐ αññαñ┐αñÑαñ┐ αñªαñ░αÑìαñ£ αñòαñ░αÑçαñé (MM/YY)',
+    validCvv: 'αñòαÑâαñ¬αñ»αñ╛ αñ«αñ╛αñ¿αÑìαñ» CVV αñªαñ░αÑìαñ£ αñòαñ░αÑçαñé',
+    cardholderName: 'αñòαÑâαñ¬αñ»αñ╛ αñòαñ╛αñ░αÑìαñíαñºαñ╛αñ░αñò αñòαñ╛ αñ¿αñ╛αñ« αñªαñ░αÑìαñ£ αñòαñ░αÑçαñé',
+    moneyAddedSuccess: 'αñ¬αÑêαñ╕αÑç αñ╕αñ½αñ▓αññαñ╛αñ¬αÑéαñ░αÑìαñ╡αñò αñ£αÑïαñíαñ╝ αñªαñ┐αñÅ αñùαñÅ',
+    networkError: 'αñ¿αÑçαñƒαñ╡αñ░αÑìαñò αññαÑìαñ░αÑüαñƒαñ┐',
+    securityTokenNotLoaded: 'αñ╕αÑüαñ░αñòαÑìαñ╖αñ╛ αñƒαÑïαñòαñ¿ αñàαñ¡αÑÇ αñ▓αÑïαñí αñ¿αñ╣αÑÇαñé αñ╣αÑüαñå αñ╣αÑêαÑñ αñòαÑâαñ¬αñ»αñ╛ αñÑαÑïαñíαñ╝αÑÇ αñªαÑçαñ░ αñ¬αÑìαñ░αññαÑÇαñòαÑìαñ╖αñ╛ αñòαñ░αÑçαñé αñöαñ░ αñ½αñ┐αñ░ αñ╕αÑç αñ¬αÑìαñ░αñ»αñ╛αñ╕ αñòαñ░αÑçαñéαÑñ',
+    enterRecipientAndAmount: 'αñ¬αÑìαñ░αñ╛αñ¬αÑìαññαñòαñ░αÑìαññαñ╛ αñöαñ░ αñ«αñ╛αñ¿αÑìαñ» αñºαñ¿αñ╛αññαÑìαñ«αñò αñ░αñ╛αñ╢αñ┐ αñªαñ░αÑìαñ£ αñòαñ░αÑçαñé',
+    insufficientBalance: 'αñàαñ¬αñ░αÑìαñ»αñ╛αñ¬αÑìαññ αñ╢αÑçαñ╖ αñ░αñ╛αñ╢αñ┐',
+    transferUnexpected: 'αñƒαÑìαñ░αñ╛αñéαñ╕αñ½αñ░ αñ¬αÑéαñ░αñ╛ αñ╣αÑï αñùαñ»αñ╛, αñ▓αÑçαñòαñ┐αñ¿ αñ¬αÑìαñ░αññαñ┐αñòαÑìαñ░αñ┐αñ»αñ╛ αñ¬αÑìαñ░αñ╛αñ░αÑéαñ¬ αñàαñ¬αÑìαñ░αññαÑìαñ»αñ╛αñ╢αñ┐αññ αñÑαñ╛αÑñ αñòαÑâαñ¬αñ»αñ╛ αñ¬αÑçαñ£ αñ░αÑÇαñ½αÑìαñ░αÑçαñ╢ αñòαñ░αÑçαñéαÑñ',
+    networkErrorWithMessage: 'αñ¿αÑçαñƒαñ╡αñ░αÑìαñò αññαÑìαñ░αÑüαñƒαñ┐: {message}',
+    serverErrorWithMessage: 'αñ╕αñ░αÑìαñ╡αñ░ αññαÑìαñ░αÑüαñƒαñ┐: {message}',
+    withdrawalExceedsBalance: 'αñ¿αñ┐αñòαñ╛αñ╕αÑÇ αñ░αñ╛αñ╢αñ┐ αñåαñ¬αñòαÑÇ αñëαñ¬αñ▓αñ¼αÑìαñº αñ╢αÑçαñ╖ αñ░αñ╛αñ╢αñ┐ αñ╕αÑç αñàαñºαñ┐αñò αñ╣αÑêαÑñ',
+    validSixDigitCode: 'αñòαÑâαñ¬αñ»αñ╛ αñ«αñ╛αñ¿αÑìαñ» 6-αñàαñéαñòαÑÇαñ» αñòαÑïαñí αñªαñ░αÑìαñ£ αñòαñ░αÑçαñéαÑñ',
+    withdrawalFailed: 'αñ¿αñ┐αñòαñ╛αñ╕αÑÇ αñ╡αñ┐αñ½αñ▓ αñ░αñ╣αÑÇαÑñ',
+    invalidOrExpiredCode: 'αñòαÑïαñí αñàαñ«αñ╛αñ¿αÑìαñ» αñ╣αÑê αñ»αñ╛ αñ╕αñ«αñ╛αñ¬αÑìαññ αñ╣αÑï αñÜαÑüαñòαñ╛ αñ╣αÑêαÑñ',
+    networkErrorTryAgain: 'αñ¿αÑçαñƒαñ╡αñ░αÑìαñò αññαÑìαñ░αÑüαñƒαñ┐αÑñ αñòαÑâαñ¬αñ»αñ╛ αñ½αñ┐αñ░ αñ╕αÑç αñ¬αÑìαñ░αñ»αñ╛αñ╕ αñòαñ░αÑçαñéαÑñ',
+    withdrawLoadingDescription: 'αñåαñ¬αñòαÑç αñòαÑïαñí αñòαñ╛ αñ╕αññαÑìαñ»αñ╛αñ¬αñ¿ αñòαñ┐αñ»αñ╛ αñ£αñ╛ αñ░αñ╣αñ╛ αñ╣αÑê αñöαñ░ αñƒαÑìαñ░αñ╛αñéαñ╕αñ½αñ░ αñàαñ¿αÑüαñ░αÑïαñº αññαÑêαñ»αñ╛αñ░ αñòαñ┐αñ»αñ╛ αñ£αñ╛ αñ░αñ╣αñ╛ αñ╣αÑêαÑñ',
+    withdrawLoadingCodeCheck: 'αñòαÑïαñí αñ£αñ╛αñéαñÜ',
+    withdrawLoadingSecureQueue: 'αñ╕αÑüαñ░αñòαÑìαñ╖αñ┐αññ αñòαññαñ╛αñ░',
+    withdrawLoadingStatusUpdate: 'αñ╕αÑìαñÑαñ┐αññαñ┐ αñàαñ¬αñíαÑçαñƒ'
   },
   ru: {
-    addMoneyTitle: 'Пополнить счет',
-    addMoneySubtitle: 'Внесите средства на свой счет',
-    enterAmount: 'Введите сумму',
-    selectPaymentMethod: 'Выберите способ оплаты',
-    cardOption: 'Карта',
-    bankTransferOption: 'Банковский перевод',
-    addMoneyButton: 'Пополнить счет',
-    cancelButton: 'Отмена',
-    processing: 'Обработка...',
-    pleaseSelectPaymentMethod: 'Пожалуйста, выберите способ оплаты',
-    enterPositiveAmount: 'Введите корректную положительную сумму',
-    maxAmount: 'Максимальная сумма за одну операцию составляет $10,000',
-    validCardNumber: 'Пожалуйста, введите корректный номер карты',
-    validExpiryDate: 'Пожалуйста, введите корректную дату окончания (MM/YY)',
-    validCvv: 'Пожалуйста, введите корректный CVV',
-    cardholderName: 'Пожалуйста, введите имя владельца карты',
-    moneyAddedSuccess: 'Средства успешно добавлены',
-    networkError: 'Ошибка сети',
-    securityTokenNotLoaded: 'Токен безопасности еще не загружен. Подождите немного и попробуйте снова.',
-    enterRecipientAndAmount: 'Введите получателя и корректную положительную сумму',
-    insufficientBalance: 'Недостаточно средств',
-    transferUnexpected: 'Перевод завершен, но формат ответа оказался неожиданным. Обновите страницу.',
-    networkErrorWithMessage: 'Ошибка сети: {message}',
-    serverErrorWithMessage: 'Ошибка сервера: {message}',
-    withdrawalExceedsBalance: 'Сумма вывода превышает доступный баланс.',
-    validSixDigitCode: 'Пожалуйста, введите корректный 6-значный код.',
-    withdrawalFailed: 'Не удалось выполнить вывод.',
-    invalidOrExpiredCode: 'Код недействителен или срок его действия истек.',
-    networkErrorTryAgain: 'Ошибка сети. Попробуйте еще раз.',
-    withdrawLoadingDescription: 'Проверяем ваш код и подготавливаем запрос на перевод.',
-    withdrawLoadingCodeCheck: 'Проверка кода',
-    withdrawLoadingSecureQueue: 'Безопасная очередь',
-    withdrawLoadingStatusUpdate: 'Обновление статуса'
+    addMoneyTitle: '╨ƒ╨╛╨┐╨╛╨╗╨╜╨╕╤é╤î ╤ü╤ç╨╡╤é',
+    addMoneySubtitle: '╨Æ╨╜╨╡╤ü╨╕╤é╨╡ ╤ü╤Ç╨╡╨┤╤ü╤é╨▓╨░ ╨╜╨░ ╤ü╨▓╨╛╨╣ ╤ü╤ç╨╡╤é',
+    enterAmount: '╨Æ╨▓╨╡╨┤╨╕╤é╨╡ ╤ü╤â╨╝╨╝╤â',
+    selectPaymentMethod: '╨Æ╤ï╨▒╨╡╤Ç╨╕╤é╨╡ ╤ü╨┐╨╛╤ü╨╛╨▒ ╨╛╨┐╨╗╨░╤é╤ï',
+    cardOption: '╨Ü╨░╤Ç╤é╨░',
+    bankTransferOption: '╨æ╨░╨╜╨║╨╛╨▓╤ü╨║╨╕╨╣ ╨┐╨╡╤Ç╨╡╨▓╨╛╨┤',
+    addMoneyButton: '╨ƒ╨╛╨┐╨╛╨╗╨╜╨╕╤é╤î ╤ü╤ç╨╡╤é',
+    cancelButton: '╨₧╤é╨╝╨╡╨╜╨░',
+    processing: '╨₧╨▒╤Ç╨░╨▒╨╛╤é╨║╨░...',
+    pleaseSelectPaymentMethod: '╨ƒ╨╛╨╢╨░╨╗╤â╨╣╤ü╤é╨░, ╨▓╤ï╨▒╨╡╤Ç╨╕╤é╨╡ ╤ü╨┐╨╛╤ü╨╛╨▒ ╨╛╨┐╨╗╨░╤é╤ï',
+    enterPositiveAmount: '╨Æ╨▓╨╡╨┤╨╕╤é╨╡ ╨║╨╛╤Ç╤Ç╨╡╨║╤é╨╜╤â╤Ä ╨┐╨╛╨╗╨╛╨╢╨╕╤é╨╡╨╗╤î╨╜╤â╤Ä ╤ü╤â╨╝╨╝╤â',
+    maxAmount: '╨£╨░╨║╤ü╨╕╨╝╨░╨╗╤î╨╜╨░╤Å ╤ü╤â╨╝╨╝╨░ ╨╖╨░ ╨╛╨┤╨╜╤â ╨╛╨┐╨╡╤Ç╨░╤å╨╕╤Ä ╤ü╨╛╤ü╤é╨░╨▓╨╗╤Å╨╡╤é $10,000',
+    validCardNumber: '╨ƒ╨╛╨╢╨░╨╗╤â╨╣╤ü╤é╨░, ╨▓╨▓╨╡╨┤╨╕╤é╨╡ ╨║╨╛╤Ç╤Ç╨╡╨║╤é╨╜╤ï╨╣ ╨╜╨╛╨╝╨╡╤Ç ╨║╨░╤Ç╤é╤ï',
+    validExpiryDate: '╨ƒ╨╛╨╢╨░╨╗╤â╨╣╤ü╤é╨░, ╨▓╨▓╨╡╨┤╨╕╤é╨╡ ╨║╨╛╤Ç╤Ç╨╡╨║╤é╨╜╤â╤Ä ╨┤╨░╤é╤â ╨╛╨║╨╛╨╜╤ç╨░╨╜╨╕╤Å (MM/YY)',
+    validCvv: '╨ƒ╨╛╨╢╨░╨╗╤â╨╣╤ü╤é╨░, ╨▓╨▓╨╡╨┤╨╕╤é╨╡ ╨║╨╛╤Ç╤Ç╨╡╨║╤é╨╜╤ï╨╣ CVV',
+    cardholderName: '╨ƒ╨╛╨╢╨░╨╗╤â╨╣╤ü╤é╨░, ╨▓╨▓╨╡╨┤╨╕╤é╨╡ ╨╕╨╝╤Å ╨▓╨╗╨░╨┤╨╡╨╗╤î╤å╨░ ╨║╨░╤Ç╤é╤ï',
+    moneyAddedSuccess: '╨í╤Ç╨╡╨┤╤ü╤é╨▓╨░ ╤â╤ü╨┐╨╡╤ê╨╜╨╛ ╨┤╨╛╨▒╨░╨▓╨╗╨╡╨╜╤ï',
+    networkError: '╨₧╤ê╨╕╨▒╨║╨░ ╤ü╨╡╤é╨╕',
+    securityTokenNotLoaded: '╨ó╨╛╨║╨╡╨╜ ╨▒╨╡╨╖╨╛╨┐╨░╤ü╨╜╨╛╤ü╤é╨╕ ╨╡╤ë╨╡ ╨╜╨╡ ╨╖╨░╨│╤Ç╤â╨╢╨╡╨╜. ╨ƒ╨╛╨┤╨╛╨╢╨┤╨╕╤é╨╡ ╨╜╨╡╨╝╨╜╨╛╨│╨╛ ╨╕ ╨┐╨╛╨┐╤Ç╨╛╨▒╤â╨╣╤é╨╡ ╤ü╨╜╨╛╨▓╨░.',
+    enterRecipientAndAmount: '╨Æ╨▓╨╡╨┤╨╕╤é╨╡ ╨┐╨╛╨╗╤â╤ç╨░╤é╨╡╨╗╤Å ╨╕ ╨║╨╛╤Ç╤Ç╨╡╨║╤é╨╜╤â╤Ä ╨┐╨╛╨╗╨╛╨╢╨╕╤é╨╡╨╗╤î╨╜╤â╤Ä ╤ü╤â╨╝╨╝╤â',
+    insufficientBalance: '╨¥╨╡╨┤╨╛╤ü╤é╨░╤é╨╛╤ç╨╜╨╛ ╤ü╤Ç╨╡╨┤╤ü╤é╨▓',
+    transferUnexpected: '╨ƒ╨╡╤Ç╨╡╨▓╨╛╨┤ ╨╖╨░╨▓╨╡╤Ç╤ê╨╡╨╜, ╨╜╨╛ ╤ä╨╛╤Ç╨╝╨░╤é ╨╛╤é╨▓╨╡╤é╨░ ╨╛╨║╨░╨╖╨░╨╗╤ü╤Å ╨╜╨╡╨╛╨╢╨╕╨┤╨░╨╜╨╜╤ï╨╝. ╨₧╨▒╨╜╨╛╨▓╨╕╤é╨╡ ╤ü╤é╤Ç╨░╨╜╨╕╤å╤â.',
+    networkErrorWithMessage: '╨₧╤ê╨╕╨▒╨║╨░ ╤ü╨╡╤é╨╕: {message}',
+    serverErrorWithMessage: '╨₧╤ê╨╕╨▒╨║╨░ ╤ü╨╡╤Ç╨▓╨╡╤Ç╨░: {message}',
+    withdrawalExceedsBalance: '╨í╤â╨╝╨╝╨░ ╨▓╤ï╨▓╨╛╨┤╨░ ╨┐╤Ç╨╡╨▓╤ï╤ê╨░╨╡╤é ╨┤╨╛╤ü╤é╤â╨┐╨╜╤ï╨╣ ╨▒╨░╨╗╨░╨╜╤ü.',
+    validSixDigitCode: '╨ƒ╨╛╨╢╨░╨╗╤â╨╣╤ü╤é╨░, ╨▓╨▓╨╡╨┤╨╕╤é╨╡ ╨║╨╛╤Ç╤Ç╨╡╨║╤é╨╜╤ï╨╣ 6-╨╖╨╜╨░╤ç╨╜╤ï╨╣ ╨║╨╛╨┤.',
+    withdrawalFailed: '╨¥╨╡ ╤â╨┤╨░╨╗╨╛╤ü╤î ╨▓╤ï╨┐╨╛╨╗╨╜╨╕╤é╤î ╨▓╤ï╨▓╨╛╨┤.',
+    invalidOrExpiredCode: '╨Ü╨╛╨┤ ╨╜╨╡╨┤╨╡╨╣╤ü╤é╨▓╨╕╤é╨╡╨╗╨╡╨╜ ╨╕╨╗╨╕ ╤ü╤Ç╨╛╨║ ╨╡╨│╨╛ ╨┤╨╡╨╣╤ü╤é╨▓╨╕╤Å ╨╕╤ü╤é╨╡╨║.',
+    networkErrorTryAgain: '╨₧╤ê╨╕╨▒╨║╨░ ╤ü╨╡╤é╨╕. ╨ƒ╨╛╨┐╤Ç╨╛╨▒╤â╨╣╤é╨╡ ╨╡╤ë╨╡ ╤Ç╨░╨╖.',
+    withdrawLoadingDescription: '╨ƒ╤Ç╨╛╨▓╨╡╤Ç╤Å╨╡╨╝ ╨▓╨░╤ê ╨║╨╛╨┤ ╨╕ ╨┐╨╛╨┤╨│╨╛╤é╨░╨▓╨╗╨╕╨▓╨░╨╡╨╝ ╨╖╨░╨┐╤Ç╨╛╤ü ╨╜╨░ ╨┐╨╡╤Ç╨╡╨▓╨╛╨┤.',
+    withdrawLoadingCodeCheck: '╨ƒ╤Ç╨╛╨▓╨╡╤Ç╨║╨░ ╨║╨╛╨┤╨░',
+    withdrawLoadingSecureQueue: '╨æ╨╡╨╖╨╛╨┐╨░╤ü╨╜╨░╤Å ╨╛╤ç╨╡╤Ç╨╡╨┤╤î',
+    withdrawLoadingStatusUpdate: '╨₧╨▒╨╜╨╛╨▓╨╗╨╡╨╜╨╕╨╡ ╤ü╤é╨░╤é╤â╤ü╨░'
   },
   nl: {
     addMoneyTitle: 'Geld toevoegen',
@@ -606,8 +548,8 @@ function localizeBankDynamicUi() {
   const paymentMethod = document.getElementById('payment-method');
   if (paymentMethod && paymentMethod.options.length >= 3) {
     paymentMethod.options[0].textContent = getBankUiText('selectPaymentMethod');
-    paymentMethod.options[1].textContent = `💳 ${getBankUiText('cardOption')}`;
-    paymentMethod.options[2].textContent = `🏦 ${getBankUiText('bankTransferOption')}`;
+    paymentMethod.options[1].textContent = `≡ƒÆ│ ${getBankUiText('cardOption')}`;
+    paymentMethod.options[2].textContent = `≡ƒÅª ${getBankUiText('bankTransferOption')}`;
   }
 
   const addMoneySubmit = document.getElementById('add-money-submit');
@@ -737,6 +679,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const withdrawalCodeInput = document.getElementById('withdrawal-code');
     const withdrawalCodeError = document.getElementById('withdrawal-code-error');
     const withdrawBankSelect = document.getElementById('withdraw-bank');
+    const requestWithdrawalCodeBtn = document.getElementById('request-withdrawal-code');
+    const withdrawRequestStatus = document.getElementById('withdraw-request-status');
+
+    function setWithdrawRequestStatus(message, isError) {
+      if (!withdrawRequestStatus) return;
+      if (!message) {
+        withdrawRequestStatus.style.display = 'none';
+        withdrawRequestStatus.textContent = '';
+        return;
+      }
+      withdrawRequestStatus.style.display = 'block';
+      withdrawRequestStatus.style.color = isError ? '#dc2626' : '#047857';
+      withdrawRequestStatus.textContent = message;
+    }
+
+    function setWithdrawalCodeRequested(requested) {
+      if (withdrawalCodeInput) withdrawalCodeInput.disabled = !requested;
+      if (withdrawCompleteBtn) withdrawCompleteBtn.disabled = !requested;
+    }
+
     // Populate bank accounts (simulate, replace with real data if needed)
     if (withdrawBankSelect) {
       fetch('api/bank_accounts.php', {credentials: 'same-origin'})
@@ -761,6 +723,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let withdrawDetails = {};
 
     if (withdrawForm && withdrawCodeForm) {
+      setWithdrawalCodeRequested(false);
+
       withdrawForm.addEventListener('submit', function(e) {
         e.preventDefault();
         // Save details for next step
@@ -781,16 +745,69 @@ document.addEventListener('DOMContentLoaded', function() {
             withdrawCodeForm.style.display = 'block';
             withdrawalCodeInput.value = '';
             withdrawalCodeError.style.display = 'none';
+            setWithdrawRequestStatus('', false);
+            setWithdrawalCodeRequested(false);
           });
       });
+      if (requestWithdrawalCodeBtn) {
+        requestWithdrawalCodeBtn.addEventListener('click', function() {
+          withdrawalCodeError.style.display = 'none';
+          if (!withdrawDetails.amount || !withdrawDetails.bank) {
+            setWithdrawRequestStatus(getBankUiText('requestWithdrawalCodeFirst'), true);
+            return;
+          }
+
+          requestWithdrawalCodeBtn.disabled = true;
+          requestWithdrawalCodeBtn.textContent = 'Sending...';
+          setWithdrawRequestStatus('', false);
+
+          fetch('api/withdrawal_codes.php', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              action: 'request',
+              amount: withdrawDetails.amount,
+              bank_account_id: withdrawDetails.bank
+            })
+          })
+          .then(async (response) => {
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+              throw data;
+            }
+            return data;
+          })
+          .then(() => {
+            setWithdrawalCodeRequested(true);
+            setWithdrawRequestStatus(getBankUiText('withdrawalCodeRequestPending'), false);
+            withdrawalCodeInput.focus();
+          })
+          .catch((error) => {
+            setWithdrawalCodeRequested(false);
+            setWithdrawRequestStatus(localizeBankMessage(error.error_code || error.error, 'withdrawalCodeRequestFailed'), true);
+          })
+          .finally(() => {
+            requestWithdrawalCodeBtn.disabled = false;
+            requestWithdrawalCodeBtn.textContent = getBankUiText('requestWithdrawalCodeButton');
+          });
+        });
+      }
       if (withdrawBackBtn) {
         withdrawBackBtn.addEventListener('click', function() {
           withdrawCodeForm.style.display = 'none';
           withdrawForm.style.display = 'block';
+          setWithdrawRequestStatus('', false);
+          setWithdrawalCodeRequested(false);
         });
       }
       withdrawCodeForm.addEventListener('submit', function(e) {
         e.preventDefault();
+        if (withdrawalCodeInput && withdrawalCodeInput.disabled) {
+          withdrawalCodeError.textContent = getBankUiText('requestWithdrawalCodeFirst');
+          withdrawalCodeError.style.display = 'block';
+          return;
+        }
         const code = withdrawalCodeInput.value.trim();
         withdrawalCodeError.style.display = 'none';
         // Show loading indicator
@@ -860,6 +877,8 @@ document.addEventListener('DOMContentLoaded', function() {
           withdrawModal.style.display = 'none';
           withdrawForm.style.display = 'block';
           withdrawCodeForm.style.display = 'none';
+          setWithdrawRequestStatus('', false);
+          setWithdrawalCodeRequested(false);
         });
       }
     }
@@ -904,7 +923,7 @@ document.addEventListener('DOMContentLoaded', function() {
         alertModal.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(2,8,23,0.85);backdrop-filter:blur(6px);z-index:10001;display:flex;align-items:center;justify-content:center;';
         alertModal.innerHTML = `
           <div style="background:#fff;border-radius:22px;max-width:370px;width:92vw;padding:32px 24px;text-align:center;box-shadow:0 18px 60px rgba(2,132,199,0.13);position:relative;">
-            <div style="font-size:44px;margin-bottom:12px;">💸</div>
+            <div style="font-size:44px;margin-bottom:12px;">≡ƒÆ╕</div>
             <h2 data-incoming-alert-title style="font-size:22px;font-weight:900;color:#0284c7;margin-bottom:8px;">${translateUi('incoming-money-title', "You've received money!")}</h2>
             <div data-incoming-alert-from style="font-size:16px;color:#334155;font-weight:700;margin-bottom:8px;">${translateUi('from-label', 'From')}: <span style='color:#0ea5e9'>${getDisplaySenderName(tx.sender_name, tx.sender_email)}</span></div>
             <div data-incoming-alert-email style="font-size:15px;color:#334155;font-weight:700;margin-bottom:8px;">${translateUi('sender-email-label', 'Sender Email')}: <span style='color:#0ea5e9'>${maskedEmail}</span></div>
@@ -1066,9 +1085,9 @@ function updateBalanceDisplay() {
   var rateEl = document.getElementById('account-balance-rate');
   if (!el || !valEl || !symbolEl || !codeEl || !rateEl) return;
   var symbolMap = {
-    USD: '$', GBP: '£', EUR: '€', CAD: 'C$', AUD: 'A$', JPY: '¥', CHF: 'Fr.',
-    CNY: '¥', INR: '₹', MXN: '$', BRL: 'R$', ZAR: 'R', SGD: 'S$', HKD: 'HK$',
-    KRW: '₩', TWD: 'NT$', THB: '฿', MYR: 'RM', IDR: 'Rp', PHP: '₱'
+    USD: '$', GBP: '┬ú', EUR: 'Γé¼', CAD: 'C$', AUD: 'A$', JPY: '┬Ñ', CHF: 'Fr.',
+    CNY: '┬Ñ', INR: 'Γé╣', MXN: '$', BRL: 'R$', ZAR: 'R', SGD: 'S$', HKD: 'HK$',
+    KRW: 'Γé⌐', TWD: 'NT$', THB: 'α╕┐', MYR: 'RM', IDR: 'Rp', PHP: 'Γé▒'
   };
   var symbol = symbolMap[state.currency] || '$';
   var rate = state.rates[state.currency] || 1.0;
@@ -1142,7 +1161,7 @@ document.addEventListener('DOMContentLoaded', function() {
           addMoneyModal.style.justifyContent = 'center';
           addMoneyModal.style.zIndex = '10000';
           let card = addMoneyModal.querySelector('.add-money-card');
-          let symbolMap = {USD: '$', GBP: '£', EUR: '€', CAD: 'C$', AUD: 'A$', JPY: '¥', CHF: 'Fr.', CNY: '¥', INR: '₹', MXN: '$', BRL: 'R$', ZAR: 'R', SGD: 'S$', HKD: 'HK$', KRW: '₩', TWD: 'NT$', THB: '฿', MYR: 'RM', IDR: 'Rp', PHP: '₱'};
+          let symbolMap = {USD: '$', GBP: '┬ú', EUR: 'Γé¼', CAD: 'C$', AUD: 'A$', JPY: '┬Ñ', CHF: 'Fr.', CNY: '┬Ñ', INR: 'Γé╣', MXN: '$', BRL: 'R$', ZAR: 'R', SGD: 'S$', HKD: 'HK$', KRW: 'Γé⌐', TWD: 'NT$', THB: 'α╕┐', MYR: 'RM', IDR: 'Rp', PHP: 'Γé▒'};
           let currency = (window.state && window.state.currency) ? window.state.currency : 'USD';
           let symbol = symbolMap[currency] || '$';
           if (!card) {
@@ -1152,7 +1171,7 @@ document.addEventListener('DOMContentLoaded', function() {
             card.innerHTML = `
               <div style=\"background:linear-gradient(135deg,#0284c7 0%,#38bdf8 100%);padding:36px 24px 24px 24px;text-align:center;position:relative;overflow:hidden;\">
                 <div style=\"position:absolute;top:-40px;left:-40px;width:120px;height:120px;background:radial-gradient(circle,rgba(255,255,255,0.18) 0%,transparent 80%);\"></div>
-                <div style=\"font-size:60px;margin-bottom:12px;\">💰</div>
+                <div style=\"font-size:60px;margin-bottom:12px;\">≡ƒÆ░</div>
                 <h2 id="add-money-title" style="font-size:clamp(24px,5vw,32px);font-weight:900;color:#fff;margin:0 0 8px 0;letter-spacing:-0.5px;text-shadow:0 4px 12px rgba(2,132,199,0.18);">${getBankUiText('addMoneyTitle')}</h2>
                 <div id="add-money-subtitle" style="color:#bae6fd;font-size:clamp(13px,3vw,15px);font-weight:500;">${getBankUiText('addMoneySubtitle')}</div>
               </div>
@@ -1164,8 +1183,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <select id=\"payment-method\" name=\"payment_method\" required style=\"width:100%;padding:14px 18px;border-radius:12px;border:2px solid #bae6fd;font-size:16px;font-weight:700;text-align:center;background:#f0f9ff;\">
                   <option value="">${getBankUiText('selectPaymentMethod')}</option>
-                  <option value="card">💳 ${getBankUiText('cardOption')}</option>
-                  <option value="bank">🏦 ${getBankUiText('bankTransferOption')}</option>
+                  <option value="card">≡ƒÆ│ ${getBankUiText('cardOption')}</option>
+                  <option value="bank">≡ƒÅª ${getBankUiText('bankTransferOption')}</option>
                 </select>
                 <button id="add-money-submit" type="submit" style="padding:14px;background:linear-gradient(135deg,#0284c7 0%,#38bdf8 100%);color:#fff;border:none;border-radius:14px;font-size:clamp(14px,3.5vw,15px);font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(2,132,199,0.3);transition:all 0.3s ease;min-height:48px">${getBankUiText('addMoneyButton')}</button>
                 <button id="cancel-add-money" type="button" style="padding:14px;background:#f3f4f6;color:#374151;border:none;border-radius:14px;font-size:clamp(14px,3.5vw,15px);font-weight:800;cursor:pointer;transition:all 0.3s ease;min-height:48px">${getBankUiText('cancelButton')}</button>
@@ -1348,21 +1367,21 @@ document.addEventListener('DOMContentLoaded', function() {
           <div id="send-receipt-card" style="background:linear-gradient(135deg,#f0f9ff 0%,#fff 100%);border-radius:32px;padding:0;max-width:440px;width:95vw;box-shadow:0 40px 100px rgba(2,132,199,0.18),0 0 0 1px rgba(2,132,199,0.08);overflow:hidden;position:relative;">
             <div style="background:linear-gradient(135deg,#0284c7 0%,#38bdf8 100%);padding:36px 24px 24px 24px;text-align:center;position:relative;overflow:hidden;">
               <div style="position:absolute;top:-40px;left:-40px;width:120px;height:120px;background:radial-gradient(circle,rgba(255,255,255,0.18) 0%,transparent 80%);"></div>
-              <div style="font-size:60px;margin-bottom:12px;">🎉</div>
+              <div style="font-size:60px;margin-bottom:12px;">≡ƒÄë</div>
               <h2 style="font-size:clamp(24px,5vw,32px);font-weight:900;color:#fff;margin:0 0 8px 0;letter-spacing:-0.5px;text-shadow:0 4px 12px rgba(2,132,199,0.18);">${translateUi('transfer-successful-title', 'Transfer Successful!')}</h2>
               <div style="color:#bae6fd;font-size:clamp(13px,3vw,15px);font-weight:500;">${translateUi('payment-processed', 'Your payment has been processed')}</div>
             </div>
             <div style="padding:clamp(24px,5vw,36px);position:relative;">
               <div style="background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);border-radius:20px;border:2px solid #86efac;box-shadow:0 8px 32px rgba(134,239,172,0.12);padding:20px 0 12px 0;margin-bottom:24px;">
-                <div style="color:#166534;font-size:clamp(12px,2.8vw,14px);font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">💰 ${translateUi('amount-sent-label', 'Amount Sent')}</div>
+                <div style="color:#166534;font-size:clamp(12px,2.8vw,14px);font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">≡ƒÆ░ ${translateUi('amount-sent-label', 'Amount Sent')}</div>
                 <div style="color:#166534;font-weight:900;font-size:clamp(38px,9vw,48px);letter-spacing:-2px;text-shadow:0 2px 4px rgba(22,101,52,0.1);margin-bottom:8px">$${parseFloat(amount).toFixed(2)}</div>
               </div>
-              <div style="margin-bottom:8px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">👤 <span>${translateUi('sender-label', 'Sender')}:</span> <span style="font-weight:700">${senderName}</span></div>
-              <div style="margin-bottom:18px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">📤 <span>${translateUi('to-label', 'To')}:</span> <span style="font-weight:700">${recipient}</span></div>
-              <div style="margin-bottom:8px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">📅 <span>${translateUi('date-label', 'Date')}:</span> <span style="font-weight:700">${currentDate}</span></div>
-              <div style="margin-bottom:8px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">⏰ <span>${translateUi('time-label', 'Time')}:</span> <span style="font-weight:700">${currentTime}</span></div>
-              <div style="margin-bottom:18px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">🆔 <span>${translateUi('transaction-id-label', 'Transaction ID')}:</span> <span style="font-weight:700">${transactionId}</span></div>
-              <div style="margin-bottom:18px;font-size:15px;color:#22c55e;font-weight:700;text-align:center;">✅ ${translateUi('status-label', 'Status')}: ${translateUi('status-completed', 'Completed')}</div>
+              <div style="margin-bottom:8px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">≡ƒæñ <span>${translateUi('sender-label', 'Sender')}:</span> <span style="font-weight:700">${senderName}</span></div>
+              <div style="margin-bottom:18px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">≡ƒôñ <span>${translateUi('to-label', 'To')}:</span> <span style="font-weight:700">${recipient}</span></div>
+              <div style="margin-bottom:8px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">≡ƒôà <span>${translateUi('date-label', 'Date')}:</span> <span style="font-weight:700">${currentDate}</span></div>
+              <div style="margin-bottom:8px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">ΓÅ░ <span>${translateUi('time-label', 'Time')}:</span> <span style="font-weight:700">${currentTime}</span></div>
+              <div style="margin-bottom:18px;font-size:15px;color:#374151;display:flex;align-items:center;gap:8px;justify-content:center;">≡ƒåö <span>${translateUi('transaction-id-label', 'Transaction ID')}:</span> <span style="font-weight:700">${transactionId}</span></div>
+              <div style="margin-bottom:18px;font-size:15px;color:#22c55e;font-weight:700;text-align:center;">Γ£à ${translateUi('status-label', 'Status')}: ${translateUi('status-completed', 'Completed')}</div>
               <div style="margin-bottom:18px;font-size:13px;color:#64748b;text-align:center;">${translateUi('sent-via-wallet', 'Sent via Mivonta')}</div>
               <div style="display:flex;gap:12px;justify-content:center;margin-top:24px;">
                 <button id="share-send-receipt-btn" style="flex:1;padding:14px;background:linear-gradient(135deg,#f59e42 0%,#fbbf24 100%);color:#fff;border:none;border-radius:14px;font-size:clamp(14px,3.5vw,15px);font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(251,191,36,0.3);display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.3s ease;min-height:48px">
@@ -1504,7 +1523,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Only update the label, keep the emoji and bank name
         var parts = bankNameDiv.textContent.split(' ');
         if (parts.length > 1) {
-          bankNameDiv.innerHTML = '🏦 ' + parts.slice(1).join(' ');
+          bankNameDiv.innerHTML = '≡ƒÅª ' + parts.slice(1).join(' ');
         }
       }
       // Optionally update other fields if needed
@@ -1600,7 +1619,7 @@ document.addEventListener('DOMContentLoaded', function() {
     '<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' +
     '</div>' +
     '<h2 style="font-size:clamp(28px,6vw,36px);font-weight:900;color:#fff;margin:0 0 8px 0;letter-spacing:-0.5px;text-shadow:0 4px 12px rgba(0,0,0,0.2);animation:slideInFromTop 0.6s ease 0.3s both">' + translateUi('transfer-successful-title', 'Transfer Successful!') + '</h2>' +
-    '<p style="font-size:clamp(14px,3.5vw,16px);color:rgba(255,255,255,0.95);margin:0;font-weight:500;animation:slideInFromTop 0.6s ease 0.4s both">🎉 ' + translateUi('payment-processed', 'Your payment has been processed') + '</p>' +
+    '<p style="font-size:clamp(14px,3.5vw,16px);color:rgba(255,255,255,0.95);margin:0;font-weight:500;animation:slideInFromTop 0.6s ease 0.4s both">≡ƒÄë ' + translateUi('payment-processed', 'Your payment has been processed') + '</p>' +
     '</div>' +
     
     // Main content
@@ -1609,7 +1628,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Amount display - Enhanced with animation
     '<div style="text-align:center;margin-bottom:28px;padding:24px;background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);border-radius:20px;border:2px solid #86efac;box-shadow:0 8px 32px rgba(134,239,172,0.2);position:relative;overflow:hidden">' +
     '<div style="position:absolute;top:0;left:0;right:0;height:100%;background:linear-gradient(45deg,transparent 48%,rgba(255,255,255,0.5) 50%,transparent 52%);background-size:200% 200%;animation:shimmer 3s linear infinite"></div>' +
-    '<div style="color:#166534;font-size:clamp(12px,2.8vw,14px);font-weight:700;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px">💸 ' + translateUi('amount-sent-label', 'Amount Sent') + '</div>' +
+    '<div style="color:#166534;font-size:clamp(12px,2.8vw,14px);font-weight:700;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px">≡ƒÆ╕ ' + translateUi('amount-sent-label', 'Amount Sent') + '</div>' +
     '<div style="color:#166534;font-weight:900;font-size:clamp(38px,9vw,48px);letter-spacing:-2px;text-shadow:0 2px 4px rgba(22,101,52,0.1);margin-bottom:8px">$' + parseFloat(amount).toFixed(2) + '</div>' +
     '<div style="display:inline-flex;align-items:center;gap:6px;background:rgba(22,101,52,0.15);padding:6px 16px;border-radius:20px;font-size:clamp(11px,2.5vw,13px);color:#166534;font-weight:700">' +
     '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>' +
@@ -1689,7 +1708,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Footer text
     '<div style="text-align:center;padding-top:16px;border-top:1px solid #e2e8f0">' +
-    '<p style="color:#94a3b8;font-size:clamp(11px,2.5vw,12px);margin:0;font-weight:500">🔒 ' + translateUi('transaction-secure', 'This transaction is secure and encrypted') + '</p>' +
+    '<p style="color:#94a3b8;font-size:clamp(11px,2.5vw,12px);margin:0;font-weight:500">≡ƒöÆ ' + translateUi('transaction-secure', 'This transaction is secure and encrypted') + '</p>' +
     '</div>' +
     
     '</div>';
@@ -1704,7 +1723,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const shareBtn = document.getElementById('share-receipt-btn');
   if (shareBtn) {
     shareBtn.addEventListener('click', function() {
-      const receiptText = `🎉 ${translateUi('transfer-successful-title', 'Transfer Successful!')}\n\n💰 ${translateUi('amount-label', 'Amount')}: $${parseFloat(amount).toFixed(2)}\n📤 ${translateUi('to-label', 'To')}: ${recipient}\n📅 ${translateUi('date-label', 'Date')}: ${currentDate}\n⏰ ${translateUi('time-label', 'Time')}: ${currentTime}\n🆔 ${translateUi('transaction-id-label', 'Transaction ID')}: ${transactionId}\n\n✅ ${translateUi('status-label', 'Status')}: ${translateUi('status-completed', 'Completed')}\n\n${translateUi('sent-via-wallet', 'Sent via Mivonta')}`;
+      const receiptText = `≡ƒÄë ${translateUi('transfer-successful-title', 'Transfer Successful!')}\n\n≡ƒÆ░ ${translateUi('amount-label', 'Amount')}: $${parseFloat(amount).toFixed(2)}\n≡ƒôñ ${translateUi('to-label', 'To')}: ${recipient}\n≡ƒôà ${translateUi('date-label', 'Date')}: ${currentDate}\nΓÅ░ ${translateUi('time-label', 'Time')}: ${currentTime}\n≡ƒåö ${translateUi('transaction-id-label', 'Transaction ID')}: ${transactionId}\n\nΓ£à ${translateUi('status-label', 'Status')}: ${translateUi('status-completed', 'Completed')}\n\n${translateUi('sent-via-wallet', 'Sent via Mivonta')}`;
       if (navigator.share) {
         navigator.share({
           title: translateUi('payment-receipt', 'Payment Receipt'),
